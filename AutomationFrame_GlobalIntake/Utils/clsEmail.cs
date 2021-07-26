@@ -31,7 +31,6 @@ namespace AutomationFrame_GlobalIntake.Utils
             strContentBody = "";
         }
 
-
         public void fnSendSimpleEmail()
         {
             MailMessage mail = new MailMessage();

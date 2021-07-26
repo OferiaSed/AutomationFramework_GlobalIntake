@@ -55,6 +55,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 {
                     //Enter Credentails
                     fnLogOffSession();
+                    if (clsMG.IsElementPresent("//button[@id='cookie-accept']")) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
                     fnEnterCredentails(objData.fnGetValue("User", ""), objData.fnGetValue("Password", ""));
                     if (clsMG.IsElementPresent("//h3[text()='Multifactor Authentication']"))
                     {
@@ -420,7 +421,6 @@ namespace AutomationFrame_GlobalIntake.POM
         private void fnEnterCredentails(string pstrUser, string pstrPassword)
         {
             //Enter Credentials and click on Begin
-            if (clsMG.IsElementPresent("//button[@id='cookie-accept']")) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
             clsMG.fnCleanAndEnterText("Username", "//input[@id='orangeForm-name']", pstrUser, false, false, "", false);
             clsMG.fnCleanAndEnterText("Password", "//input[@id='orangeForm-pass']", pstrPassword, false, false, "", false);
             clsWE.fnClick(clsWE.fnGetWe("//button[text()='BEGIN']"), "Begin", false);

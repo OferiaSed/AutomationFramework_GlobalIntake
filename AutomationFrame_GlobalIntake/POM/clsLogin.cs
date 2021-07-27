@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
+using OpenQA.Selenium.Support.UI;
 
 namespace AutomationFrame_GlobalIntake.POM
 {
@@ -379,16 +379,37 @@ namespace AutomationFrame_GlobalIntake.POM
                             Thread.Sleep(TimeSpan.FromMinutes(1));
                             if (clsMG.IsElementPresent("//div[@id='modalSessionNotification' and contains(@style, 'display: block;')]//p[contains(text(), 'Your Session is about to expire ')]")) { bFound = true; }
                         }
-                        while (!bFound && intCount <= 20); ;
+                        while (!bFound && intCount <= 20);
+                        
+                        //Wait to finish finished the execution
+                        int intLogOff = 0;
+                        bool blEndedSession = false;
+                        while (clsMG.IsElementPresent("//span[text()='You are currently logged into ']") && intLogOff <= 4) 
+                        {
+                            Thread.Sleep(TimeSpan.FromMinutes(1));
+                            intLogOff++;
+                            if (!clsMG.IsElementPresent("//span[text()='You are currently logged into ']")) { blEndedSession = true; }
+                        }
+                        
                         //Report Log
                         if (bFound)
                         {
                             clsReportResult.fnLog("Timeout session", "The timeout session label was displayed successfully for user role: " + objData.fnGetValue("Role", "") + " after " + intCount.ToString() + " minutes.", "Pass", true, false);
-                            clsReportResult.fnLog("Timeout session", "The timeout session label was displayed successfully for user role: ", "Pass", true, false);
                         }
                         else
                         {
                             clsReportResult.fnLog("Timeout session", "The timeout session label was not displayed for user role: " + objData.fnGetValue("Role", "") + " after " + intCount.ToString() + " minutes.", "Fail", true, false);
+                            blResult = false;
+                        }
+
+                        //Report Log
+                        if (blEndedSession)
+                        {
+                            clsReportResult.fnLog("Timeout session", "The timeout session was finished and reload to login page.", "Pass", true, false);
+                        }
+                        else
+                        {
+                            clsReportResult.fnLog("Timeout session", "The timeout session was not finished as expected.", "Fail", true, false);
                             blResult = false;
                         }
                     }
@@ -442,6 +463,10 @@ namespace AutomationFrame_GlobalIntake.POM
             //Verify is there is an active session
             if (clsMG.IsElementPresent("//span[text()='You are currently logged into ']"))
             {
+                while (clsMG.IsElementPresent("//div[@class='md-toast md-toast-success']") || clsMG.IsElementPresent("//div[@class='md-toast md-toast-error']"))
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(2));
+                }
                 clsWE.fnClick(clsWE.fnGetWe("//li[@class='nav-item m-menuitem-show']/a[@id='topmenu-logout']"), "Logout Link", false, false);
                 clsWE.fnPageLoad(clsWE.fnGetWe("//button[text()='BEGIN']"), "Login", false, false);
                 clsReportResult.fnLog("Logout Session", "An active session was terminated", "Info", false, false);

@@ -13,6 +13,7 @@ namespace AutomationFrame_GlobalIntake.POM
     {
         private clsWebElements clsWE = new clsWebElements();
         private clsMegaIntake clsMG = new clsMegaIntake();
+        private clsLogin clsLN = new clsLogin();
 
         public bool fnUserMagmtWebUser(string pstrSetNo)
         {
@@ -98,6 +99,61 @@ namespace AutomationFrame_GlobalIntake.POM
                                 blResult = false;
                             }
                             break;
+                        case "DISABLE":
+                            if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
+                            {
+                                clsWE.fnClick(clsWE.fnGetWe("//span[contains(text(), 'Disable')]"), "Disable User", false);
+                                if (clsWE.fnElementExist("Success Message", "//div[@class='md-toast md-toast-success']", false))
+                                { clsReportResult.fnLog("User Management", "The user was disabled successfully.", "Info", true); }
+                                else
+                                {
+                                    clsReportResult.fnLog("User Management", "An error message was identified after disable the user.", "Fail", true);
+                                    blResult = false;
+                                }
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("User Management", "The user cannot be disable since Edit Page was not loaded.", "Fail", true);
+                                blResult = false;
+                            }
+                            break;
+                        case "VALID RESET PASSWORD":
+                            if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
+                            {
+                                clsWE.fnClick(clsWE.fnGetWe("//button[contains(@data-bind, 'resetPassword')]"), "Reset Password", false);
+                                if (clsWE.fnElementExist("Error Message", "//div[@class='md-toast md-toast-success']", false))
+                                { clsReportResult.fnLog("User Management", "The pop up message is displayed after trying to reset user password.", "Info", true); }
+                                else
+                                {
+                                    clsReportResult.fnLog("User Management", "The pop up message is not displayed after trying to reset user password.", "Fail", true);
+                                    blResult = false;
+                                }
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("User Management", "Edit user is not found on page.", "Fail", true);
+                                blResult = false;
+                            }
+                            break;
+
+                        case "INVALID RESET PASSWORD":
+                            if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
+                            {
+                                clsWE.fnClick(clsWE.fnGetWe("//button[contains(@data-bind, 'resetPassword')]"), "Reset Password", false);
+                                if (clsWE.fnElementExist("Error Message", "//div[@class='md-toast md-toast-error']", false))
+                                { clsReportResult.fnLog("User Management", "The pop up message is displayed after trying to reset user password.", "Info", true); }
+                                else
+                                {
+                                    clsReportResult.fnLog("User Management", "The pop up message is not displayed after trying to reset user password.", "Fail", true);
+                                    blResult = false;
+                                }
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("User Management", "Edit user is not found on page.", "Fail", true);
+                                blResult = false;
+                            }
+                            break;
                     }
                     Thread.Sleep(TimeSpan.FromSeconds(3));
                 }
@@ -106,6 +162,7 @@ namespace AutomationFrame_GlobalIntake.POM
             { clsReportResult.fnLog("User Management", "The User Management Function was executed successfully.", "Pass", true); }
             else
             { clsReportResult.fnLog("User Management", "The User Management Function was not executed successfully.", "Fail", true); }
+            clsLN.fnLogOffSession();
 
             return blResult;
         }

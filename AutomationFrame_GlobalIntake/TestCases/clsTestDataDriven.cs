@@ -44,6 +44,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
             clsLogin clsLogin = new clsLogin();
             clsData objData = new clsData();
             clsUserManagment clsUM = new clsUserManagment();
+            clsIntakeFlow clsIntake = new clsIntakeFlow();
 
 
             objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], ConfigurationManager.AppSettings["Sheet"]);
@@ -83,6 +84,9 @@ namespace AutomationFrame_GlobalIntake.TestCases
                                 break;
                             case "USERMANAGEMENT":
                                 blStatus = clsUM.fnUserMagmtWebUser(TempValue);
+                                break;
+                            case "ACCOUNTUNITSECURITY":
+                                blStatus = clsIntake.fnAccountUnitSecurityVerification(TempValue);
                                 break;
                             default:
                                 break;

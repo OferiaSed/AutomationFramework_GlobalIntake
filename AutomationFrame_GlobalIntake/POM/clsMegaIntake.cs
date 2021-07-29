@@ -92,10 +92,10 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
-        public bool fnSelectDropDownWElm(string pstrElement, string pstrWebElement, string pstrValue, bool pblScreenShot = false, bool pblHardStop = false, string pstrHardStopMsg = "")
+        public bool fnSelectDropDownWElm(string pstrElement, string pstrWebElement, string pstrValue, bool pblScreenShot = false, bool pblHardStop = false, string pstrHardStopMsg = "", bool bWaitHeader = true)
         {
             clsWebElements clsWE = new clsWebElements();
-            bool blResult = false;
+            bool blResult = true;
             IWebElement objDropDownContent;
             IList<IWebElement> objOptions;
 
@@ -107,7 +107,6 @@ namespace AutomationFrame_GlobalIntake.POM
                     IWebElement objDropDown = clsWebBrowser.objDriver.FindElement(By.XPath(pstrWebElement));
                     objDropDown.Click();
                     Thread.Sleep(1000);
-                    //Thread.Sleep(1500);
 
                     if (IsElementPresent("//span[@class='select2-results']"))
                     {
@@ -133,13 +132,14 @@ namespace AutomationFrame_GlobalIntake.POM
                         }
                     }
 
-                    if (IsElementPresent("//span[@data-bind='text: headerClientName']"))
+                    if (bWaitHeader) 
                     {
-                        objDropDown = clsWebBrowser.objDriver.FindElement(By.XPath("//span[@data-bind='text: headerClientName']"));
-                        Thread.Sleep(1000);
-                        //Thread.Sleep(1500);
-                        objDropDown.Click();
-                        //Thread.Sleep(1000);
+                        if (IsElementPresent("//span[@data-bind='text: headerClientName']"))
+                        {
+                            objDropDown = clsWebBrowser.objDriver.FindElement(By.XPath("//span[@data-bind='text: headerClientName']"));
+                            Thread.Sleep(1000);
+                            objDropDown.Click();
+                        }
                     }
                 }
             }
@@ -150,15 +150,18 @@ namespace AutomationFrame_GlobalIntake.POM
                 //Console.WriteLine("DropDown is not working for: " + pstrWebElement + " an exception was found: " + objException.Message);
                 //clsReportResult.fnLog("DropdownSelectFail", "DropDown is not working for: " + pstrWebElement + " with value: " + pstrValue, "Fail", pblScreenShot, pblHardStop);
             }
-            if (blResult)
+            if (pstrElement != "" && pstrValue != "") 
             {
-                clsReportResult.fnLog("SelectListPass", "Select Dropdown for element: " + pstrElement + " was done successfully.", "Pass", pblScreenShot);
-            }
-            else
-            {
-                blResult = false;
-                clsReportResult.fnLog("SelectListFail", "Select Dropdown for element: " + pstrElement + " has failed with value: " + pstrValue + " and locator " + pstrWebElement, "Fail", pblScreenShot);
-                //clsReportResult.fnLog("DropdownSelectFail", "DropDown is not working for: " + pstrElement + " with value: " + pstrValue + " and locator: " + pstrWebElement, "Fail", pblScreenShot, pblHardStop); 
+                if (blResult && pstrElement != "" && pstrValue != "")
+                {
+                    clsReportResult.fnLog("SelectListPass", "Select Dropdown for element: " + pstrElement + " was done successfully.", "Pass", pblScreenShot);
+                }
+                else
+                {
+                    blResult = false;
+                    clsReportResult.fnLog("SelectListFail", "Select Dropdown for element: " + pstrElement + " has failed with value: " + pstrValue + " and locator " + pstrWebElement, "Fail", pblScreenShot);
+                    //clsReportResult.fnLog("DropdownSelectFail", "DropDown is not working for: " + pstrElement + " with value: " + pstrValue + " and locator: " + pstrWebElement, "Fail", pblScreenShot, pblHardStop); 
+                }
             }
 
             return blResult;

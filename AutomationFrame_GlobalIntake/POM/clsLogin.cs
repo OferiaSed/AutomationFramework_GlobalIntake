@@ -28,7 +28,8 @@ namespace AutomationFrame_GlobalIntake.POM
                 objData.CurrentRow = intRow;
                 if (objData.fnGetValue("Set", "") == pstrSetNo)
                 {
-                    clsReportResult.fnLog("Login Function", "The Login Functions Starts.", "Info", false);
+                    clsReportResult.fnLog("Login Function", "<<<<<<<<<< The Login Functions Starts. >>>>>>>>>>", "Info", false);
+                    fnLogOffSession();
                     clsWE.fnPageLoad(clsWE.fnGetWe("//button[text()='BEGIN']"), "Login", false, true);
                     if (clsMG.IsElementPresent("//button[@id='cookie-accept']")) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
                     fnEnterCredentails(objData.fnGetValue("User", ""), objData.fnGetValue("Password", ""));

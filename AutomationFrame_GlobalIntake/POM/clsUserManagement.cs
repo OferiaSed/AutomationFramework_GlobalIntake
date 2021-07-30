@@ -84,7 +84,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         case "SAVE":
                             if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
                             {
-                                clsWE.fnClick(clsWE.fnGetWe("//button[contains(@data-bind, 'saveChanges')]"), "Save Record", false);
+                                clsWE.fnClick(clsWE.fnGetWe("//button[contains(@data-bind, 'onSaveChanges')]"), "Save Record", false);
                                 if (clsWE.fnElementExist("Success Message", "//div[@class='md-toast md-toast-success']", false))
                                 { clsReportResult.fnLog("User Management", "The changes was saved successfully.", "Info", true); }
                                 else

@@ -230,6 +230,7 @@ namespace AutomationFrame_GlobalIntake.POM
                     }
                 }
             }
+            clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(ConfigurationManager.AppSettings["Env"]));
             if (blResult)
             { clsReportResult.fnLog("Forgot Password", "The Forgot Password Function was executed successfully", "Pass", false, false); }
             else
@@ -345,6 +346,7 @@ namespace AutomationFrame_GlobalIntake.POM
                     }
                 }
             }
+            clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(ConfigurationManager.AppSettings["Env"]));
             if (blResult)
             { clsReportResult.fnLog("Forgot Username", "The Forgot Username function was executed successfully.", "Pass", false, false); }
             else

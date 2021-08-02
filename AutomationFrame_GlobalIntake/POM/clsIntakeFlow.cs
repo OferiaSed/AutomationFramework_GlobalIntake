@@ -371,6 +371,53 @@ namespace AutomationFrame_GlobalIntake.POM
         }
 
 
+        public bool fnTrainingMode(string pstrSetNo) 
+        {
+            bool blResult = true;
+            clsData objData = new clsData();
+            clsReportResult.fnLog("Two Factor Authentication", "Two Factor Authentication Function Starts.", "Info", false);
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == pstrSetNo)
+                {
+
+                }
+            }
+            return blResult;
+        }
+
+
+        public bool fnCreateClaim(string pstrSetNo)
+        {
+            bool blResult = true;
+            clsData objData = new clsData();
+            clsReportResult.fnLog("Create Standard Claim", "Create Standard Claim.", "Info", false);
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "ClaimInfo");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == pstrSetNo)
+                {
+
+                    //Go to Select Intake
+                    if (fnSelectIntake(objData.fnGetValue("ClientNo", ""), objData.fnGetValue("ClientName", "")))
+                    { 
+
+                    }
+                    else 
+                    {
+                        blResult = false;
+                    }
+
+
+
+
+                }
+            }
+            return blResult;
+        }
 
 
     }

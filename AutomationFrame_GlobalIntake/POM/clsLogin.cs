@@ -109,109 +109,6 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Forgot Password", "<<<<<<<<<< Forfot Password Function Starts. >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
-            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
-            {
-                objData.CurrentRow = intRow;
-                if (objData.fnGetValue("Set", "") == pstrSetNo)
-                {
-                    //Verify if "Forgot Password" link exist
-                    fnLogOffSession();
-                    clsWE.fnPageLoad(clsWE.fnGetWe("//button[text()='BEGIN']"), "Login", false, false);
-                    //if (clsWE.fnElementExist("Accept Cookies Message", "//button[@id='cookie-accept']", true)) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
-                    if (clsMG.IsElementPresent("//button[@id='cookie-accept']")) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
-                    if (clsWE.fnElementExist("Forgot Password Link", "//a[text()='Forgot Your Password?']", false))
-                    {
-                        //verify that link is working and error messages displayed.
-                        clsWE.fnClick(clsWE.fnGetWe("//a[text()='Forgot Your Password?']"), "Forgot Password", false);
-                        if (clsMG.IsElementPresent("//button[@id='cookie-accept']")) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
-                        if (clsWE.fnElementExist("Forgot Password Page", "//h3[text()='Forgot Password']", false))
-                        {
-                            //Verify Required Fields
-                            clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit Button", false);
-                            if (clsWE.fnElementExist("The Username/Captcha field is required.", "//div[@class='invalid-feedback']", false))
-                            {
-                                //Enter username/captcha
-                                clsReportResult.fnLog("Forgot Password", "The required field messages are displayed as expected.", "info", true, true);
-                                clsMG.fnCleanAndEnterText("Username*", "//input[@id='uname']", objData.fnGetValue("User", ""), true, false);
-                                do { Thread.Sleep(TimeSpan.FromSeconds(10)); }
-                                while (clsWE.fnGetAttribute(clsWE.fnGetWe("//input[@id='captcha-input']"), "Captcha", "value", false, false) == "");
-                                clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit", false);
-                                //Verify that email is received to change the password
-                                //string strURLReset = fnForgotPasswordURL();
-                                string strURLReset = fnReadEmailConfirmation(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "reset your password", "your browser: ", "---", "your browser: ", "</span>");
-                                if (strURLReset != "")
-                                {
-                                    clsWebBrowser.objDriver.Navigate().GoToUrl(strURLReset);
-                                    //Enter New Password and save it
-                                    string strNewPass = RandomString(8);
-                                    clsMG.fnCleanAndEnterText("New Password", "//input[@id='new-pwd']", strNewPass, false, false);
-                                    clsMG.fnCleanAndEnterText("Confirm New Password", "//input[@id='new-pwd-v']", strNewPass, false, false);
-                                    clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit", true);
-                                    //Verify that password was changes successfully
-                                    if (clsWE.fnElementExist("Your password has been successfully changed", "//div[contains(text(), 'Your password has been successfully')]", false))
-                                    {
-                                        //Save the claim
-                                        clsData objSaveData = new clsData();
-                                        objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "LogInData", "Password", intRow, strNewPass);
-
-                                        //Verify email confirmation for password reset
-                                        if (fnReadTextEmail(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "password for your account was changed"))
-                                        {
-                                            clsReportResult.fnLog("Forgot Password", "The Password Change Confirmation email was received as expected.", "info", false, false);
-                                        }
-                                        else
-                                        {
-                                            clsReportResult.fnLog("Forgot Password", "The Password Change Confirmation email was not received.", "Fail", false, true);
-                                            blResult = false;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        clsReportResult.fnLog("Forgot Password", "The new password was not entered successfully.", "Fail", true, true);
-                                        blResult = false;
-                                    }
-                                }
-                                else
-                                {
-                                    clsReportResult.fnLog("Forgot Password", "The email/url was not received to reset the password.", "Fail", false, true);
-                                    blResult = false;
-                                }
-                            }
-                            else
-                            {
-                                clsReportResult.fnLog("Forgot Password", "The invalid messages for Username/Captcha are not displayed.", "Fail", true, true);
-                                blResult = false;
-                            }
-                        }
-                        else
-                        {
-                            clsReportResult.fnLog("Forgot Password", "The Forgot Password Page was not loaded after click on the link.", "Fail", true, true);
-                            blResult = false;
-                        }
-                    }
-                    else
-                    {
-                        clsReportResult.fnLog("Forgot Password", "The forgot password link was not found in hte page.", "Fail", true, true);
-                        blResult = false;
-                    }
-                }
-            }
-            if (blResult)
-            { clsReportResult.fnLog("Forgot Password", "The Forgot Password Function was executed successfully", "Pass", false, false); }
-            else
-            { clsReportResult.fnLog("Forgot Password", "The Forgot Password Function was executed not successfully", "Fail", false, false); }
-            clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv((objData.fnGetValue("Environment", ""))));
-            return blResult;
-        }
-
-
-
-        public bool fnForgotPasswordVerification2(string pstrSetNo)
-        {
-            bool blResult = true;
-            clsData objData = new clsData();
-            clsReportResult.fnLog("Forgot Password", "<<<<<<<<<< Forfot Password Function Starts. >>>>>>>>>>", "Info", false);
             objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "ForgotData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
@@ -340,17 +237,13 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
-
-
-
-
         public bool fnForgotUsernameVerification(string pstrSetNo)
         {
             bool blResult = true;
             clsData objData = new clsData();
             string strUsername = "";
             clsReportResult.fnLog("Forgot Username", "<<<<<<<<<< Two Forgot Username Function Starts. >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "ForgotData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -358,8 +251,9 @@ namespace AutomationFrame_GlobalIntake.POM
                 {
                     //Verify if "Forgot Password" link exist
                     fnLogOffSession();
+                    if (!clsMG.IsElementPresent("//button[text()='BEGIN']"))
+                    { clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(ConfigurationManager.AppSettings["Env"])); }
                     clsWE.fnPageLoad(clsWE.fnGetWe("//button[text()='BEGIN']"), "Login", false, false);
-                    //if (clsWE.fnElementExist("Accept Cookies Message", "//button[@id='cookie-accept']", true)) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
                     if (clsMG.IsElementPresent("//button[@id='cookie-accept']")) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
                     if (clsWE.fnElementExist("Forgot Password Link", "//a[text()='Forgot Username?']", false))
                     {
@@ -369,41 +263,74 @@ namespace AutomationFrame_GlobalIntake.POM
                         if (clsMG.IsElementPresent("//button[@id='cookie-accept']")) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
                         if (clsWE.fnElementExist("Forgot Username Page", "//h3[text()='Forgot Username']", false))
                         {
-                            clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit Button", false);
-                            if (clsWE.fnElementExist("The Email/Captcha field is required.", "//div[@class='invalid-feedback']", false))
+                            switch (objData.fnGetValue("ScenarioType", "").ToUpper()) 
                             {
-                                //Enter username/captcha
-                                clsReportResult.fnLog("Forgot Username", "The required field messages are displayed as expected.", "info", true, false);
-                                clsMG.fnCleanAndEnterText("Email", "//input[@id='uname']", objData.fnGetValue("EmailAcc", ""), false, false);
-                                do { Thread.Sleep(TimeSpan.FromSeconds(10)); }
-                                while (clsWE.fnGetAttribute(clsWE.fnGetWe("//input[@id='captcha-input']"), "Captcha", "value", false, false) == "");
-                                clsReportResult.fnLog("Forgot Username", "The email/captcha was entered", "Info", true, false);
-                                clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit", true);
-                                if (!clsMG.IsElementPresent("//div[@class='invalid-feedback']"))
-                                {
-                                    //Verify that email is received with username
-                                    strUsername = fnReadEmailConfirmation(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "username(s) associated", "are:\r\n\r\n", "\r\n\r\n", "are:</br> <ul><li>", "</li></ul>.");
-                                    if (strUsername != "")
+                                case "POSITIVE":
+                                    clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit Button", false);
+                                    if (clsWE.fnElementExist("The Email/Captcha field is required.", "//div[@class='invalid-feedback']", false))
                                     {
-                                        clsReportResult.fnLog("Forgot Username", "The Username email request was received as expected. The user is: " + strUsername, "Pass", false, false);
+                                        //Enter username/captcha
+                                        clsReportResult.fnLog("Forgot Username", "The required field messages are displayed as expected.", "info", true, false);
+                                        clsMG.fnCleanAndEnterText("Email", "//input[@id='uname']", objData.fnGetValue("EmailAcc", ""), false, false);
+                                        do { Thread.Sleep(TimeSpan.FromSeconds(10)); }
+                                        while (clsWE.fnGetAttribute(clsWE.fnGetWe("//input[@id='captcha-input']"), "Captcha", "value", false, false) == "");
+                                        clsReportResult.fnLog("Forgot Username", "The email/captcha was entered", "Info", true, false);
+                                        clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit", true);
+                                        if (!clsMG.IsElementPresent("//div[@class='invalid-feedback']"))
+                                        {
+                                            //Verify that email is received with username
+                                            strUsername = fnReadEmailConfirmation(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "username(s) associated", "are:\r\n\r\n", "\r\n\r\n", "are:</br> <ul><li>", "</li></ul>.");
+                                            if (strUsername != "")
+                                            {
+                                                clsReportResult.fnLog("Forgot Username", "The Username email request was received as expected. The user is: " + strUsername, "Pass", false, false);
+                                            }
+                                            else
+                                            {
+                                                clsReportResult.fnLog("Forgot Username", "The Username email request was not received and cannot be validated.", "Fail", false, true);
+                                                blResult = false;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            clsReportResult.fnLog("Forgot Username", "Some issues were found after procide email/captcha and test cannot continue", "Fail", true, true);
+                                            blResult = false;
+                                        }
                                     }
                                     else
                                     {
-                                        clsReportResult.fnLog("Forgot Username", "The Username email request was not received and cannot be validated.", "Fail", false, true);
+                                        clsReportResult.fnLog("Forgot Username", "The invalid messages for Username/Captcha are not displayed.", "Fail", true, true);
                                         blResult = false;
                                     }
-                                }
-                                else
-                                {
-                                    clsReportResult.fnLog("Forgot Username", "Some issues were found after procide email/captcha and test cannot continue", "Fail", true, true);
-                                    blResult = false;
-                                }
-                            }
-                            else
-                            {
-                                clsReportResult.fnLog("Forgot Username", "The invalid messages for Username/Captcha are not displayed.", "Fail", true, true);
-                                blResult = false;
-                            }
+
+                                    break;
+                                case "NEGATIVE":
+                                    //Enter username/captcha
+                                    clsReportResult.fnLog("Forgot Username", "The required field messages are displayed as expected.", "info", true, false);
+                                    clsMG.fnCleanAndEnterText("Email", "//input[@id='uname']", objData.fnGetValue("EmailAcc", ""), false, false);
+                                    clsMG.fnCleanAndEnterText("Captcha*", "//input[@id='captcha-input']", RandomString(6), false, false);
+                                    clsReportResult.fnLog("Forgot Username", "The email/captcha was entered", "Info", true, false);
+                                    clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit", true);
+                                    if (clsMG.IsElementPresent("//div[@class='invalid-feedback']"))
+                                    {
+                                        clsReportResult.fnLog("Forgot Username", "The invalid messages are displayed after provide an invalid captcha.", "Pass", false, false);
+                                        strUsername = fnReadEmailConfirmation(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "username(s) associated", "are:\r\n\r\n", "\r\n\r\n", "are:</br> <ul><li>", "</li></ul>.");
+                                        if (strUsername == "")
+                                        {
+                                            clsReportResult.fnLog("Forgot Username", "The Forgot Username email was not received as expected.", "Pass", false, false);
+                                        }
+                                        else
+                                        {
+                                            clsReportResult.fnLog("Forgot Username", "The Forgot Username email was received but should not be triggered.", "Fail", false, false);
+                                            blResult = false;
+                                        }
+                                    }
+                                    else 
+                                    {
+                                        clsReportResult.fnLog("Forgot Password", "The invalid captcha should not be accepted. ", "Fail", true, false);
+                                        blResult = false;
+                                    }
+                                    break;
+                            } 
                         }
                         else
                         {
@@ -422,9 +349,10 @@ namespace AutomationFrame_GlobalIntake.POM
             { clsReportResult.fnLog("Forgot Username", "The Forgot Username function was executed successfully.", "Pass", false, false); }
             else
             { clsReportResult.fnLog("Forgot Username", "The Forgot Username function was not executed successfully.", "Pass", false, false); }
-            clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv((objData.fnGetValue("Environment", ""))));
             return blResult;
         }
+
+
 
         public bool fnExpiredUserRestriction(string pstrSetNo)
         {

@@ -71,7 +71,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
                                 blStatus = clsLogin.fnTwoFactorsVerification(TempValue);
                                 break;
                             case "FORGOTPASSWORD":
-                                blStatus = clsLogin.fnForgotPasswordVerification2(TempValue);
+                                blStatus = clsLogin.fnForgotPasswordVerification(TempValue);
                                 break;
                             case "FORGOTUSERNAME":
                                 blStatus = clsLogin.fnForgotUsernameVerification(TempValue);

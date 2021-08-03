@@ -39,7 +39,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
         [Test]
         public void fnTest_DataDriven()
         {
-            bool blStatus = true;
+            bool blStatus;
             clsMegaIntake clsMG = new clsMegaIntake();
             clsLogin clsLogin = new clsLogin();
             clsData objData = new clsData();
@@ -55,6 +55,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
                 objData.CurrentRow = intRow;
                 if (objData.fnGetValue("Run", "") == "1")
                 {
+                    blStatus = true;
                     string[] arrFunctions = objData.fnGetValue("Funcions").Split(';');
                     string[] arrValue = objData.fnGetValue("Values").Split(';');
                     int intCount = -1;
@@ -65,28 +66,40 @@ namespace AutomationFrame_GlobalIntake.TestCases
                         switch (item.ToUpper())
                         {
                             case "LOGIN":
-                                blStatus = clsLogin.fnLoginData(TempValue);
+                                if (!clsLogin.fnLoginData(TempValue)) { blStatus = false; }
+                                //blStatus = clsLogin.fnLoginData(TempValue);
                                 break;
                             case "2FALOGIN":
-                                blStatus = clsLogin.fnTwoFactorsVerification(TempValue);
+                                if (!clsLogin.fnTwoFactorsVerification(TempValue)) { blStatus = false; }
+                                //blStatus = clsLogin.fnTwoFactorsVerification(TempValue);
                                 break;
                             case "FORGOTPASSWORD":
-                                blStatus = clsLogin.fnForgotPasswordVerification(TempValue);
+                                if (!clsLogin.fnForgotPasswordVerification(TempValue)) { blStatus = false; }
+                                //blStatus = clsLogin.fnForgotPasswordVerification(TempValue);
                                 break;
                             case "FORGOTUSERNAME":
-                                blStatus = clsLogin.fnForgotUsernameVerification(TempValue);
+                                if (!clsLogin.fnForgotUsernameVerification(TempValue)) { blStatus = false; }
+                                //blStatus = clsLogin.fnForgotUsernameVerification(TempValue);
                                 break;
                             case "EXPIREDUSERRESTRICTION":
-                                blStatus = clsLogin.fnExpiredUserRestriction(TempValue);
+                                if (!clsLogin.fnExpiredUserRestriction(TempValue)) { blStatus = false; }
+                                //blStatus = clsLogin.fnExpiredUserRestriction(TempValue);
                                 break;
                             case "TIMEOUTSESSION":
-                                blStatus = clsLogin.fnTimeoutSessionVerification(TempValue);
+                                if (!clsLogin.fnTimeoutSessionVerification(TempValue)) { blStatus = false; }
+                                //blStatus = clsLogin.fnTimeoutSessionVerification(TempValue);
                                 break;
                             case "USERMANAGEMENT":
-                                blStatus = clsUM.fnUserMagmtWebUser(TempValue);
+                                if (!clsUM.fnUserMagmtWebUser(TempValue)) { blStatus = false; }
+                                //blStatus = clsUM.fnUserMagmtWebUser(TempValue);
                                 break;
                             case "ACCOUNTUNITSECURITY":
-                                blStatus = clsIntake.fnAccountUnitSecurityVerification(TempValue);
+                                if (!clsIntake.fnAccountUnitSecurityVerification(TempValue)) { blStatus = false; }
+                                //blStatus = clsIntake.fnAccountUnitSecurityVerification(TempValue);
+                                break;
+                            case "CREATECLAIM":
+                                if (!clsIntake.fnCreateAndSubmitClaim(TempValue)) { blStatus = false; }
+                                //blStatus = clsIntake.fnAccountUnitSecurityVerification(TempValue);
                                 break;
                             default:
                                 break;

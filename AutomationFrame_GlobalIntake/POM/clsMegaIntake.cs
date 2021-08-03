@@ -40,7 +40,7 @@ namespace AutomationFrame_GlobalIntake.POM
 
         public void WaitWEUntilAppears(string pstrStepName, string pstrLocator, int pintTime)
         {
-            do { Thread.Sleep(pintTime); }
+            do { Thread.Sleep(TimeSpan.FromSeconds(pintTime)); }
             while (!clsWE.fnElementExistNoReport(pstrStepName, pstrLocator, false));
         }
 

@@ -63,9 +63,9 @@ namespace AutomationFrame_GlobalIntake.POM
 
                     if (bWaitHeader)
                     {
-                        if (IsElementPresent("//span[@data-bind='text: headerClientName']"))
+                        if (IsElementPresent("//*[@id='EnvironmentBar']"))
                         {
-                            objWebEdit = clsWebBrowser.objDriver.FindElement(By.XPath("//span[@data-bind='text: headerClientName']"));
+                            objWebEdit = clsWebBrowser.objDriver.FindElement(By.XPath("//*[@id='EnvironmentBar']"));
                             Thread.Sleep(TimeSpan.FromMilliseconds(500));
                             objWebEdit.Click();
                             Thread.Sleep(TimeSpan.FromMilliseconds(500));
@@ -134,10 +134,10 @@ namespace AutomationFrame_GlobalIntake.POM
 
                     if (bWaitHeader) 
                     {
-                        if (IsElementPresent("//span[@data-bind='text: headerClientName']"))
+                        if (IsElementPresent("//nav[@id='EnvironmentBar']"))
                         {
-                            objDropDown = clsWebBrowser.objDriver.FindElement(By.XPath("//span[@data-bind='text: headerClientName']"));
-                            Thread.Sleep(1000);
+                            objDropDown = clsWebBrowser.objDriver.FindElement(By.XPath("//nav[@id='EnvironmentBar']"));
+                            Thread.Sleep(TimeSpan.FromMilliseconds(500));
                             objDropDown.Click();
                         }
                     }
@@ -301,9 +301,33 @@ namespace AutomationFrame_GlobalIntake.POM
             }
         }
 
+        public void fnSwitchToWindowAndClose(int pSwithToWindow) 
+        {
+            clsWebBrowser.objDriver.SwitchTo().Window(clsWebBrowser.objDriver.WindowHandles[pSwithToWindow]);
+            clsWebBrowser.objDriver.Close();
+        }
 
-
-
+        public void fnSwitchToWindow(string pstrTitle)
+        {
+            bool blFound = false;
+            foreach (var handle in clsWebBrowser.objDriver.WindowHandles) 
+            {
+                clsWebBrowser.objDriver.SwitchTo().Window(handle);
+                string strTitle = clsWebBrowser.objDriver.Title;
+                if (pstrTitle.ToUpper() == strTitle.ToUpper())
+                { 
+                    blFound = true;
+                    break;
+                }
+            }
+            if (blFound)
+            { clsReportResult.fnLog("Switch to Windown", "The Switch to Window: "+ pstrTitle + " was completed successfully.", "Info", false); }
+            else 
+            { 
+                clsReportResult.fnLog("Switch to Windown", "The Window Page: "+ pstrTitle + " was not found.", "Fail", false);
+                clsWebBrowser.objDriver.SwitchTo().Window(clsWebBrowser.objDriver.WindowHandles[0]);
+            }
+        }
 
     }
 }

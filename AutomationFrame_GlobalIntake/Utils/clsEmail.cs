@@ -80,7 +80,7 @@ namespace AutomationFrame_GlobalIntake.Utils
             }
         }
 
-        public bool fnReadSimpleEmail(string pstrUser, string pstrPassword, string pstrVal)
+        public bool fnReadSimpleEmail(string pstrUser, string pstrPassword, string pstrVal, int pintAttemps=12)
         {
             int intTimeAttemp = 0;
             bool bFound = false;
@@ -124,12 +124,11 @@ namespace AutomationFrame_GlobalIntake.Utils
                 if (!bFound) { Thread.Sleep(TimeSpan.FromSeconds(10)); }
                 client.Disconnect();
             }
-            while (intTimeAttemp < 12 && !bFound);
+            while (intTimeAttemp < pintAttemps && !bFound);
             return bFound;
         }
 
-
-        public string fnReadEmailText(string pstrContainsText, string pstrStartWithPlainText, string pstrEndwithPlainText, string pstrStartWithHtml, string pstrEndwithHtml)
+        public string fnReadEmailText(string pstrContainsText, string pstrStartWithPlainText, string pstrEndwithPlainText, string pstrStartWithHtml, string pstrEndwithHtml, int pintAttemps = 12)
         {
             string strEmailText = "";
             int intTimeAttemp = 0;
@@ -177,7 +176,7 @@ namespace AutomationFrame_GlobalIntake.Utils
                 if (strEmailText == "") { Thread.Sleep(TimeSpan.FromSeconds(10)); }
                 client.Disconnect();
             }
-            while (intTimeAttemp < 12 && strEmailText == "");
+            while (intTimeAttemp < pintAttemps && strEmailText == "");
             return strEmailText;
         }
 

@@ -30,14 +30,35 @@ namespace AutomationFrame_GlobalIntake.POM
                 {
                     clsReportResult.fnLog("Login Function", "<<<<<<<<<< The Login Functions Starts. >>>>>>>>>>", "Info", false);
                     fnLogOffSession();
+                    if (objData.fnGetValue("TrainingMode", "").ToUpper() == "TRUE" || objData.fnGetValue("TrainingMode", "").ToUpper() == "YES")
+                    { clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv) + "/training"); }
+                    else
+                    { clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv)); }
                     clsWE.fnPageLoad(clsWE.fnGetWe("//button[text()='BEGIN']"), "Login", false, true);
                     if (clsMG.IsElementPresent("//button[@id='cookie-accept']")) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
                     fnEnterCredentails(objData.fnGetValue("User", ""), objData.fnGetValue("Password", ""));
-                    blResult = clsWE.fnElementExist("Login Label", "//span[contains(text(), 'You are currently logged into')]", false, false);
-                    if (blResult)
-                    { clsReportResult.fnLog("Login Page", "Login Page was successfully.", "Pass", true); }
+                    //Verify Normal Login or Training Mode
+                    if (objData.fnGetValue("TrainingMode", "").ToUpper() == "FALSE" || objData.fnGetValue("TrainingMode", "").ToUpper() == "NO" || objData.fnGetValue("TrainingMode", "").ToUpper() == "")
+                    {
+                        clsConstants.blTrainingMode = false;
+                        blResult = clsWE.fnElementExist("Login Label", "//span[contains(text(), 'You are currently logged into')]", false, false);
+                        if (blResult)
+                        { clsReportResult.fnLog("Login Page", "Login Page was successfully.", "Pass", true); }
+                        else
+                        { clsReportResult.fnLog("Login Page", "Login Page was not successfully.", "Fail", true, true); }
+                    }
                     else
-                    { clsReportResult.fnLog("Login Page", "Login Page was not successfully.", "Fail", true, true); }
+                    {
+                        clsConstants.blTrainingMode = true;
+                        blResult = clsWE.fnElementExist("Login Label", "//span[text()='Training Mode - ']", false, false);
+                        if (blResult)
+                        { 
+                            clsReportResult.fnLog("Login Page", "Login Page was successfully.", "Pass", false);
+                            clsReportResult.fnLog("Login Page", "The Training Mode Label is displayed as expected.", "Pass", true);
+                        }
+                        else
+                        { clsReportResult.fnLog("Login Page", "Login Page was not successfully or Training Label was not displayed.", "Fail", true, true); }
+                    }
                 }
             }
             return blResult;
@@ -69,7 +90,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         if (strToken != "")
                         {
                             clsReportResult.fnLog("Two Factor Authentication", "The 2FA email was received with value: " + strToken, "Pass", false, false);
-                            clsMG.fnCleanAndEnterText("Enter Code", "//input[@id='code']", strToken, true, false);
+                            clsMG.fnCleanAndEnterText("Enter Code", "//input[@id='code']", strToken, true, false, "", false);
                             clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit", false);
                         }
                         else
@@ -118,7 +139,7 @@ namespace AutomationFrame_GlobalIntake.POM
                     //Verify if "Forgot Password" link exist
                     fnLogOffSession();
                     if (!clsMG.IsElementPresent("//button[text()='BEGIN']")) 
-                    { clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(ConfigurationManager.AppSettings["Env"])); }
+                    { clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv)); }
                     clsWE.fnPageLoad(clsWE.fnGetWe("//button[text()='BEGIN']"), "Login", false, false);
                     if (clsMG.IsElementPresent("//button[@id='cookie-accept']")) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
                     if (clsWE.fnElementExist("Forgot Password Link", "//a[text()='Forgot Your Password?']", false))
@@ -197,7 +218,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                     {
                                         //Verify that any email is received.
                                         clsReportResult.fnLog("Forgot Password", "The invalid captcha was not accepted as expected.", "Pass", true, false);
-                                        string strURLReset = fnReadEmailConfirmation(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "reset your password", "your browser: ", "---", "your browser: ", "</span>");
+                                        string strURLReset = fnReadEmailNegativeScenarios(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "reset your password", "your browser: ", "---", "your browser: ", "</span>");
                                         if (strURLReset == "")
                                         { 
                                             clsReportResult.fnLog("Forgot Password", "The Forgot Password Email was not received as expected.", "Pass", false, false);
@@ -230,7 +251,7 @@ namespace AutomationFrame_GlobalIntake.POM
                     }
                 }
             }
-            clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(ConfigurationManager.AppSettings["Env"]));
+            clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv));
             if (blResult)
             { clsReportResult.fnLog("Forgot Password", "The Forgot Password Function was executed successfully", "Pass", false, false); }
             else
@@ -253,7 +274,7 @@ namespace AutomationFrame_GlobalIntake.POM
                     //Verify if "Forgot Password" link exist
                     fnLogOffSession();
                     if (!clsMG.IsElementPresent("//button[text()='BEGIN']"))
-                    { clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(ConfigurationManager.AppSettings["Env"])); }
+                    { clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv)); }
                     clsWE.fnPageLoad(clsWE.fnGetWe("//button[text()='BEGIN']"), "Login", false, false);
                     if (clsMG.IsElementPresent("//button[@id='cookie-accept']")) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
                     if (clsWE.fnElementExist("Forgot Password Link", "//a[text()='Forgot Username?']", false))
@@ -272,8 +293,8 @@ namespace AutomationFrame_GlobalIntake.POM
                                     {
                                         //Enter username/captcha
                                         clsReportResult.fnLog("Forgot Username", "The required field messages are displayed as expected.", "info", true, false);
-                                        clsMG.fnCleanAndEnterText("Email", "//input[@id='uname']", objData.fnGetValue("EmailAcc", ""), false, false);
-                                        do { Thread.Sleep(TimeSpan.FromSeconds(10)); }
+                                        clsMG.fnCleanAndEnterText("Email", "//input[@id='uname']", objData.fnGetValue("EmailAcc", ""), false, false, "", false);
+                                        do { Thread.Sleep(TimeSpan.FromSeconds(15)); }
                                         while (clsWE.fnGetAttribute(clsWE.fnGetWe("//input[@id='captcha-input']"), "Captcha", "value", false, false) == "");
                                         clsReportResult.fnLog("Forgot Username", "The email/captcha was entered", "Info", true, false);
                                         clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit", true);
@@ -307,14 +328,14 @@ namespace AutomationFrame_GlobalIntake.POM
                                 case "NEGATIVE":
                                     //Enter username/captcha
                                     clsReportResult.fnLog("Forgot Username", "The required field messages are displayed as expected.", "info", true, false);
-                                    clsMG.fnCleanAndEnterText("Email", "//input[@id='uname']", objData.fnGetValue("EmailAcc", ""), false, false);
-                                    clsMG.fnCleanAndEnterText("Captcha*", "//input[@id='captcha-input']", RandomString(6), false, false);
+                                    clsMG.fnCleanAndEnterText("Email", "//input[@id='uname']", objData.fnGetValue("EmailAcc", ""), false, false, "", false);
+                                    clsMG.fnCleanAndEnterText("Captcha*", "//input[@id='captcha-input']", RandomString(6), false, false, "", false);
                                     clsReportResult.fnLog("Forgot Username", "The email/captcha was entered", "Info", true, false);
                                     clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit", true);
                                     if (clsMG.IsElementPresent("//div[@class='invalid-feedback']"))
                                     {
                                         clsReportResult.fnLog("Forgot Username", "The invalid messages are displayed after provide an invalid captcha.", "Pass", false, false);
-                                        strUsername = fnReadEmailConfirmation(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "username(s) associated", "are:\r\n\r\n", "\r\n\r\n", "are:</br> <ul><li>", "</li></ul>.");
+                                        strUsername = fnReadEmailNegativeScenarios(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "username(s) associated", "are:\r\n\r\n", "\r\n\r\n", "are:</br> <ul><li>", "</li></ul>.");
                                         if (strUsername == "")
                                         {
                                             clsReportResult.fnLog("Forgot Username", "The Forgot Username email was not received as expected.", "Pass", false, false);
@@ -346,7 +367,7 @@ namespace AutomationFrame_GlobalIntake.POM
                     }
                 }
             }
-            clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(ConfigurationManager.AppSettings["Env"]));
+            clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv));
             if (blResult)
             { clsReportResult.fnLog("Forgot Username", "The Forgot Username function was executed successfully.", "Pass", false, false); }
             else
@@ -404,7 +425,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         if (clsWE.fnElementExist("Account Disabled Message", "//div[contains(text(), 'Your account has been disabled after too many failed reset attempts.')]", false))
                         {
                             clsReportResult.fnLog("Restriction for Expired User", "The Account Disabled message was displayed as expected.", "Info", true);
-                            clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv((objData.fnGetValue("Environment", ""))));
+                            clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv));
                         }
                         else
                         {
@@ -529,11 +550,24 @@ namespace AutomationFrame_GlobalIntake.POM
             return strValue;
         }
 
+        private string fnReadEmailNegativeScenarios(string pstrEmail, string pstrPassword, string pstrContainsText, string pstrStartWithPlainText, string pstrEndwithPlainText, string pstrStartWithHtml, string pstrEndwithHtml)
+        {
+            clsEmail email = new clsEmail();
+            email.strFromEmail = pstrEmail;
+            email.strPassword = pstrPassword;
+            email.strServer = "popgmail";
+            string strValue = email.fnReadEmailText(pstrContainsText, pstrStartWithPlainText, pstrEndwithPlainText, pstrStartWithHtml, pstrEndwithHtml, 6);
+            return strValue;
+        }
+
+
         public bool fnLogOffSession()
         {
             bool blResult = true;
+            string strLocator;
+
             //Verify is there is an active session
-            if (clsMG.IsElementPresent("//span[text()='You are currently logged into ']"))
+            if (clsMG.IsElementPresent("//span[text()='You are currently logged into ']") || clsMG.IsElementPresent("//*[text()='Training Mode - ']"))
             {
                 while (clsMG.IsElementPresent("//div[@class='md-toast md-toast-success']") || clsMG.IsElementPresent("//div[@class='md-toast md-toast-error']"))
                 {

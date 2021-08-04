@@ -33,7 +33,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
         public void SetupTest()
         {
             clsReportResult.objTest = clsReportResult.objExtent.CreateTest(TestContext.CurrentContext.Test.Name);
-            fnOpenBrowser(ConfigurationManager.AppSettings["Browser"]);
+            fnOpenBrowser(clsDataDriven.strBrowser);
         }
 
         [Test]
@@ -48,7 +48,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
 
 
             objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], ConfigurationManager.AppSettings["Sheet"]);
-            fnNavigateToUrl(clsMG.fnGetURLEnv((objData.fnGetValue("Environment", ""))));
+            fnNavigateToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv));
 
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
@@ -62,49 +62,46 @@ namespace AutomationFrame_GlobalIntake.TestCases
                     foreach (string item in arrFunctions)
                     {
                         intCount = intCount + 1;
-                        var TempValue = arrValue[intCount].Split('=')[1];
+                        var TempValue = "";
+                        if (arrValue[intCount]!= "") { TempValue = arrValue[intCount].Split('=')[1]; }
                         switch (item.ToUpper())
                         {
                             case "LOGIN":
                                 if (!clsLogin.fnLoginData(TempValue)) { blStatus = false; }
-                                //blStatus = clsLogin.fnLoginData(TempValue);
                                 break;
                             case "2FALOGIN":
                                 if (!clsLogin.fnTwoFactorsVerification(TempValue)) { blStatus = false; }
-                                //blStatus = clsLogin.fnTwoFactorsVerification(TempValue);
                                 break;
                             case "FORGOTPASSWORD":
                                 if (!clsLogin.fnForgotPasswordVerification(TempValue)) { blStatus = false; }
-                                //blStatus = clsLogin.fnForgotPasswordVerification(TempValue);
                                 break;
                             case "FORGOTUSERNAME":
                                 if (!clsLogin.fnForgotUsernameVerification(TempValue)) { blStatus = false; }
-                                //blStatus = clsLogin.fnForgotUsernameVerification(TempValue);
                                 break;
                             case "EXPIREDUSERRESTRICTION":
                                 if (!clsLogin.fnExpiredUserRestriction(TempValue)) { blStatus = false; }
-                                //blStatus = clsLogin.fnExpiredUserRestriction(TempValue);
                                 break;
                             case "TIMEOUTSESSION":
                                 if (!clsLogin.fnTimeoutSessionVerification(TempValue)) { blStatus = false; }
-                                //blStatus = clsLogin.fnTimeoutSessionVerification(TempValue);
                                 break;
                             case "USERMANAGEMENT":
                                 if (!clsUM.fnUserMagmtWebUser(TempValue)) { blStatus = false; }
-                                //blStatus = clsUM.fnUserMagmtWebUser(TempValue);
                                 break;
                             case "ACCOUNTUNITSECURITY":
                                 if (!clsIntake.fnAccountUnitSecurityVerification(TempValue)) { blStatus = false; }
-                                //blStatus = clsIntake.fnAccountUnitSecurityVerification(TempValue);
                                 break;
                             case "CREATECLAIM":
                                 if (!clsIntake.fnCreateAndSubmitClaim(TempValue)) { blStatus = false; }
-                                //blStatus = clsIntake.fnAccountUnitSecurityVerification(TempValue);
+                                break;
+                            case "SEARCHTRAININGCLAIM":
+                                if (!clsIntake.fnVerifyTrainingModeClaims()) { blStatus = false; }
+                                break;
+                            case "POLICYLOOKUP":
+                                if (!clsIntake.fnPolicyLookupVerification(TempValue)) { blStatus = false; }
                                 break;
                             default:
                                 break;
                         }
-
                     }
                     //Save Execution Status
                     if (blStatus)

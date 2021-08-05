@@ -50,19 +50,35 @@ namespace AutomationFrame_GlobalIntake.POM
                     else
                     {
                         clsConstants.blTrainingMode = true;
-                        blResult = clsWE.fnElementExist("Login Label", "//span[text()='Training Mode - ']", false, false);
-                        if (blResult)
-                        { 
-                            clsReportResult.fnLog("Login Page", "Login Page was successfully.", "Pass", false);
-                            clsReportResult.fnLog("Login Page", "The Training Mode Label is displayed as expected.", "Pass", true);
+                        if (objData.fnGetValue("TrainingLoginType", "").ToUpper() == "VALID" && objData.fnGetValue("TrainingLoginType", "").ToUpper() == "")
+                        {
+                            blResult = clsWE.fnElementExist("Login Label", "//span[text()='Training Mode - ']", false, false);
+                            if (blResult)
+                            {
+                                clsReportResult.fnLog("Login Page", "Login Page was successfully.", "Pass", false);
+                                clsReportResult.fnLog("Login Page", "The Training Mode Label is displayed as expected.", "Pass", true);
+                            }
+                            else
+                            { clsReportResult.fnLog("Login Page", "Login Page was not successfully or Training Label was not displayed.", "Fail", true, true); }
                         }
                         else
-                        { clsReportResult.fnLog("Login Page", "Login Page was not successfully or Training Label was not displayed.", "Fail", true, true); }
+                        {
+                            if (clsWE.fnElementExist("Login Invalid Message", "//*[contains(text(), 'You do not have permission to access Training Mode. Please return to the main login screen.')]", false, false))
+                            { clsReportResult.fnLog("Login Page", "The message for invalid user roles allowed in training mode is displayed as expected.", "Pass", true); }
+                            else
+                            {
+                                clsReportResult.fnLog("Login Page", "The message for invalid user roles allowed in training mode is not displayed as expected.", "Fail", true);
+                                blResult = false;
+                            }
+                        }
+
+                        
                     }
                 }
             }
             return blResult;
         }
+
 
         public bool fnTwoFactorsVerification(string pstrSetNo)
         {

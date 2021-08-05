@@ -117,8 +117,35 @@ namespace AutomationFrame_GlobalIntake.POM
                 clsMG.fnSwitchToWindow("Intake");
             }
             clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'Duplicate Claim')]"), "Intake", false, false);
-            if (clsWE.fnElementExist("Duplicate Claim Check", "//span[contains(text(), 'Duplicate Claim')]", true))
+            if (clsMG.IsElementPresent("//span[contains(text(), 'Duplicate Claim')]"))
             {
+                //Verify Preview Mode
+                if (pobjData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "TRUE" || pobjData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "YES")
+                {
+                    clsMG.fnGoTopPage();
+                    if (clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]"))
+                    {
+                        clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label was displayed in the Duplicated Claim Check Page as expected.", "Pass", true, false);
+                    }
+                    else
+                    {
+                        clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label should be displayed in the Duplicated Claim Check Page but was not found.", "Fail", true, false);
+                        blResult = false;
+                    }
+                }
+                else if (pobjData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "FALSE" || pobjData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "NO") 
+                {
+                    clsMG.fnGoTopPage();
+                    if (!clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]"))
+                    {
+                        clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label is not displayed as expected in the Duplicated Claim Check Page.", "Pass", true, false);
+                    }
+                    else
+                    {
+                        clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label should not be displayed in the Duplicated Claim Check Page for this user role.", "Fail", true, false);
+                        blResult = false;
+                    }
+                }
                 clsWE.fnPageLoad(clsWE.fnGetWe("//span[@data-bind='text:Value.Label']"), "Header Intake", false, false);
                 clsMG.fnCleanAndEnterText("Loss Time", "//div[@class='row' and div[span[text()='Loss Time']]]//input[@class='form-control']", pobjData.fnGetValue("LossTime", ""), false, false, "", false);
                 clsWE.fnClick(clsWE.fnGetWe("//span[@data-bind='text:Value.Label']"), "Header Intake", false);
@@ -537,7 +564,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                                             clsReportResult.fnLog("Policy Lookup Verification", "The SPSS Policy: "+ objData.fnGetValue("PolicyNo", "").ToString() + " was found as expected.", "Pass", true);
                                                             clsWE.fnClick(clsWE.fnGetWe("//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr[td[text()='" + objData.fnGetValue("PolicyNo", "") + "']]//button"), "Select Policy", false);
                                                             //Verify Blue Toast Message
-                                                            clsWE.fnPageLoad(clsWE.fnGetWe("//div[contains(@data-bind, 'Answer.ContractNumber()')]"), "Blue Toas Message", false, false);
+                                                            clsWE.fnPageLoad(clsWE.fnGetWe("//div[contains(@data-bind, 'Answer.ContractNumber()')]"), "Blue Toast Message", false, false);
                                                             if (clsWE.fnGetAttribute(clsWE.fnGetWe("//span[contains(@data-bind,'Answer.PolicyNumber')]"), "Get policy", "innerText", false, false) == objData.fnGetValue("PolicyNo", ""))
                                                             {
                                                                 clsReportResult.fnLog("Policy Lookup Verification", "The SPSS Policy " + objData.fnGetValue("PolicyNo", "").ToString() + " was displayed on Duplicate Claim Check Page as expected.", "Pass", true);
@@ -872,6 +899,33 @@ namespace AutomationFrame_GlobalIntake.POM
                                     clsWE.fnClick(clsWE.fnGetWe("//button[@id='start-intake']"), "Start Intake Button", false, false);
                                     Thread.Sleep(TimeSpan.FromSeconds(10));
                                 }
+                                //Verify Preview Mode
+                                if (objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "TRUE" || objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "YES")
+                                {
+                                    clsMG.fnGoTopPage();
+                                    if (clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]"))
+                                    {
+                                        clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label was displayed in the Intake Flow Page as expected.", "Pass", true, false);
+                                    }
+                                    else
+                                    {
+                                        clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label should be displayed in the  Intake Flow Page but was not found.", "Fail", true, false);
+                                        blResult = false;
+                                    }
+                                }
+                                else if (objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "FALSE" || objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "NO")
+                                {
+                                    clsMG.fnGoTopPage();
+                                    if (!clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]"))
+                                    {
+                                        clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label is not displayed as expected in the Intake Flow Page.", "Pass", true, false);
+                                    }
+                                    else
+                                    {
+                                        clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label should not be displayed in the Intake Flow Page for this user role.", "Fail", true, false);
+                                        blResult = false;
+                                    }
+                                }
                                 clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='page-container']"), "Intake FLow Page", false, false);
 
                                 //Reporter First Name
@@ -905,13 +959,39 @@ namespace AutomationFrame_GlobalIntake.POM
                                 {
                                     if (objData.fnGetValue("SubmitClaim", "").ToUpper() == "TRUE" || objData.fnGetValue("SubmitClaim", "").ToUpper() == "YES")
                                     {
+                                        //Verify Preview Mode
+                                        if (objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "TRUE" || objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "YES")
+                                        {
+                                            clsMG.fnGoTopPage();
+                                            if (clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]"))
+                                            {
+                                                clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label was displayed in the Closing Statement Page as expected.", "Pass", true, false);
+                                            }
+                                            else
+                                            {
+                                                clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label should be displayed in the Closing Statement Page but was not found.", "Fail", true, false);
+                                                blResult = false;
+                                            }
+                                        }
+                                        else if (objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "FALSE" || objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "NO")
+                                        {
+                                            clsMG.fnGoTopPage();
+                                            if (!clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]"))
+                                            {
+                                                clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label is not displayed as expected in the Closing Statement Page.", "Pass", true, false);
+                                            }
+                                            else
+                                            {
+                                                clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label should not be displayed in the Closing Statement Page for this user role.", "Fail", true, false);
+                                                blResult = false;
+                                            }
+                                        }
                                         //Submit Claim
                                         clsReportResult.fnLog("Submit Claim", "Submiting Claim Created.", "Info", true, false);
                                         clsWE.fnClick(clsWE.fnGetWe("//button[@id='top-submit']"), "Submit Button", false, false);
                                         if (!clsMG.IsElementPresent("//*[@data-bind='text:ValidationMessage']"))
                                         {
                                             clsWE.fnPageLoad(clsWE.fnGetWe("//*[text()='Thank you']"), "Thank You Page", false, false);
-                                            //clsMG.WaitWEUntilAppears("Waiting Thank You Page", "//*[text()='Thank you']", 10);
                                             string strClaimNo = "";
                                             strClaimNo = clsWE.fnGetAttribute(clsWE.fnGetWe("//span[contains(@data-bind, 'VendorIncidentNumber')]"), "Confirmation Number", "innerText");
                                             //Save Confirmation Number
@@ -919,6 +999,34 @@ namespace AutomationFrame_GlobalIntake.POM
                                             objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "ClaimInfo", "ClaimNumber", intRow, strClaimNo);
                                             clsConstants.strSubmitClaimTrainingMode = strClaimNo;
                                             clsReportResult.fnLog("Create Claim", "The claim: " + strClaimNo + " was created successfully.", "Pass", false, false);
+                                            //Verify Preview Mode
+                                            if (objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "TRUE" || objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "YES")
+                                            {
+                                                clsMG.fnGoTopPage();
+                                                if (clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]"))
+                                                {
+                                                    clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label was displayed in the Submit Statement Page as expected.", "Pass", true, false);
+                                                }
+                                                else
+                                                {
+                                                    clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label should be displayed in the Submit Statement Page but was not found.", "Fail", true, false);
+                                                    blResult = false;
+                                                }
+                                            }
+                                            else if (objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "FALSE" || objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "NO")
+                                            {
+                                                clsMG.fnGoTopPage();
+                                                if (!clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]"))
+                                                {
+                                                    clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label is not displayed as expected in the Submit Statement Page.", "Pass", true, false);
+                                                }
+                                                else
+                                                {
+                                                    clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label should not be displayed in the Submit Statement Page for this user role.", "Fail", true, false);
+                                                    blResult = false;
+                                                }
+                                            }
+                                            //Switch to Defaul Tab
                                             if (clsConstants.blTrainingMode)
                                             {
                                                 clsMG.fnSwitchToWindowAndClose(1);
@@ -940,11 +1048,40 @@ namespace AutomationFrame_GlobalIntake.POM
                                         objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "ClaimInfo", "ClaimNumber", intRow, strClaimNo);
                                         clsConstants.strResumeClaimTrainingMode = strClaimNo;
                                         clsReportResult.fnLog("Create Claim", "The resume claim: " + strClaimNo + " was created but not submited.", "Pass", false, false);
+                                        //Verify Preview Mode
+                                        if (objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "TRUE" || objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "YES")
+                                        {
+                                            clsMG.fnGoTopPage();
+                                            if (clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]"))
+                                            {
+                                                clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label was displayed in the Closing Statement Page as expected.", "Pass", true, false);
+                                            }
+                                            else
+                                            {
+                                                clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label should be displayed in the Closing Statement Page but was not found.", "Fail", true, false);
+                                                blResult = false;
+                                            }
+                                        }
+                                        else if (objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "FALSE" || objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "NO")
+                                        {
+                                            clsMG.fnGoTopPage();
+                                            if (!clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]"))
+                                            {
+                                                clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label is not displayed as expected in the Submit Statement Page.", "Pass", true, false);
+                                            }
+                                            else
+                                            {
+                                                clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label should not be displayed in the Submit Statement Page for this user role.", "Fail", true, false);
+                                                blResult = false;
+                                            }
+                                        }
+                                        //Switch to Defaul Tab
                                         if (clsConstants.blTrainingMode)
                                         {
                                             clsMG.fnSwitchToWindowAndClose(1);
                                             clsWebBrowser.objDriver.SwitchTo().Window(clsWebBrowser.objDriver.WindowHandles[0]);
                                         }
+
                                     }
                                 }
                                 else 
@@ -984,7 +1121,7 @@ namespace AutomationFrame_GlobalIntake.POM
             {
                 //Search Claim
                 fnSearchClaim("", clm, "", "");
-                //Vwerify Results
+                //Verify Results
                 IList<IWebElement> lsRow = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='results']//tr"));
                 if (lsRow.Count >= 3)
                 {

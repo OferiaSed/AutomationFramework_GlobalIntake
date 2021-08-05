@@ -329,5 +329,14 @@ namespace AutomationFrame_GlobalIntake.POM
             }
         }
 
+        public void fnGoTopPage() 
+        {
+            IWebElement objWeBar = clsWebBrowser.objDriver.FindElement(By.XPath("//*[@id='EnvironmentBar']"));
+            Actions action = new Actions(clsWebBrowser.objDriver);
+            objWeBar.Click();
+            action.SendKeys(Keys.Home).Perform();
+            Thread.Sleep(TimeSpan.FromMilliseconds(500));
+        }
+
     }
 }

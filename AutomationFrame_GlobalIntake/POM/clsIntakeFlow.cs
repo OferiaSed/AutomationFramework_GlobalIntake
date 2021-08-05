@@ -125,6 +125,8 @@ namespace AutomationFrame_GlobalIntake.POM
                 clsMG.fnCleanAndEnterText("Loss Date", "//div[@class='row' and div[span[text()='Loss Date']]]//input[@class='form-control']", pobjData.fnGetValue("LossDate", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Reporter Type", "//div[@class='row' and div[span[text()='Reporter Type']]]//span[@class='select2-selection select2-selection--single']", pobjData.fnGetValue("ReporterType", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Reported By", "//div[@class='row' and div[span[text()='Reported By']]]//span[@class='select2-selection select2-selection--single']", pobjData.fnGetValue("ReportedBy", ""), false, false, "", false);
+                clsWE.fnPageLoad(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false, false);
+                clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Move Focus to Header", false);
                 //Fill EE Lookup
                 if (pobjData.fnGetValue("FillEELookup", "").ToUpper() == "TRUE") { blResult = fnEmployeeLocationLookup(pobjData.fnGetValue("EELookupSet", "")); }
                 //FIll Location Lookup
@@ -494,9 +496,268 @@ namespace AutomationFrame_GlobalIntake.POM
                     {
                         //Start Intake and go to Duplicate Claim Check
                         if (fnStartNewIntake(objData.fnGetValue("LOB", "")))
-                        { }
+                        {
+                            if (fnDuplicateClaimPage(objData, false))
+                            {
+                                //Verify Policy Case
+                                switch (objData.fnGetValue("PolicyType", "").ToUpper())
+                                {
+                                    case "SPSS":
+                                        if (clsWE.fnElementExist("Policy Button", "//span[contains(text(), 'Policy Search')]", true))
+                                        {
+                                            clsWE.fnClick(clsWE.fnGetWe("//span[contains(text(), 'Policy Search')]"), "Click Policy Search", false);
+                                            clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]"), "Policy Popup", false, false);
+                                            if (clsWE.fnElementExist("Loading element", "//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]", true, false))
+                                            {
+                                                //Provide Policy Information
+                                                clsWE.fnPageLoad(clsWE.fnGetWe("//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']"), "Policy Table", false, false);
+                                                clsMG.WaitWEUntilAppears("Wait Table", "//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']", 10);
+
+                                                IWebElement objElement;
+                                                if (objData.fnGetValue("ScenarioType", "").ToUpper() == "POSITIVE")
+                                                { objElement = clsWebBrowser.objDriver.FindElement(By.XPath("//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr[1]//td[2]")); }
+                                                else 
+                                                { objElement = clsWebBrowser.objDriver.FindElement(By.XPath("//table[@id='jurisLocationResults_LOCATION_LOOKUP']//td[@class='dataTables_empty']")); }
+                                                
+                                                Actions action = new Actions(clsWebBrowser.objDriver);
+                                                objElement.Click();
+                                                action.SendKeys(Keys.Home).Perform();
+                                                Thread.Sleep(TimeSpan.FromSeconds(2));
+                                                //Enter Policy
+                                                clsMG.fnCleanAndEnterText("Policy Number", "//input[@id='search-policyNumber']", objData.fnGetValue("PolicyNo", ""), false, false, "", false);
+                                                clsWE.fnClick(clsWE.fnGetWe("//button[text()='Search']"), "Search button", true);
+                                                Thread.Sleep(TimeSpan.FromSeconds(3));
+                                                switch (objData.fnGetValue("ScenarioType", "").ToUpper()) 
+                                                {
+                                                    case "POSITIVE":
+                                                        
+                                                        if (clsWE.fnElementExist("Policy Lookup Table", "//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr[td[text()='" + objData.fnGetValue("PolicyNo", "") + "']]", false, false))
+                                                        {
+                                                            //Select Policy
+                                                            clsReportResult.fnLog("Policy Lookup Verification", "The SPSS Policy: "+ objData.fnGetValue("PolicyNo", "").ToString() + " was found as expected.", "Pass", true);
+                                                            clsWE.fnClick(clsWE.fnGetWe("//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr[td[text()='" + objData.fnGetValue("PolicyNo", "") + "']]//button"), "Select Policy", false);
+                                                            //Verify Blue Toast Message
+                                                            clsWE.fnPageLoad(clsWE.fnGetWe("//div[contains(@data-bind, 'Answer.ContractNumber()')]"), "Blue Toas Message", false, false);
+                                                            if (clsWE.fnGetAttribute(clsWE.fnGetWe("//span[contains(@data-bind,'Answer.PolicyNumber')]"), "Get policy", "innerText", false, false) == objData.fnGetValue("PolicyNo", ""))
+                                                            {
+                                                                clsReportResult.fnLog("Policy Lookup Verification", "The SPSS Policy " + objData.fnGetValue("PolicyNo", "").ToString() + " was displayed on Duplicate Claim Check Page as expected.", "Pass", true);
+                                                                //Go to Intake Flow
+                                                                clsWE.fnClick(clsWE.fnGetWe("//button[text()='Next']"), "Next button", false);
+                                                                if (clsMG.IsElementPresent("//button[@id='start-intake']"))
+                                                                {
+                                                                    IWebElement objWeBar = clsWebBrowser.objDriver.FindElement(By.XPath("//*[@id='EnvironmentBar']"));
+                                                                    action = new Actions(clsWebBrowser.objDriver);
+                                                                    objWeBar.Click();
+                                                                    action.SendKeys(Keys.Home).Perform();
+                                                                    Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                                                                    clsWE.fnClick(clsWE.fnGetWe("//button[@id='start-intake']"), "Start Intake Button", false, false);
+                                                                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                                                                }
+                                                                clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='page-container']"), "Intake FLow Page", false, false);
+                                                                //Click on Client Location Information
+                                                                clsWE.fnClick(clsWE.fnGetWe("//div[@id='list-example']//span[contains(text(), 'Client/Location Information')]"), "Client Location Information", false);
+                                                                Thread.Sleep(TimeSpan.FromSeconds(5));
+                                                                if (clsWE.fnGetAttribute(clsWE.fnGetWe("//span[contains(@data-bind,'Answer.PolicyNumber')]"), "Get policy", "innerText", false, false) == objData.fnGetValue("PolicyNo", ""))
+                                                                {
+                                                                    clsWE.fnScrollTo(clsWE.fnGetWe("//span[contains(@data-bind,'Answer.PolicyNumber')]"), "Scroll to Policy", false, false);
+                                                                    clsReportResult.fnLog("Policy Lookup Verification", "The Policy " + objData.fnGetValue("PolicyNo", "").ToString() + " was displayed on Intake Flow Page as expected", "Pass", true);
+                                                                }
+                                                                else 
+                                                                {
+                                                                    clsReportResult.fnLog("Policy Lookup Verification", "The Policy " + objData.fnGetValue("PolicyNo", "").ToString() + " was not displayed on Intake Flow Page as expected", "Fail", false);
+                                                                    blResult = false;
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                clsReportResult.fnLog("Policy Lookup Verification", "--->> The policy displayed on screen does not match.", "Fail", false);
+                                                                blResult = false;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            clsReportResult.fnLog("Policy Lookup Verification", "No SPSS Policy records were retrieved in the table.", "Fail", false);
+                                                        }
+                                                        break;
+                                                    case "NEGATIVE":
+                                                        IList<IWebElement> lsRow = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr"));
+                                                        if (lsRow.Count > 2)
+                                                        {
+                                                            clsReportResult.fnLog("Policy Lookup Verification", "The SPSS Policy should not be returned when DOL is not provided or is invalid.", "Fail", true, false);
+                                                            blResult = false;
+                                                        }
+                                                        else 
+                                                        {
+                                                            clsReportResult.fnLog("Policy Lookup Verification", "The SPSS Policies are not returned when DOL is not provied or out of date range as expected.", "Pass", true, false);
+                                                        }
+                                                        break;
+                                                }
+                                            }
+                                            else 
+                                            {
+                                                clsReportResult.fnLog("Policy Lookup Verification", "The Policy Lookup Popup was not displayed and test cannot continue.", "Fail", true, false);
+                                                blResult = false;
+                                            }
+                                        }
+                                        else 
+                                        {
+                                            clsReportResult.fnLog("Policy Lookup Verification", "The Policy Lookup button is not displayed on the screen and test cannot continue.", "Fail", true, false);
+                                            blResult = false;
+                                        }
+
+                                        break;
+                                    case "DATABASE":
+                                        //Enter Exta Data
+                                        clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false);
+                                        clsMG.fnCleanAndEnterText("What Is The Policy Number", "//div[@class='row' and div[span[text()='What Is The Policy Number? (Provided By Reporter)']]]//input", objData.fnGetValue("PolicyProvided", ""), false, false, "", true);
+                                        clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false);
+                                        Thread.Sleep(TimeSpan.FromSeconds(3));
+                                        clsMG.fnCleanAndEnterText("DBA Name Given By Caller", "//div[@class='row' and div[span[text()='DBA Name Given By Caller']]]//input", objData.fnGetValue("DBAName", ""), false, false, "", true);
+                                        if (clsWE.fnElementExist("Policy Button", "//button[@id='btnJurisLocation_LOCATION_LOOKUP']", true))
+                                        {
+                                            clsWE.fnClick(clsWE.fnGetWe("//button[@id='btnJurisLocation_LOCATION_LOOKUP']"), "Click Policy Search", false);
+                                            clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]"), "Policy Popup", false, false);
+                                            if (clsWE.fnElementExist("Loading element", "//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]", true, false))
+                                            {
+                                                //Provide Policy Information
+                                                clsWE.fnPageLoad(clsWE.fnGetWe("//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']"), "Policy Table", false, false);
+                                                clsMG.WaitWEUntilAppears("Wait Table", "//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']", 10);
+
+                                                IWebElement objElement;
+                                                if (objData.fnGetValue("ScenarioType", "").ToUpper() == "POSITIVE")
+                                                { objElement = clsWebBrowser.objDriver.FindElement(By.XPath("//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr[1]//td[2]")); }
+                                                else
+                                                { objElement = clsWebBrowser.objDriver.FindElement(By.XPath("//table[@id='jurisLocationResults_LOCATION_LOOKUP']//td[@class='dataTables_empty']")); }
+
+                                                Actions action = new Actions(clsWebBrowser.objDriver);
+                                                objElement.Click();
+                                                action.SendKeys(Keys.Home).Perform();
+                                                Thread.Sleep(TimeSpan.FromSeconds(2));
+                                                //Enter Policy
+                                                clsMG.fnCleanAndEnterText("Policy Number", "//input[@id='search-policyNumber']", objData.fnGetValue("PolicyNo", ""), false, false, "", false);
+                                                clsWE.fnClick(clsWE.fnGetWe("//button[text()='Search']"), "Search button", true);
+                                                Thread.Sleep(TimeSpan.FromSeconds(3));
+                                                switch (objData.fnGetValue("ScenarioType", "").ToUpper())
+                                                {
+                                                    case "POSITIVE":
+
+                                                        if (clsWE.fnElementExist("Policy Lookup Table", "//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr[td[text()='" + objData.fnGetValue("PolicyNo", "") + "']]", false, false))
+                                                        {
+                                                            //Select Policy
+                                                            clsReportResult.fnLog("Policy Lookup Verification", "The DataBase Policy: " + objData.fnGetValue("PolicyNo", "").ToString() + " was found as expected.", "Pass", true);
+                                                            clsWE.fnClick(clsWE.fnGetWe("//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr[td[text()='" + objData.fnGetValue("PolicyNo", "") + "']]//button"), "Select Policy", false);
+                                                            //Verify Blue Toast Message
+                                                            clsWE.fnPageLoad(clsWE.fnGetWe("//div[contains(@data-bind, 'Answer.ContractNumber()')]"), "Blue Toas Message", false, false);
+                                                            if (clsWE.fnGetAttribute(clsWE.fnGetWe("//span[contains(@data-bind,'Answer.PolicyNumber')]"), "Get policy", "innerText", false, false) == objData.fnGetValue("PolicyNo", ""))
+                                                            {
+                                                                clsReportResult.fnLog("Policy Lookup Verification", "The DataBase Policy " + objData.fnGetValue("PolicyNo", "").ToString() + " was displayed on Duplicate Claim Check Page as expected.", "Pass", true);
+                                                                //Go to Intake Flow
+                                                                clsWE.fnClick(clsWE.fnGetWe("//button[text()='Next']"), "Next button", false);
+                                                                if (clsMG.IsElementPresent("//button[@id='start-intake']"))
+                                                                {
+                                                                    IWebElement objWeBar = clsWebBrowser.objDriver.FindElement(By.XPath("//*[@id='EnvironmentBar']"));
+                                                                    action = new Actions(clsWebBrowser.objDriver);
+                                                                    objWeBar.Click();
+                                                                    action.SendKeys(Keys.Home).Perform();
+                                                                    Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                                                                    clsWE.fnClick(clsWE.fnGetWe("//button[@id='start-intake']"), "Start Intake Button", false, false);
+                                                                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                                                                }
+                                                                clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='page-container']"), "Intake FLow Page", false, false);
+                                                                //Click on Client Location Information
+                                                                clsWE.fnClick(clsWE.fnGetWe("//div[@id='list-example']//span[contains(text(), 'Client/Location Information')]"), "Client Location Information", false);
+                                                                Thread.Sleep(TimeSpan.FromSeconds(5));
+                                                                //Verify What Is The Policy Number? (Provided By Reporter)
+                                                                if (clsWE.fnGetAttribute(clsWE.fnGetWe("//div[@class='row' and div[span[text()='What Is The Policy Number? (Provided By Reporter)']]]//input"), "Get policy Reporter", "value", false, false) == objData.fnGetValue("PolicyProvided", ""))
+                                                                {
+                                                                    clsWE.fnScrollTo(clsWE.fnGetWe("//div[@class='row' and div[span[text()='What Is The Policy Number? (Provided By Reporter)']]]//input"), "Scroll to Policy", false, false);
+                                                                    clsReportResult.fnLog("Policy Lookup Verification", "The What Is The Policy Number? (Provided By Reporter): " + objData.fnGetValue("PolicyProvided", "").ToString() + " was displayed on Intake Flow Page as expected.", "Pass", true);
+                                                                }
+                                                                else
+                                                                {
+                                                                    clsReportResult.fnLog("Policy Lookup Verification", "The What Is The Policy Number? (Provided By Reporter): " + objData.fnGetValue("PolicyProvided", "").ToString() + " was not displayed on Intake Flow Page as expected.", "Fail", true);
+                                                                    blResult = false;
+                                                                }
+                                                                //DBA Name Given By Caller
+                                                                if (clsWE.fnGetAttribute(clsWE.fnGetWe("//div[@class='row' and div[span[text()='DBA Name Given By Caller']]]//input"), "Get DBA Name Given By Caller", "value", false, false) == objData.fnGetValue("DBAName", ""))
+                                                                {
+                                                                    clsWE.fnScrollTo(clsWE.fnGetWe("//div[@class='row' and div[span[text()='DBA Name Given By Caller']]]//input"), "Scroll to DBA Name Given By Caller", false, false);
+                                                                    clsReportResult.fnLog("Policy Lookup Verification", "The DBA Name Given By Caller: " + objData.fnGetValue("DBAName", "").ToString() + " was displayed on Intake Flow Page as expected.", "Pass", true);
+                                                                }
+                                                                else
+                                                                {
+                                                                    clsReportResult.fnLog("Policy Lookup Verification", "The DBA Name Given By Caller: " + objData.fnGetValue("DBAName", "").ToString() + " was not displayed on Intake Flow Page as expected.", "Fail", true);
+                                                                    blResult = false;
+                                                                }
+                                                                //Policy Number (Provided By Search)
+                                                                if (clsWE.fnGetAttribute(clsWE.fnGetWe("//div[@class='row' and div[span[text()='Policy Number (Provided By Search)']]]//input"), "Get Policy Number (Provided By Search)", "value", false, false) == objData.fnGetValue("PolicyNo", ""))
+                                                                {
+                                                                    clsWE.fnScrollTo(clsWE.fnGetWe("//div[@class='row' and div[span[text()='Policy Number (Provided By Search)']]]//input"), "Scroll to Policy Number (Provided By Search)", false, false);
+                                                                    clsReportResult.fnLog("Policy Lookup Verification", "The Policy Number (Provided By Search): " + objData.fnGetValue("PolicyNo", "").ToString() + " was displayed on Intake Flow Page as expected.", "Pass", true);
+                                                                }
+                                                                else
+                                                                {
+                                                                    clsReportResult.fnLog("Policy Lookup Verification", "The Policy Number (Provided By Search): " + objData.fnGetValue("PolicyNo", "").ToString() + " was not displayed on Intake Flow Page as expected.", "Fail", true);
+                                                                    blResult = false;
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                clsReportResult.fnLog("Policy Lookup Verification", "The DataBase policy displayed on screen does not match.", "Fail", false);
+                                                                blResult = false;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            clsReportResult.fnLog("Policy Lookup Verification", "No DataBase Policy records were retrieved in the table.", "Fail", false);
+                                                        }
+                                                        break;
+                                                    case "NEGATIVE":
+                                                        IList<IWebElement> lsRow = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr"));
+                                                        if (lsRow.Count > 2)
+                                                        {
+                                                            clsReportResult.fnLog("Policy Lookup Verification", "The DataBase Policy should not be returned when DOL is not provided or is invalid.", "Fail", true, false);
+                                                            blResult = false;
+                                                        }
+                                                        else
+                                                        {
+                                                            clsReportResult.fnLog("Policy Lookup Verification", "The DataBase Policies are not returned when DOL is not provied or out of date range as expected.", "Pass", true, false);
+                                                        }
+                                                        break;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                clsReportResult.fnLog("Policy Lookup Verification", "The Policy Lookup Popup was not displayed and test cannot continue.", "Fail", true, false);
+                                                blResult = false;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            clsReportResult.fnLog("Policy Lookup Verification", "The Policy Lookup button is not displayed on the screen and test cannot continue.", "Fail", true, false);
+                                            blResult = false;
+                                        }
+                                        break;
+                                }
+                                //Close Popup
+                                if (clsMG.IsElementPresent("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]"))
+                                {
+                                    clsWE.fnClick(clsWE.fnGetWe("//button[@id='btn_close_juris']"), "Close Policy Popup", false);
+                                    Thread.Sleep(TimeSpan.FromSeconds(2));
+                                }
+
+                            }
+                            else 
+                            {
+                                clsReportResult.fnLog("Policy Lookup Verification", "The Duplicated Claim Check was not successfully and claim creation cannot continue.", "Fail", true, false);
+                                blResult = false;
+                            }
+                        }
                         else 
-                        { }
+                        {
+                            clsReportResult.fnLog("Policy Lookup Verification", "The Policy Lookup cannot continue since the claim cannot start successfully.", "Fail", true, false);
+                            blResult = false;
+                        }
                     }
                     else 
                     {
@@ -579,25 +840,6 @@ namespace AutomationFrame_GlobalIntake.POM
             }
             return blResult;
         }
-
-
-        public bool fnTrainingMode(string pstrSetNo) 
-        {
-            bool blResult = true;
-            clsData objData = new clsData();
-            clsReportResult.fnLog("Two Factor Authentication", "Two Factor Authentication Function Starts.", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
-            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
-            {
-                objData.CurrentRow = intRow;
-                if (objData.fnGetValue("Set", "") == pstrSetNo)
-                {
-
-                }
-            }
-            return blResult;
-        }
-
 
         public bool fnCreateAndSubmitClaim(string pstrSetNo)
         {

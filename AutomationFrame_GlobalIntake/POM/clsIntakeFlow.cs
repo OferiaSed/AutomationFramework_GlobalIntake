@@ -19,6 +19,35 @@ namespace AutomationFrame_GlobalIntake.POM
         private clsWebElements clsWE = new clsWebElements();
 
 
+        private bool fnSelectClientPopup(string pstrClientNumber, string pstrClientName) 
+        {
+            bool blResult = true;
+            clsWE.fnClick(clsWE.fnGetWe("//button[@id='selectClient_']"), "Select Client Button", false);
+            clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='clientSelectorModal_' and contains(@style, 'display: block;')]"), "Select Client Popup", false, false);
+            if (clsWE.fnElementExist("Select Client Popup", "//div[@id='clientSelectorModal_' and contains(@style, 'display: block;')]", false, false))
+            {
+                //Apply the filter
+                clsMG.fnCleanAndEnterText("Client Number or Name", "//input[@placeholder='Client Number or Name']", pstrClientNumber, false, false, "", false);
+                Thread.Sleep(TimeSpan.FromSeconds(2));
+                //Check if the client exist
+                if (clsMG.IsElementPresent("//tr[td[contains(text(), '" + pstrClientNumber + "')] and td[contains(text(), '" + pstrClientName + "')]]"))
+                {
+                    clsWE.fnClick(clsWE.fnGetWe("//tr[td[contains(text(), '" + pstrClientNumber + "')] and td[contains(text(), '" + pstrClientName + "')]]//a"), "Select Button", true);
+                }
+                else
+                {
+                    clsReportResult.fnLog("Select Client Popup", "The client: " + pstrClientNumber + " was not found in the popup", "Fail", true, true);
+                    blResult = false;
+                }
+            }
+            else
+            {
+                clsReportResult.fnLog("Select Client Popup", "The select intake popup was not displayed", "Fail", true, true);
+                blResult = false;
+            }
+            return blResult;
+        }
+
         public bool fnSelectIntake(string pstrClientNumber, string pstrClientName)
         {
             bool blResult = true;
@@ -30,6 +59,10 @@ namespace AutomationFrame_GlobalIntake.POM
                 //Verify if the client is already selected
                 if (clsWE.fnGetAttribute(clsWE.fnGetWe("//button[@id='selectClient_']/span"), "Select Client", "innerText", false) == "SELECT CLIENT")
                 {
+                    //clsWE.fnClick(clsWE.fnGetWe("//button[@id='selectClient_']"), "Select Client Button", false);
+                    //clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='clientSelectorModal_' and contains(@style, 'display: block;')]"), "Select Client Popup", false, false);
+                    blResult = blResult = fnSelectClientPopup(pstrClientNumber, pstrClientName);
+                    /*
                     clsWE.fnClick(clsWE.fnGetWe("//button[@id='selectClient_']"), "Open Client Popup", false);
                     if (clsWE.fnElementExist("Select Intake Popup", "//div[@id='clientSelectorModal_' and contains(@style, 'display: block;')]", false))
                     {
@@ -52,6 +85,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         clsReportResult.fnLog("Select Intake", "The select intake popup was not displayed", "Fail", true, true);
                         blResult = false;
                     }
+                    */
                 }                
             }
             else 
@@ -335,7 +369,6 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
-
         public bool fnSearchClaim(clsData pobjData) 
         {
             bool blResult = true;
@@ -344,12 +377,22 @@ namespace AutomationFrame_GlobalIntake.POM
             clsMG.fnHamburgerMenu("Search Intakes");
             if (clsWE.fnElementExist("Search Intake Page", "//h4[text()='Search Intakes']", true))
             {
+                //Clear filters
+                clsWE.fnClick(clsWE.fnGetWe("//button[@id='primaryClear']"), "Clear Button", false);
+                Thread.Sleep(TimeSpan.FromSeconds(3));
+                //Select Client
+                if (pobjData.fnGetValue("ClientNo", "") != "" && pobjData.fnGetValue("ClientName", "") != "") 
+                {
+                    //Select Client
+                    blResult = fnSelectClientPopup(pobjData.fnGetValue("ClientNo", ""), pobjData.fnGetValue("ClientName", ""));
+                }
                 //Populate Search Criteria
                 clsMG.fnCleanAndEnterText("Confirmation Number", "//input[contains(@data-bind, 'ConfirmationNumber')]", pobjData.fnGetValue("ConfNo", ""), false, false, "", false);
                 clsMG.fnCleanAndEnterText("Claim Number", "//input[contains(@data-bind, 'VendorIncidentNumber')]", pobjData.fnGetValue("ClaimNumber", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Line of Business", "//div[select[contains(@data-bind, 'SearchParameters.Lob')]]//input", pobjData.fnGetValue("LOB", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Status", "//div[select[contains(@data-bind, 'SearchParameters.Status')]]//input", pobjData.fnGetValue("Status", ""), false, false, "", false);
                 clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Search')]"), "Search", false);
+                Thread.Sleep(TimeSpan.FromSeconds(5));
             }
             else
             {
@@ -797,7 +840,6 @@ namespace AutomationFrame_GlobalIntake.POM
 
         }
 
-
         public bool fnAccountUnitTableRows(string pstrType, string pstrAccUnit, string pstrExpectedVal) 
         {
             //Get WebElements and Review the expected value
@@ -1175,9 +1217,6 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
-
-
-
         public bool fnVerifyTrainingModeClaims() 
         {
             string[] arrClaim = { clsConstants.strSubmitClaimTrainingMode, clsConstants.strResumeClaimTrainingMode };
@@ -1202,6 +1241,103 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
+        public bool fnIntakeOnlyRemuseVerification(string pstrSetNo)
+        {
+            bool blResult = true;
+            clsData objData = new clsData();
+            clsReportResult.fnLog("Verify Intake Only Resume Claim", "<<<<<<<<<< Resume Claim Function Starts. >>>>>>>>>>", "Info", false);
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "ResumeIntOnly");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == pstrSetNo)
+                {
+                    //Search Claim
+                    if (fnSearchClaim(objData))
+                    {
+                        clsReportResult.fnLog("Verify Intake Only Resume Claim", "Search Page Results", "Info", true);
+                        //Get Claim List
+                        IList<IWebElement> lsPagButton = clsWebBrowser.objDriver.FindElements(By.XPath("//li[contains(@class, 'paginate_button page-item')]"));
+                        IList<IWebElement> lsRows = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='results']//tr//td[8]"));
+                        string strCurrentUser = clsWebBrowser.objDriver.FindElement(By.XPath("//li[@class='nav-item dropdown m-menuitem-show']//span[contains(@data-bind, 'DisplayName')]")).GetAttribute("innerText");
+                        bool blFound = false;
+                        int intCount = 0;
+                        if (lsRows.Count > 0)
+                        {
+                            //Iterate for each Page
+                            for (int intPage = 1; intPage <= lsPagButton.Count - 2; intPage++) 
+                            {
+                                switch (objData.fnGetValue("UserVerification", "").ToUpper()) 
+                                {
+                                    case "SAMEUSER":
+                                        //Search all the records with the same user logged in
+                                        foreach (var row in lsRows)
+                                        {
+                                            intCount++;
+                                            if (row.GetAttribute("innerText") == strCurrentUser)
+                                            {
+                                                //Select Rown and Click on submit
+                                                clsWE.fnClick(clsWE.fnGetWe("(//table[@id='results']//tr//a)["+ intCount +"]"), "Click Resume Button", false, false);
+                                                clsWE.fnPageLoad(clsWE.fnGetWe("//h4[text()='Intake Details']"), "Intake Details Page", false, false);
+                                                blFound = true;
+                                                break;
+                                            }
+                                        }
+                                        break;
+                                    case "OTHERUSER":
+                                        //Search all the records with a different user
+                                        foreach (var row in lsRows)
+                                        {
+                                            intCount++;
+                                            if (row.GetAttribute("innerText") != strCurrentUser)
+                                            {
+                                                //Select Rown and Click on submit
+                                                clsWE.fnClick(clsWE.fnGetWe("(//table[@id='results']//tr//a)[" + intCount + "]"), "Click Resume Button", false, false);
+                                                clsWE.fnPageLoad(clsWE.fnGetWe("//h4[text()='Intake Details']"), "Intake Details Page", false, false);
+                                                blFound = true;
+                                                break;
+                                            }
+                                        }
+                                        break;
+                                }
+                                //Click Next Button
+                                if (intPage > 1) { clsWE.fnClick(clsWE.fnGetWe("//li[@id='results_next']/a"), "Next Button", false, false); }
+                                if (blFound) { break; }
+                            }
+                            //Verify that Resume button is not displayed
+                            if (blFound)
+                            {
+                                if (!clsMG.IsElementPresent("//button[text()='Resume']"))
+                                {
+                                    clsReportResult.fnLog("Verify Intake Only Resume Claim", "The RESUME button is not displayed for Intake Only Users as expected.", "Pass", true, false);
+                                }
+                                else
+                                {
+                                    clsReportResult.fnLog("Verify Intake Only Resume Claim", "The RESUME button should not be displayed for Intake Only Users.", "Fail", true, false);
+                                    blResult = false;
+                                }
+                            }
+                            else 
+                            {
+                                clsReportResult.fnLog("Verify Intake Only Resume Claim", "No claims were found with the criteria provided and test cannot continue.", "Fail", true, false);
+                                blResult = false;
+                            }
+                        }
+                        else
+                        {
+                            clsReportResult.fnLog("Verify Intake Only Resume Claim", "The search criteria did not return any data and test cannot continue.", "Fail", true, false);
+                            blResult = false;
+                        }
+                    }
+                    else
+                    {
+                        clsReportResult.fnLog("Verify Intake Only Resume Claim", "The Intake Only Resume Claims cannot continue since some error appears in the search page.", "Fail", true, false);
+                        blResult = false;
+                    }
+                }
+            }
+            return blResult;
+        }
 
 
 

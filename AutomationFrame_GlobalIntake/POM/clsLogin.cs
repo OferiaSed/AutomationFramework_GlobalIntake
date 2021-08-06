@@ -50,7 +50,7 @@ namespace AutomationFrame_GlobalIntake.POM
                     else
                     {
                         clsConstants.blTrainingMode = true;
-                        if (objData.fnGetValue("TrainingLoginType", "").ToUpper() == "VALID" && objData.fnGetValue("TrainingLoginType", "").ToUpper() == "")
+                        if (objData.fnGetValue("TrainingLoginType", "").ToUpper() == "VALID" || objData.fnGetValue("TrainingLoginType", "").ToUpper() == "")
                         {
                             blResult = clsWE.fnElementExist("Login Label", "//span[text()='Training Mode - ']", false, false);
                             if (blResult)
@@ -61,7 +61,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             else
                             { clsReportResult.fnLog("Login Page", "Login Page was not successfully or Training Label was not displayed.", "Fail", true, true); }
                         }
-                        else
+                        else if(objData.fnGetValue("TrainingLoginType", "").ToUpper() == "INVALID")
                         {
                             if (clsWE.fnElementExist("Login Invalid Message", "//*[contains(text(), 'You do not have permission to access Training Mode. Please return to the main login screen.')]", false, false))
                             { clsReportResult.fnLog("Login Page", "The message for invalid user roles allowed in training mode is displayed as expected.", "Pass", true); }

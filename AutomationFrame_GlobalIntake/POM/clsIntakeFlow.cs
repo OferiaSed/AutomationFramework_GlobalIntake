@@ -1112,6 +1112,72 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
+        public bool fnReportedByVerification(string pstrSetNo)
+        {
+            bool blResult = true;
+            clsData objData = new clsData();
+            clsReportResult.fnLog("Create Standard Claim", "Create Standard Claim.", "Info", false);
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "ClaimInfo");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == pstrSetNo)
+                {
+                    //Go to Select Client
+                    clsReportResult.fnLog("Create Claim", "The Create Claim Function Starts.", "Info", false);
+                    if (fnSelectIntake(objData.fnGetValue("ClientNo", ""), objData.fnGetValue("ClientName", "")))
+                    {
+                        //Start Intake and go to Duplicate Claim Check
+                        if (fnStartNewIntake(objData.fnGetValue("LOB", "")))
+                        {
+                            //Populate Duplicate Claim Check
+                            if (fnDuplicateClaimPage(objData, false))
+                            {
+                                //Verify that Reported By is not present at Duplicate Claim Check
+                                //
+                                //
+                                //
+                                
+                                //Verify is exist Start Intake Button
+                                if (clsMG.IsElementPresent("//button[@id='start-intake']"))
+                                {
+                                    clsMG.fnGoTopPage();
+                                    clsWE.fnClick(clsWE.fnGetWe("//button[@id='start-intake']"), "Start Intake Button", false, false);
+                                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                                }
+                                
+                                //Go to Intake Flow
+                                //
+                                //
+                                //
+                                //
+                                
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Create Claim", "The Duplicated Claim Check was not successfully and claim creation cannot continue.", "Fail", true, false);
+                                blResult = false;
+                            }
+                        }
+                        else
+                        {
+                            clsReportResult.fnLog("Create Claim", "The Create Claim cannot continue since the claim cannot start successfully.", "Fail", true, false);
+                            blResult = false;
+                        }
+                    }
+                    else
+                    {
+                        clsReportResult.fnLog("Create Claim", "The Create Claim cannot continue since the client was not selected as expected.", "Fail", true, false);
+                        blResult = false;
+                    }
+                }
+            }
+            return blResult;
+        }
+
+
+
+
         public bool fnVerifyTrainingModeClaims() 
         {
             string[] arrClaim = { clsConstants.strSubmitClaimTrainingMode, clsConstants.strResumeClaimTrainingMode };

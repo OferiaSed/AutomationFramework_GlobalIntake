@@ -102,6 +102,9 @@ namespace AutomationFrame_GlobalIntake.TestCases
                             case "INTAKEONLYRESUME":
                                 if (!clsIntake.fnIntakeOnlyRemuseVerification(TempValue)) { blStatus = false; }
                                 break;
+                            case "REPORTEDBYRESTRICTION":
+                                if (!clsIntake.fnReportedByVerification(TempValue)) { blStatus = false; }
+                                break;
                             default:
                                 break;
                         }

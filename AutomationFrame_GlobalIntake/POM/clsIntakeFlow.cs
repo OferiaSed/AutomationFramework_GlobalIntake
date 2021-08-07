@@ -380,6 +380,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 //Clear filters
                 clsWE.fnClick(clsWE.fnGetWe("//button[@id='primaryClear']"), "Clear Button", false);
                 Thread.Sleep(TimeSpan.FromSeconds(3));
+                clsMG.fnGoTopPage();
                 //Select Client
                 if (pobjData.fnGetValue("ClientNo", "") != "" && pobjData.fnGetValue("ClientName", "") != "") 
                 {
@@ -1158,7 +1159,7 @@ namespace AutomationFrame_GlobalIntake.POM
         {
             bool blResult = true;
             clsData objData = new clsData();
-            clsReportResult.fnLog("Create Standard Claim", "Create Standard Claim.", "Info", false);
+            clsReportResult.fnLog("Restricted Reported By", "Create Standard Claim.", "Info", false);
             objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "ClaimInfo");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
@@ -1166,7 +1167,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 if (objData.fnGetValue("Set", "") == pstrSetNo)
                 {
                     //Go to Select Client
-                    clsReportResult.fnLog("Create Claim", "The Create Claim Function Starts.", "Info", false);
+                    clsReportResult.fnLog("Restricted Reported By", "The Create Claim Function Starts.", "Info", false);
                     if (fnSelectIntake(objData.fnGetValue("ClientNo", ""), objData.fnGetValue("ClientName", "")))
                     {
                         //Start Intake and go to Duplicate Claim Check
@@ -1175,41 +1176,62 @@ namespace AutomationFrame_GlobalIntake.POM
                             //Populate Duplicate Claim Check
                             if (fnDuplicateClaimPage(objData, false))
                             {
-                                //Verify that Reported By is not present at Duplicate Claim Check
-                                //
-                                //
-                                //
-                                
-                                //Verify is exist Start Intake Button
-                                if (clsMG.IsElementPresent("//button[@id='start-intake']"))
+                                //Verify that Reported By is not displayed on Duplicated Claim Check
+                                if (!clsMG.IsElementPresent("//div[@class='row' and div[span[text()='Reported By']]]//span[@class='select2-selection select2-selection--single']"))
                                 {
-                                    clsMG.fnGoTopPage();
-                                    clsWE.fnClick(clsWE.fnGetWe("//button[@id='start-intake']"), "Start Intake Button", false, false);
-                                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                                    clsReportResult.fnLog("Restricted Reported By", "The Reported By dropdown is not displayed for Intake Only Users on Duplicate Claim Check Page as expected.", "Pass", true, false);
                                 }
-                                
-                                //Go to Intake Flow
-                                //
-                                //
-                                //
-                                //
-                                
+                                else 
+                                {
+                                    clsReportResult.fnLog("Restricted Reported By", "The Reported By dropdown should not be displayed for Intake Only Users on Duplicate Claim Check Page", "Fail", true, false);
+                                    blResult = false;
+                                }
+
+                                //Next Button
+                                clsWE.fnClick(clsWE.fnGetWe("//button[text()='Next']"), "Next Button", false);
+                                if (!clsMG.IsElementPresent("//*[@data-bind='text:ValidationMessage']") || !clsMG.IsElementPresent("//div[@class='md-toast md-toast-error']"))
+                                {
+                                    clsReportResult.fnLog("Restricted Reported By", "The Duplicate Claim Check Page was filled successfully.", "Pass", false, false);
+                                    //Verify is exist Start Intake Button
+                                    if (clsMG.IsElementPresent("//button[@id='start-intake']"))
+                                    {
+                                        clsMG.fnGoTopPage();
+                                        clsWE.fnClick(clsWE.fnGetWe("//button[@id='start-intake']"), "Start Intake Button", false, false);
+                                        Thread.Sleep(TimeSpan.FromSeconds(10));
+                                    }
+
+                                    //Verify that Reported By is not displayed on Intake Flow
+                                    if (!clsMG.IsElementPresent("//div[@class='row' and div[span[text()='Reported By']]]//span[@class='select2-selection select2-selection--single']"))
+                                    {
+                                        clsReportResult.fnLog("Restricted Reported By", "The Reported By dropdown is not displayed for Intake Only Users on Intake Flow Page as expected.", "Pass", true, false);
+                                    }
+                                    else
+                                    {
+                                        clsReportResult.fnLog("Restricted Reported By", "The Reported By dropdown should not be displayed for Intake Only Users on Intake Flow Page", "Fail", true, false);
+                                        blResult = false;
+                                    }
+                                }
+                                else
+                                {
+                                    clsReportResult.fnLog("Restricted Reported By", "Some errors were found in Duplicate Claim Check Page and test cannot continue", "Fail", true, false);
+                                    blResult = false;
+                                }
                             }
                             else
                             {
-                                clsReportResult.fnLog("Create Claim", "The Duplicated Claim Check was not successfully and claim creation cannot continue.", "Fail", true, false);
+                                clsReportResult.fnLog("Restricted Reported By", "The Duplicated Claim Check was not successfully and claim creation cannot continue.", "Fail", true, false);
                                 blResult = false;
                             }
                         }
                         else
                         {
-                            clsReportResult.fnLog("Create Claim", "The Create Claim cannot continue since the claim cannot start successfully.", "Fail", true, false);
+                            clsReportResult.fnLog("Restricted Reported By", "The Create Claim cannot continue since the claim cannot start successfully.", "Fail", true, false);
                             blResult = false;
                         }
                     }
                     else
                     {
-                        clsReportResult.fnLog("Create Claim", "The Create Claim cannot continue since the client was not selected as expected.", "Fail", true, false);
+                        clsReportResult.fnLog("Restricted Reported By", "The Create Claim cannot continue since the client was not selected as expected.", "Fail", true, false);
                         blResult = false;
                     }
                 }

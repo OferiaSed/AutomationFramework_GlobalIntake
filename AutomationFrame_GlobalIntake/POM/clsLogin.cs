@@ -580,8 +580,6 @@ namespace AutomationFrame_GlobalIntake.POM
         public bool fnLogOffSession()
         {
             bool blResult = true;
-            string strLocator;
-
             //Verify is there is an active session
             if (clsMG.IsElementPresent("//span[text()='You are currently logged into ']") || clsMG.IsElementPresent("//*[text()='Training Mode - ']"))
             {
@@ -589,6 +587,8 @@ namespace AutomationFrame_GlobalIntake.POM
                 {
                     Thread.Sleep(TimeSpan.FromSeconds(2));
                 }
+                clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Env Bar", false, false);
+                Thread.Sleep(TimeSpan.FromSeconds(2));
                 clsWE.fnClick(clsWE.fnGetWe("//li[@class='nav-item m-menuitem-show']/a[@id='topmenu-logout']"), "Logout Link", false, false);
                 clsWE.fnPageLoad(clsWE.fnGetWe("//button[text()='BEGIN']"), "Login", false, false);
                 clsReportResult.fnLog("Logout Session", "An active session was terminated", "Info", false, false);

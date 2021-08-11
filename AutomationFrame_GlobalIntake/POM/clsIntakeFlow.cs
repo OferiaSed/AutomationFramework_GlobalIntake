@@ -560,7 +560,7 @@ namespace AutomationFrame_GlobalIntake.POM
             {
                 objData.CurrentRow = intRow;
                 if (objData.fnGetValue("Set", "") == pstrSetNo)
-                {
+                { 
                     //Go to Select Client
                     clsReportResult.fnLog("Policy Lookup Verification", "The Policy Lookup Verification Function Starts.", "Info", false);
                     if (fnSelectIntake(objData.fnGetValue("ClientNo", ""), objData.fnGetValue("ClientName", "")))
@@ -1263,7 +1263,7 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
-        public bool fnIntakeOnlyRemuseVerification(string pstrSetNo)
+        public bool fnIntakeOnlyResumeVerification(string pstrSetNo)
         {
             bool blResult = true;
             clsData objData = new clsData();
@@ -1283,12 +1283,13 @@ namespace AutomationFrame_GlobalIntake.POM
                         IList<IWebElement> lsRows = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='results']//tr//td[8]"));
                         string strCurrentUser = clsWebBrowser.objDriver.FindElement(By.XPath("//li[@class='nav-item dropdown m-menuitem-show']//span[contains(@data-bind, 'DisplayName')]")).GetAttribute("innerText");
                         bool blFound = false;
-                        int intCount = 0;
                         if (lsRows.Count > 0)
                         {
                             //Iterate for each Page
                             for (int intPage = 1; intPage <= lsPagButton.Count - 2; intPage++) 
                             {
+                                int intCount = 0;
+                                lsRows = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='results']//tr//td[8]"));
                                 switch (objData.fnGetValue("UserVerification", "").ToUpper()) 
                                 {
                                     case "SAMEUSER":
@@ -1299,47 +1300,70 @@ namespace AutomationFrame_GlobalIntake.POM
                                             if (row.GetAttribute("innerText") == strCurrentUser)
                                             {
                                                 //Select Rown and Click on submit
-                                                clsWE.fnClick(clsWE.fnGetWe("(//table[@id='results']//tr//a)["+ intCount +"]"), "Click Resume Button", false, false);
+                                                clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false, false);
+                                                Thread.Sleep(TimeSpan.FromSeconds(1));
+                                                clsWE.fnClick(clsWE.fnGetWe("(//table[@id='results']//tr//a)["+ intCount +"]"), "Click Edit Button", false, false);
+                                                Thread.Sleep(TimeSpan.FromSeconds(4));
                                                 clsWE.fnPageLoad(clsWE.fnGetWe("//h4[text()='Intake Details']"), "Intake Details Page", false, false);
                                                 blFound = true;
+                                                if (!clsMG.IsElementPresent("//button[text()='Resume']"))
+                                                {
+                                                    clsReportResult.fnLog("Verify Intake Only Resume Claim", "The RESUME button is not displayed for Intake Only Users as expected.", "Pass", true, false);
+                                                }
+                                                else
+                                                {
+                                                    clsReportResult.fnLog("Verify Intake Only Resume Claim", "The RESUME button should not be displayed for Intake Only Users.", "Fail", true, false);
+                                                    blResult = false;
+                                                }
                                                 break;
                                             }
                                         }
                                         break;
                                     case "OTHERUSER":
                                         //Search all the records with a different user
+                                        clsWE.fnScrollTo(clsWE.fnGetWe("//h4[text()='Search Results']"), "", false, false);
+                                        Thread.Sleep(TimeSpan.FromSeconds(3));
                                         foreach (var row in lsRows)
                                         {
                                             intCount++;
                                             if (row.GetAttribute("innerText") != strCurrentUser)
                                             {
-                                                //Select Rown and Click on submit
-                                                clsWE.fnClick(clsWE.fnGetWe("(//table[@id='results']//tr//a)[" + intCount + "]"), "Click Resume Button", false, false);
+                                                //Select
+                                                clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false, false);
+                                                Thread.Sleep(TimeSpan.FromSeconds(1));
+                                                clsWE.fnClick(clsWE.fnGetWe("(//table[@id='results']//tr//a)[" + intCount + "]"), "Click Edit Button", false, false);
+                                                Thread.Sleep(TimeSpan.FromSeconds(2));
                                                 clsWE.fnPageLoad(clsWE.fnGetWe("//h4[text()='Intake Details']"), "Intake Details Page", false, false);
                                                 blFound = true;
+                                                if (!clsMG.IsElementPresent("//button[text()='Resume']"))
+                                                {
+                                                    clsReportResult.fnLog("Verify Intake Only Resume Claim", "The RESUME button is not displayed for Intake Only Users as expected.", "Pass", true, false);
+                                                }
+                                                else
+                                                {
+                                                    clsReportResult.fnLog("Verify Intake Only Resume Claim", "The RESUME button should not be displayed for Intake Only Users.", "Fail", true, false);
+                                                    blResult = false;
+                                                }
                                                 break;
                                             }
                                         }
                                         break;
                                 }
                                 //Click Next Button
-                                if (intPage > 1) { clsWE.fnClick(clsWE.fnGetWe("//li[@id='results_next']/a"), "Next Button", false, false); }
+                                if (!clsMG.IsElementPresent("//li[@id='results_next']/a")) 
+                                {
+                                    clsWebBrowser.objDriver.Navigate().Back();
+                                }
+                                clsWE.fnPageLoad(clsWE.fnGetWe("//li[@id='results_next']/a"), "Wait Next Button", false, false);
+                                if (intPage + 1 > 1) 
+                                { 
+                                    clsWE.fnClick(clsWE.fnGetWe("//li[@id='results_next']/a"), "Next Button", false, false);
+                                    //clsMG.fnGoTopPage();
+                                }
                                 if (blFound) { break; }
                             }
                             //Verify that Resume button is not displayed
-                            if (blFound)
-                            {
-                                if (!clsMG.IsElementPresent("//button[text()='Resume']"))
-                                {
-                                    clsReportResult.fnLog("Verify Intake Only Resume Claim", "The RESUME button is not displayed for Intake Only Users as expected.", "Pass", true, false);
-                                }
-                                else
-                                {
-                                    clsReportResult.fnLog("Verify Intake Only Resume Claim", "The RESUME button should not be displayed for Intake Only Users.", "Fail", true, false);
-                                    blResult = false;
-                                }
-                            }
-                            else 
+                            if (!blFound) 
                             {
                                 clsReportResult.fnLog("Verify Intake Only Resume Claim", "No claims were found with the criteria provided and test cannot continue.", "Fail", true, false);
                                 blResult = false;
@@ -1360,6 +1384,179 @@ namespace AutomationFrame_GlobalIntake.POM
             }
             return blResult;
         }
+
+        public bool fnIntakeOnlyDashboardResumeAPI() 
+        {
+            bool blResult = true;
+            bool blFound = false;
+            clsData objData = new clsData();
+            clsReportResult.fnLog("Resume API Claim", "<<<<<<<<<< Resume API Claim Function Starts. >>>>>>>>>>", "Info", false);
+
+            //Get Claim Created via API
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "API");
+            objData.CurrentRow = 2;
+            string strClaim = objData.fnGetValue("IncidentNumber", "");
+            
+            //Search claim created in Dashboard
+            IList<IWebElement> lsPagButton = clsWebBrowser.objDriver.FindElements(By.XPath("//li[contains(@class, 'paginate_button page-item')]"));
+            IList<IWebElement> lsRows = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='resumeCalls']//tr//a"));
+            //Verify if Dashboard has records
+            if (lsRows.Count > 0) 
+            {
+                //Iterate for each Page
+                for (int intPage = 1; intPage <= lsPagButton.Count - 2; intPage++)
+                {
+                    //Iterator
+                    int intElement = 0;
+                    lsRows = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='resumeCalls']//tr//a"));
+                    //Iterate for each row
+                    for(int intBtn = 1; intBtn <= lsRows.Count; intBtn++)
+                    {
+                        intElement++;
+                        IWebElement elButton = clsWebBrowser.objDriver.FindElement(By.XPath("(//table[@id='resumeCalls']//tr//a)[" + intElement + "]"));
+                        elButton.Click();
+                        if (!clsMG.IsElementPresent("//div[@class='md-toast md-toast-error']"))
+                        {
+                            clsMG.WaitWEUntilAppears("Wait Intake Page", "//div[@id='list-example']", 3);
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//h1[@data-bind='text: IntakeName']"), "Intake Page", false, false);
+                            //Get Confirmation number
+                            IWebElement elConfNumber = clsWebBrowser.objDriver.FindElement(By.XPath("//span[contains(@data-bind, 'text: VendorIncidentNumber')]"));
+                            if (elConfNumber.GetAttribute("innerText") == strClaim)
+                            {
+                                blFound = true;
+                                break;
+                            }
+                            clsWebBrowser.objDriver.Navigate().Back();
+                            Thread.Sleep(TimeSpan.FromSeconds(3));
+                            clsMG.WaitWEUntilAppears("Wait Intake Dashboard", "//a[@id='resumeCalls-tab']", 2);
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//section[@id='calls-section']"), "Intake Dashboard Page", false, false);
+                        }
+                        else 
+                        {
+                            while (clsMG.IsElementPresent("//div[@class='md-toast md-toast-error']")) 
+                            { 
+                                Thread.Sleep(TimeSpan.FromSeconds(3)); 
+                            }
+                        }
+                    }
+                    //Click Next Button
+                    if (intPage > 1) { clsWE.fnClick(clsWE.fnGetWe("//li[@id='results_next']/a"), "Next Button", false, false); }
+                    if (blFound) { break; }
+                }
+
+            }
+
+            //Check Status
+            if (blFound)
+            {
+                clsReportResult.fnLog("Resume API Claim", "The claim: "+ strClaim + " created via API was found in the dashboard as expected.", "Pass", true);
+            }
+            else
+            {
+                clsReportResult.fnLog("Resume API Claim", "The claim created via API was not found in the dashboard.", "Fail", true);
+                blResult = false;
+            }
+            clsLogin login = new clsLogin();
+            login.fnLogOffSession();
+            return blResult;
+        }
+
+        public bool fnImagesBlockedAnnonymousAccess()
+        {
+            bool blResult = true;
+            clsReportResult.fnLog("Verify blocked for anonymous access", "The Verify client Images blocked for anonymous access function starts.", "Info", false);
+            clsWebBrowser.objDriver.Navigate().GoToUrl("https://intake-uat.sedgwick.com/u/2807/home1");
+            if (!clsMG.IsElementPresent("//h3[contains(text(),'Access Denied')]"))
+            {
+                clsWE.fnPageLoad(clsWE.fnGetWe("//h1[contains(text(),'Lowes Intake Center')]"), "Lowes header", false, false);
+                if (clsWE.fnElementExist("Options in screen", "//div[@class='action-group']", false, false))
+                {
+                    if (clsMG.IsElementPresent("//button[@id='cookie-accept']")) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
+                    Thread.Sleep(TimeSpan.FromSeconds(3));
+                    blResult = clickOnActionButton("Positive");
+                }
+                else
+                {
+                    clsReportResult.fnLog("Verify blocked for anonymous access", "The landing page does not have LOBs link to review.", "Fail", true, false);
+                    blResult = false;
+                }
+            }
+            else
+            {
+                clsReportResult.fnLog("Verify blocked for anonymous access", "The Self Service page is not accessible and display access denied.", "Fail", false);
+                blResult = false;
+            }
+            
+            return blResult;
+        }
+
+        public bool fnImagesBlockedAnnonymousAccessLogin()
+        {
+            bool blResult = true;
+            clsReportResult.fnLog("Verify blocked for anonymous access", "The anonymous access with an existing login session function starts.", "Info", false);
+            if (clsWE.fnElementExist("Login Label", "//span[contains(text(), 'You are currently logged into')]", true, false))
+            {
+                ((IJavaScriptExecutor)clsWebBrowser.objDriver).ExecuteScript("window.open('https://intake-uat.sedgwick.com/u/2807/home1');");
+                clsWebBrowser.objDriver.SwitchTo().Window(clsWebBrowser.objDriver.WindowHandles.Last());
+                Thread.Sleep(TimeSpan.FromSeconds(3));
+                blResult = clickOnActionButton("Negative");
+                clsMG.fnSwitchToWindowAndClose(1);
+                clsWebBrowser.objDriver.SwitchTo().Window(clsWebBrowser.objDriver.WindowHandles[0]);
+            }
+            else
+            {
+                clsReportResult.fnLog("Verify blocked for anonymous access", "The login session was not compleated successfully.", "Fail", false);
+                blResult = false;
+            }
+
+            return blResult;
+        }
+
+        private bool clickOnActionButton(string strCase)
+        {
+            bool blResult = true;
+            IList<IWebElement> lsbutton = clsWebBrowser.objDriver.FindElements(By.XPath("//button[@class='action']"));
+            for (int elm = 1; elm <= lsbutton.Count; elm++)
+            {
+                IWebElement elLOB = clsWebBrowser.objDriver.FindElement(By.XPath("(//button[@class='action'])[" + elm + "]"));
+                IWebElement elName = clsWebBrowser.objDriver.FindElement(By.XPath("(//button[@class='action']//span)[" + elm + "]"));
+                clsMG.fnHighlight(elLOB);
+                clsReportResult.fnLog("Element clickable", "Click on element: " + elName.GetAttribute("innerText").ToString() + ".", "Info", true, false);
+                elLOB.Click();
+
+                switch (strCase.ToUpper()) 
+                {
+                    case "POSITIVE":
+                        clsWE.fnPageLoad(clsWE.fnGetWe("//h3[contains(text(),'Access Denied')]"), "Access Denied", false, false);
+                        if (clsMG.IsElementPresent("//h3[contains(text(),'Access Denied')]"))
+                        {
+                            clsReportResult.fnLog("Access Denied Message", "The Access Denied message is displayed for anonymous access.", "Pass", true, false);
+                        }
+                        else 
+                        {
+                            clsReportResult.fnLog("Access Denied Message", "The Access Denied message should be displayed for anonymous access.", "Fail", true, false);
+                            blResult = false;
+                        }
+                        break;
+                    case "NEGATIVE":
+                        if (clsMG.IsElementPresent("//span[contains(text(), 'You are currently logged into')]"))
+                        {
+                            Thread.Sleep(TimeSpan.FromSeconds(5));
+                            clsReportResult.fnLog("Access Granted", "The Self Service goes to intake flow when an active session exist.", "Pass", true, false);
+                        }
+                        else 
+                        {
+                            clsReportResult.fnLog("Access Granted", "The Self Service should go to intake flow when an active session exist but it display access denied.", "Fail", true, false);
+                            blResult = false;
+                        }
+                        clsWebBrowser.objDriver.Navigate().Back();
+                        break;
+                }
+                clsWebBrowser.objDriver.Navigate().Back();
+            }
+            return blResult;
+        }
+
 
 
 

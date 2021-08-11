@@ -45,7 +45,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
             clsData objData = new clsData();
             clsUserManagment clsUM = new clsUserManagment();
             clsIntakeFlow clsIntake = new clsIntakeFlow();
-
+            clsAPI clsAPI = new clsAPI();
 
             objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], ConfigurationManager.AppSettings["Sheet"]);
             fnNavigateToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv));
@@ -63,7 +63,10 @@ namespace AutomationFrame_GlobalIntake.TestCases
                     {
                         intCount = intCount + 1;
                         var TempValue = "";
-                        if (arrValue[intCount]!= "") { TempValue = arrValue[intCount].Split('=')[1]; }
+                        if (intCount < arrValue.Length) 
+                        {
+                            if (arrValue[intCount] != "") { TempValue = arrValue[intCount].Split('=')[1]; }
+                        }
                         switch (item.ToUpper())
                         {
                             case "LOGIN":
@@ -100,10 +103,22 @@ namespace AutomationFrame_GlobalIntake.TestCases
                                 if (!clsIntake.fnPolicyLookupVerification(TempValue)) { blStatus = false; }
                                 break;
                             case "INTAKEONLYRESUME":
-                                if (!clsIntake.fnIntakeOnlyRemuseVerification(TempValue)) { blStatus = false; }
+                                if (!clsIntake.fnIntakeOnlyResumeVerification(TempValue)) { blStatus = false; }
                                 break;
                             case "REPORTEDBYRESTRICTION":
                                 if (!clsIntake.fnReportedByVerification(TempValue)) { blStatus = false; }
+                                break;
+                            case "INTAKEINSTANCEAPI":
+                                if (!clsAPI.fnIntakeInstanceAPI(TempValue)) { blStatus = false; }
+                                break;
+                            case "INTAKEONLYDASHBOARD":
+                                if (!clsIntake.fnIntakeOnlyDashboardResumeAPI()) { blStatus = false; }
+                                break;
+                            case "IMAGEBLOCKANNONYMOUSACCESS":
+                                if (!clsIntake.fnImagesBlockedAnnonymousAccess()) { blStatus = false; }
+                                break;
+                            case "IMAGEBLOCKANNONYMOUSACCESSLOGIN":
+                                if (!clsIntake.fnImagesBlockedAnnonymousAccessLogin()) { blStatus = false; }
                                 break;
                             default:
                                 break;

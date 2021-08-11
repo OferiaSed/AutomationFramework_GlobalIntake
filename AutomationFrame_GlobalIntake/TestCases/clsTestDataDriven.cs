@@ -99,6 +99,12 @@ namespace AutomationFrame_GlobalIntake.TestCases
                             case "POLICYLOOKUP":
                                 if (!clsIntake.fnPolicyLookupVerification(TempValue)) { blStatus = false; }
                                 break;
+                            case "INTAKEONLYRESUME":
+                                if (!clsIntake.fnIntakeOnlyRemuseVerification(TempValue)) { blStatus = false; }
+                                break;
+                            case "REPORTEDBYRESTRICTION":
+                                if (!clsIntake.fnReportedByVerification(TempValue)) { blStatus = false; }
+                                break;
                             default:
                                 break;
                         }

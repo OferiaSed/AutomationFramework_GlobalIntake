@@ -249,7 +249,10 @@ namespace AutomationFrame_GlobalIntake.POM
             clsReportResult.fnLog("Hamburger Menu", "Selecting a Menu Option: " + pstrMenu.ToString(), "Info", false);
             //Verify if menu is collapsed
             if (IsElementPresent("//div[@id='slide-out' and not(contains(@style, 'translateX(0px)'))]"))
-            { clsWE.fnClick(clsWE.fnGetWe("//div[@class='float-left']//i"), "Hamburger Button", false); }
+            { 
+                clsWE.fnClick(clsWE.fnGetWe("//div[@class='float-left']//i"), "Hamburger Button", false, false);
+                Thread.Sleep(TimeSpan.FromSeconds(2));
+            }
             //Select Menu Item
             if (!pstrMenu.Contains(";"))
             {
@@ -273,9 +276,9 @@ namespace AutomationFrame_GlobalIntake.POM
                     {
                         if (IsElementPresent("//li[contains(@data-bind, '" + arrMenu[intMenu].Replace(" ", "") + "')]/a"))
                         {
-                            Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                            Thread.Sleep(TimeSpan.FromSeconds(1));
                             clsWE.fnClick(clsWE.fnGetWe("//li[contains(@data-bind, '" + arrMenu[intMenu].Replace(" ", "") + "')]/a"), arrMenu[intMenu] + " Link", false, false);
-                            Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                            Thread.Sleep(TimeSpan.FromSeconds(1));
                         }
                         else
                         {
@@ -286,9 +289,9 @@ namespace AutomationFrame_GlobalIntake.POM
                     {
                         if (IsElementPresent("//a[contains(text(), '" + arrMenu[intMenu] + "')]"))
                         {
-                            Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                            Thread.Sleep(TimeSpan.FromSeconds(1));
                             clsWE.fnClick(clsWE.fnGetWe("//a[contains(text(), '" + arrMenu[intMenu] + "')]"), arrMenu[intMenu] + " Link", false, false);
-                            Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                            Thread.Sleep(TimeSpan.FromSeconds(1));
                         }
                         else
                         {

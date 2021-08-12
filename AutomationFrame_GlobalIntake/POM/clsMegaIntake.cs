@@ -341,5 +341,15 @@ namespace AutomationFrame_GlobalIntake.POM
             Thread.Sleep(TimeSpan.FromMilliseconds(500));
         }
 
+        public void fnHighlight(IWebElement pElement)
+        {
+            clsWE.fnScrollTo(pElement, "Scroll to element", false, false);
+            Thread.Sleep(TimeSpan.FromSeconds(2));
+            IJavaScriptExecutor js = (IJavaScriptExecutor)clsWebBrowser.objDriver;
+            js.ExecuteScript("arguments[0].setAttribute('style', 'background: transparent; border: 2px solid red;');", pElement);
+        }
+
+
+
     }
 }

@@ -600,8 +600,8 @@ namespace AutomationFrame_GlobalIntake.POM
         {
             bool blResult = true;
             clsData objData = new clsData();
-            clsReportResult.fnLog("Two Factor Authentication", "Two Factor Authentication Function Starts.", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            clsReportResult.fnLog("", "<<<<<<<<<<  >>>>>>>>>>.", "Info", false);
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "YourDataSheet");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;

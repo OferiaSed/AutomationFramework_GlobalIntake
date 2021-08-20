@@ -19,7 +19,7 @@ namespace AutomationFrame_GlobalIntake.POM
         private clsWebElements clsWE = new clsWebElements();
 
 
-        private bool fnSelectClientPopup(string pstrClientNumber, string pstrClientName) 
+        public bool fnSelectClientPopup(string pstrClientNumber, string pstrClientName) 
         {
             bool blResult = true;
             clsWE.fnClick(clsWE.fnGetWe("//button[@id='selectClient_']"), "Select Client Button", false);
@@ -299,6 +299,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         if (clsMG.IsElementPresent("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]"))
                         {
                             //Wait to Load Location Lookup
+                            Thread.Sleep(TimeSpan.FromSeconds(5));
                             clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]"), "Location Lookup Popup", false, false);
                             clsWE.fnPageLoad(clsWE.fnGetWe("//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']"), "Location Table", true, false);
                             //Verify is table is empty
@@ -369,6 +370,7 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
+        /*
         public bool fnSearchClaim(clsData pobjData) 
         {
             bool blResult = true;
@@ -403,7 +405,10 @@ namespace AutomationFrame_GlobalIntake.POM
 
             return blResult;
         }
+        */
 
+
+        /*
         public bool fnSearchClaim(string pstrConfNo, string pstrClaimNumber, string pstrLOB, string pstrStatus)
         {
             bool blResult = true;
@@ -428,6 +433,8 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
+        */
+
         public void fnCloseLocationLookupPopup() 
         {
             if (clsMG.IsElementPresent("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block;')]")) 
@@ -446,6 +453,65 @@ namespace AutomationFrame_GlobalIntake.POM
                 if (objData.fnGetValue("Set", "") == pstrSetNo)
                 {
                     //Select Location Lookup or Search Validation
+                    if (fnSelectIntake(objData.fnGetValue("ClientNo", ""), objData.fnGetValue("ClientName", "")))
+                    {
+                        //Start Intake
+                        fnStartNewIntake(objData.fnGetValue("IntakeName", ""));
+                        clsReportResult.fnLog("Account Unit Security", "--->> The Location Lookup Account/Unit Verification Start.", "Info", false);
+                        clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'Duplicate Claim')]"), "Duplicate Claim Page", false, false);
+                        if (clsWE.fnElementExist("Duplicate Claim Check Page", "//span[contains(text(), 'Duplicate Claim')]", true))
+                        {
+                            //Verify Location Lookup Popup was opened successfully
+                            clsWE.fnClick(clsWE.fnGetWe("//button[@id='btnJurisLocation_LOCATION_LOOKUP']"), "Location Lookup Button", false);
+                            Thread.Sleep(TimeSpan.FromSeconds(3));
+                            if (clsWE.fnElementExist("Location Lookup Popup", "//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block;')]", true))
+                            {
+                                //Verify the account or unit in the table
+                                clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block;')]"), "Location Lookup Page", false, false);
+                                clsWE.fnPageLoad(clsWE.fnGetWe("//table[@id='jurisLocationResults_LOCATION_LOOKUP']"), "Location Lookup Values", false, false);
+                                //verify that all records in the first page has the correct values
+                                if (fnAccountUnitTableRows(objData.fnGetValue("ScenarioType", ""), objData.fnGetValue("RestrictionType", ""), objData.fnGetValue("AccUnitVal", "")))
+                                {
+                                    //Apply the filter and verify that the table display the correct values
+                                    if (objData.fnGetValue("RestrictionType", "").Contains("Unit"))
+                                    { clsWE.fnClick(clsWE.fnGetWe("(//th[contains(@aria-label, 'Unit Name')])[1]"), "Unit Name Sorting", false); }
+                                    else
+                                    { clsWE.fnClick(clsWE.fnGetWe("(//th[contains(@aria-label, 'Account Name')])[1]"), "Account Name Sorting", false); }
+                                    Thread.Sleep(TimeSpan.FromSeconds(3));
+                                    if (fnAccountUnitTableRows(objData.fnGetValue("ScenarioType", ""), objData.fnGetValue("RestrictionType", ""), objData.fnGetValue("AccUnitVal", "")))
+                                    {
+                                        clsReportResult.fnLog("Location Lookup Popup", "The Account/Unit records in Location Lookup was verified successfully.", "Pass", false, false);
+                                    }
+                                    else
+                                    {
+                                        clsReportResult.fnLog("Location Lookup Popup", "An Invalid Account/Unit was identified after apply a sorting in the table.", "Fail", false, false);
+                                        blResult = false;
+                                    }
+                                }
+                                else
+                                {
+                                    clsReportResult.fnLog("Location Lookup Popup", "An Invalid Account/Unit was identified in the record of the table.", "Fail", false, false);
+                                    blResult = false;
+                                }
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Location Lookup Popup", "The Location Lookup Popup was not loaded correctly and test cannot continue.", "Fail", true, false);
+                                blResult = false;
+                            }
+                        }
+                        else
+                        {
+                            clsReportResult.fnLog("Duplicate Claim Check Page", "The Duplicate Claim Page was not loaded correctly and test cannot continue.", "Fail", true, false);
+                            blResult = false;
+                        }
+                    }
+                    else { blResult = false; }
+                    fnCloseLocationLookupPopup();
+
+
+
+                    /*
                     switch (objData.fnGetValue("Action", "").ToUpper())
                     {
                         case "LOCATIONLOOKUP":
@@ -540,6 +606,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             break;
                     }
+                    */
                 }
             }
             if (blResult)
@@ -581,8 +648,11 @@ namespace AutomationFrame_GlobalIntake.POM
                                             if (clsWE.fnElementExist("Loading element", "//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]", true, false))
                                             {
                                                 //Provide Policy Information
-                                                clsWE.fnPageLoad(clsWE.fnGetWe("//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']"), "Policy Table", false, false);
-                                                clsMG.WaitWEUntilAppears("Wait Table", "//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']", 10);
+                                                while (!clsMG.IsElementPresent("//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']")) 
+                                                { Thread.Sleep(TimeSpan.FromSeconds(2)); }
+                                                //Thread.Sleep(TimeSpan.FromSeconds(5));
+                                                //clsWE.fnPageLoad(clsWE.fnGetWe("//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']"), "Policy Table", false, false);
+                                                //clsMG.WaitWEUntilAppears("Wait Table", "//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']", 10);
 
                                                 IWebElement objElement;
                                                 if (objData.fnGetValue("ScenarioType", "").ToUpper() == "POSITIVE")
@@ -691,8 +761,11 @@ namespace AutomationFrame_GlobalIntake.POM
                                             if (clsWE.fnElementExist("Loading element", "//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]", true, false))
                                             {
                                                 //Provide Policy Information
-                                                clsWE.fnPageLoad(clsWE.fnGetWe("//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']"), "Policy Table", false, false);
-                                                clsMG.WaitWEUntilAppears("Wait Table", "//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']", 10);
+                                                while (!clsMG.IsElementPresent("//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']"))
+                                                { Thread.Sleep(TimeSpan.FromSeconds(2)); }
+                                                //Thread.Sleep(TimeSpan.FromSeconds(5));
+                                                //clsWE.fnPageLoad(clsWE.fnGetWe("//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']"), "Policy Table", false, false);
+                                                //clsMG.WaitWEUntilAppears("Wait Table", "//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']", 10);
 
                                                 IWebElement objElement;
                                                 if (objData.fnGetValue("ScenarioType", "").ToUpper() == "POSITIVE")
@@ -916,7 +989,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Create Standard Claim", "Create Standard Claim.", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "ClaimInfo");
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "EventInfo");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -1039,7 +1112,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             strClaimNo = clsWE.fnGetAttribute(clsWE.fnGetWe("//span[contains(@data-bind, 'VendorIncidentNumber')]"), "Confirmation Number", "innerText");
                                             //Save Confirmation Number
                                             clsData objSaveData = new clsData();
-                                            objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "ClaimInfo", "ClaimNumber", intRow, strClaimNo);
+                                            objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "EventInfo", "ClaimNumber", intRow, strClaimNo);
                                             clsConstants.strSubmitClaimTrainingMode = strClaimNo;
                                             clsReportResult.fnLog("Create Claim", "The claim: " + strClaimNo + " was created successfully.", "Pass", false, false);
                                             //Verify Preview Mode
@@ -1088,7 +1161,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                         strClaimNo = clsWE.fnGetAttribute(clsWE.fnGetWe("//span[contains(@data-bind, 'VendorIncidentNumber')]"), "Confirmation Number", "innerText");
                                         //Save Confirmation Number
                                         clsData objSaveData = new clsData();
-                                        objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "ClaimInfo", "ClaimNumber", intRow, strClaimNo);
+                                        objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "EventInfo", "ClaimNumber", intRow, strClaimNo);
                                         clsConstants.strResumeClaimTrainingMode = strClaimNo;
                                         clsReportResult.fnLog("Create Claim", "The resume claim: " + strClaimNo + " was created but not submited.", "Pass", false, false);
                                         //Verify Preview Mode
@@ -1160,7 +1233,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Restricted Reported By", "Create Standard Claim.", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "ClaimInfo");
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "EventInfo");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -1238,34 +1311,12 @@ namespace AutomationFrame_GlobalIntake.POM
             }
             return blResult;
         }
-
-        public bool fnVerifyTrainingModeClaims() 
-        {
-            string[] arrClaim = { clsConstants.strSubmitClaimTrainingMode, clsConstants.strResumeClaimTrainingMode };
-            bool blResult = true;
-            clsReportResult.fnLog("Search Training Claims", "<<<<<<<<<< The Search Training Claims Functions Starts. >>>>>>>>>>", "Info", false);
-            foreach (string clm in arrClaim) 
-            {
-                //Search Claim
-                fnSearchClaim("", clm, "", "");
-                //Verify Results
-                IList<IWebElement> lsRow = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='results']//tr"));
-                if (lsRow.Count >= 3)
-                {
-                    clsReportResult.fnLog("Search Training Claims", "The claims created on Training Mode should not be displayed out of training mode.", "Fail", true);
-                    blResult = false;
-                }
-                else 
-                {
-                    clsReportResult.fnLog("Search Training Claims", "The claims created on Training Mode are not retrived on normal session as expected.", "Pass", true);
-                }
-            }
-            return blResult;
-        }
-
+        
+        /*
         public bool fnIntakeOnlyResumeVerification(string pstrSetNo)
         {
             bool blResult = true;
+            
             clsData objData = new clsData();
             clsReportResult.fnLog("Verify Intake Only Resume Claim", "<<<<<<<<<< Resume Claim Function Starts. >>>>>>>>>>", "Info", false);
             objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "ResumeIntOnly");
@@ -1382,8 +1433,10 @@ namespace AutomationFrame_GlobalIntake.POM
                     }
                 }
             }
+            
             return blResult;
         }
+        */
 
         public bool fnIntakeOnlyDashboardResumeAPI() 
         {
@@ -1417,19 +1470,30 @@ namespace AutomationFrame_GlobalIntake.POM
                         elButton.Click();
                         if (!clsMG.IsElementPresent("//div[@class='md-toast md-toast-error']"))
                         {
-                            clsMG.WaitWEUntilAppears("Wait Intake Page", "//div[@id='list-example']", 3);
-                            clsWE.fnPageLoad(clsWE.fnGetWe("//h1[@data-bind='text: IntakeName']"), "Intake Page", false, false);
-                            //Get Confirmation number
-                            IWebElement elConfNumber = clsWebBrowser.objDriver.FindElement(By.XPath("//span[contains(@data-bind, 'text: VendorIncidentNumber')]"));
-                            if (elConfNumber.GetAttribute("innerText") == strClaim)
+                            if (!clsMG.IsElementPresent("//*[text()='Report a Claim']"))
                             {
-                                blFound = true;
-                                break;
+                                clsMG.WaitWEUntilAppears("Wait Intake Page", "//div[@id='list-example']", 3);
+                                clsWE.fnPageLoad(clsWE.fnGetWe("//h1[@data-bind='text: IntakeName']"), "Intake Page", false, false);
+                                //Get Confirmation number
+                                IWebElement elConfNumber = clsWebBrowser.objDriver.FindElement(By.XPath("//span[contains(@data-bind, 'text: VendorIncidentNumber')]"));
+                                if (elConfNumber.GetAttribute("innerText") == strClaim)
+                                {
+                                    blFound = true;
+                                    break;
+                                }
+                                clsWebBrowser.objDriver.Navigate().Back();
+                                Thread.Sleep(TimeSpan.FromSeconds(3));
+                                clsMG.WaitWEUntilAppears("Wait Intake Dashboard", "//a[@id='resumeCalls-tab']", 2);
+                                clsWE.fnPageLoad(clsWE.fnGetWe("//section[@id='calls-section']"), "Intake Dashboard Page", false, false);
                             }
-                            clsWebBrowser.objDriver.Navigate().Back();
-                            Thread.Sleep(TimeSpan.FromSeconds(3));
-                            clsMG.WaitWEUntilAppears("Wait Intake Dashboard", "//a[@id='resumeCalls-tab']", 2);
-                            clsWE.fnPageLoad(clsWE.fnGetWe("//section[@id='calls-section']"), "Intake Dashboard Page", false, false);
+                            else 
+                            {
+                                clsWebBrowser.objDriver.Navigate().Back();
+                                Thread.Sleep(TimeSpan.FromSeconds(3));
+                                clsMG.WaitWEUntilAppears("Wait Intake Dashboard", "//a[@id='resumeCalls-tab']", 2);
+                                clsWE.fnPageLoad(clsWE.fnGetWe("//section[@id='calls-section']"), "Intake Dashboard Page", false, false);
+                            }
+                           
                         }
                         else 
                         {
@@ -1499,7 +1563,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 ((IJavaScriptExecutor)clsWebBrowser.objDriver).ExecuteScript("window.open('https://intake-uat.sedgwick.com/u/2807/home1');");
                 clsWebBrowser.objDriver.SwitchTo().Window(clsWebBrowser.objDriver.WindowHandles.Last());
                 Thread.Sleep(TimeSpan.FromSeconds(3));
-                blResult = clickOnActionButton("Negative");
+                blResult = clickOnActionButton("Negative", "https://intake-uat.sedgwick.com/u/2807/home1");
                 clsMG.fnSwitchToWindowAndClose(1);
                 clsWebBrowser.objDriver.SwitchTo().Window(clsWebBrowser.objDriver.WindowHandles[0]);
             }
@@ -1512,19 +1576,21 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
-        private bool clickOnActionButton(string strCase)
+        private bool clickOnActionButton(string strCase, string pstrUrl = "")
         {
             bool blResult = true;
+            Thread.Sleep(TimeSpan.FromSeconds(5));
             IList<IWebElement> lsbutton = clsWebBrowser.objDriver.FindElements(By.XPath("//button[@class='action']"));
             for (int elm = 1; elm <= lsbutton.Count; elm++)
             {
+                Thread.Sleep(TimeSpan.FromSeconds(5));
                 IWebElement elLOB = clsWebBrowser.objDriver.FindElement(By.XPath("(//button[@class='action'])[" + elm + "]"));
                 IWebElement elName = clsWebBrowser.objDriver.FindElement(By.XPath("(//button[@class='action']//span)[" + elm + "]"));
                 clsMG.fnHighlight(elLOB);
                 clsReportResult.fnLog("Element clickable", "Click on element: " + elName.GetAttribute("innerText").ToString() + ".", "Info", true, false);
                 elLOB.Click();
 
-                switch (strCase.ToUpper()) 
+                switch (strCase.ToUpper())
                 {
                     case "POSITIVE":
                         clsWE.fnPageLoad(clsWE.fnGetWe("//h3[contains(text(),'Access Denied')]"), "Access Denied", false, false);
@@ -1532,11 +1598,13 @@ namespace AutomationFrame_GlobalIntake.POM
                         {
                             clsReportResult.fnLog("Access Denied Message", "The Access Denied message is displayed for anonymous access.", "Pass", true, false);
                         }
-                        else 
+                        else
                         {
                             clsReportResult.fnLog("Access Denied Message", "The Access Denied message should be displayed for anonymous access.", "Fail", true, false);
                             blResult = false;
                         }
+                        clsWebBrowser.objDriver.Navigate().Back();
+                        Thread.Sleep(TimeSpan.FromSeconds(3));
                         break;
                     case "NEGATIVE":
                         if (clsMG.IsElementPresent("//span[contains(text(), 'You are currently logged into')]"))
@@ -1544,21 +1612,70 @@ namespace AutomationFrame_GlobalIntake.POM
                             Thread.Sleep(TimeSpan.FromSeconds(5));
                             clsReportResult.fnLog("Access Granted", "The Self Service goes to intake flow when an active session exist.", "Pass", true, false);
                         }
-                        else 
+                        else
                         {
                             clsReportResult.fnLog("Access Granted", "The Self Service should go to intake flow when an active session exist but it display access denied.", "Fail", true, false);
                             blResult = false;
                         }
-                        clsWebBrowser.objDriver.Navigate().Back();
+                        clsWebBrowser.objDriver.Navigate().GoToUrl(pstrUrl);
+                        Thread.Sleep(TimeSpan.FromSeconds(3));
                         break;
                 }
-                clsWebBrowser.objDriver.Navigate().Back();
             }
             return blResult;
         }
 
 
+        public bool fnUserWithLOBRestriction(string pstrSetNo)
+        {
+            bool blResult = true;
+            clsData objData = new clsData();
+            clsReportResult.fnLog("LOB Restriction By User", "The User with LOB Restriction Function Starts.", "Info", false);
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "EventInfo");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == pstrSetNo)
+                {
+                    if (fnSelectIntake(objData.fnGetValue("ClientNo", ""), objData.fnGetValue("ClientName", "")))
+                    {
+                        while (!clsMG.IsElementPresent("//table[@id='intakes']")) { Thread.Sleep(TimeSpan.FromSeconds(2)); }
+                        clsWE.fnScrollTo(clsWE.fnGetWe("//table[@id='intakes']"), "Scrolling to Intakes table", true, false);
+                        //Get Rows from table
+                        IList<IWebElement> lsWebRows = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='intakes']//tr//td[contains(@data-bind, 'LineOfBusiness')]"));
+                        if (lsWebRows.Count > 0)
+                        {
+                            int intRows = 1;
+                            foreach (IWebElement objLOB in lsWebRows)
+                            {
+                                if (objLOB.GetAttribute("innerText").ToUpper() == objData.fnGetValue("RestrictedLOB", "").ToUpper())
+                                {
+                                    clsReportResult.fnLog("LOB Restriction by User", "The restricted LOB[" + intRows + "]: " + objLOB.GetAttribute("innerText") + " is equal to the LOB provided: " + objData.fnGetValue("RestrictedLOB", "") + " in data driver.", "Pass", false, false);
+                                }
+                                else
+                                {
+                                    clsReportResult.fnLog("LOB Restriction by User", "The restricted LOB[" + intRows + "]: " + objLOB.GetAttribute("innerText") + " is not equal to the LOB provided: " + objData.fnGetValue("RestrictedLOB", "") + " in data driver.", "Fail", true, false);
+                                    blResult = false;
+                                }
+                                intRow++;
+                            }
+                        }
+                        else
+                        {
+                            clsReportResult.fnLog("LOB Restriction by User", "The table does not have any active script and is empty.", "Fail", true, false);
+                            blResult = false;
+                        }
+                    }
+                    else
+                    {
+                        clsReportResult.fnLog("LOB Restriction by User", "The Client was not selecte as expected and test cannot continue.", "Fail", false, false);
+                        blResult = false;
+                    }
+                }
+            }
+            return blResult;
 
+        }
 
 
 

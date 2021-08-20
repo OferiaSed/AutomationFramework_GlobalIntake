@@ -1,7 +1,9 @@
-﻿using OpenPop.Mime;
+﻿using AutomationFramework;
+using OpenPop.Mime;
 using OpenPop.Pop3;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -179,6 +181,48 @@ namespace AutomationFrame_GlobalIntake.Utils
             while (intTimeAttemp < pintAttemps && strEmailText == "");
             return strEmailText;
         }
+
+
+
+        private Dictionary<string, string> fnGetUserAndPasswordEmail(string pstrSetNo)
+        {
+            bool blResult = true;
+            clsData objData = new clsData();
+            Dictionary<string, string> dicCredentials = new Dictionary<string, string>();
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == pstrSetNo)
+                {
+                    dicCredentials.Add("UserEmail", objData.fnGetValue("EmailAcc", ""));
+                    dicCredentials.Add("Password", objData.fnGetValue("PassAcc", ""));
+                }
+            }
+            return dicCredentials;
+        }
+
+        public string fnReadConfirmationEmail(string pstrSet, string pstrContainsText, string pstrStartWithPlainText, string pstrEndwithPlainText, string pstrStartWithHtml, string pstrEndwithHtml)
+        {
+            //Get Credentials
+            Dictionary<string, string> dicLogin = fnGetUserAndPasswordEmail(pstrSet);
+            string strValue;
+            if (dicLogin.Count != 0)
+            {
+                clsEmail email = new clsEmail();
+                email.strFromEmail = dicLogin["UserEmail"];
+                email.strPassword = dicLogin["Password"];
+                email.strServer = "popgmail";
+                strValue = email.fnReadEmailText(pstrContainsText, pstrStartWithPlainText, pstrEndwithPlainText, pstrStartWithHtml, pstrEndwithHtml);
+            }
+            else 
+            {
+                strValue = "";
+            }
+
+            return strValue;
+        }
+
 
 
     }

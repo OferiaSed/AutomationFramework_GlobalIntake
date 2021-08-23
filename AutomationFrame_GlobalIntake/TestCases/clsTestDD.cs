@@ -39,6 +39,34 @@ namespace AutomationFrame_GlobalIntake.TestCases
             fnOpenBrowser(clsDataDriven.strBrowser);
         }
 
+
+        [Test]
+        public void fntest() 
+        {
+            //DateTime dtNewDate;
+            //string pstrDefaultValue = "-90";
+            //string DefaultValue = pstrDefaultValue.Replace("+", "");
+            //dtNewDate = DateTime.Today.AddDays(Convert.ToDouble(pstrDefaultValue));
+            //dtNewDate = DateTime.Today.AddDays(-90);
+            //pstrDefaultValue = dtNewDate.ToString();
+
+
+
+            clsData objData = new clsData();
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "SearchIntake");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == "12")
+                {
+                    string strTemp = objData.fnGetValue("StartDate", "");
+
+                }
+            }
+
+        }
+
+
         [Test]
         public void fnTest_DataDriven()
         {

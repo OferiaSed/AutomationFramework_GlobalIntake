@@ -28,86 +28,52 @@ namespace AutomationFrame_GlobalIntake.POM
         public bool fnEnterDatePicker(string pstrElement, string pstrWebElement, string pstrValue, bool pblScreenShot = false, bool pblHardStop = false, string pstrHardStopMsg = "")
         {
             bool blResult = true;
-            bool blYear = false;
-            bool blMonth = false;
-            bool blDay = false;
             if (pstrValue != "" && pstrWebElement != "")
             {
                 try
                 {
-                    clsReportResult.fnLog("SendKeys", "Step - Sendkeys on " + pstrElement, "info", false, false);
-                    //Click on element
-                    string[] arrdate = pstrValue.Split('/');
-
-                    //IWebElement objWebEdit = clsWebBrowser.objDriver.FindElement(By.XPath(pstrWebElement));
-                    //IWebElement objWebEdit = clsWebBrowser.objDriver.FindElement(By.XPath(pstrWebElement));
-                    IWebElement objYear = clsWebBrowser.objDriver.FindElement(By.XPath("//div[contains(@class, 'picker--focused')]//select[@class='picker__select--year']"));
-                    SelectElement selectItem = new SelectElement(objYear);
-                    selectItem.SelectByText(arrdate[2]);
-
-
-                    /*
-                    //IWebElement objWebEdit = clsWebBrowser.objDriver.FindElement(By.XPath(pstrWebElement));
-                    //SelectElement seelctItem = new SelectElement(objWebEdit);
-                    objWebEdit.Click();
-                    //Find Date Picker Dialog
-                    objWebEdit = clsWebBrowser.objDriver.FindElement(By.XPath("//div[contains(@class, 'picker--focused')]"));
-                    if (objWebEdit.Displayed) 
+                    if (pstrWebElement != "" && pstrValue !="") 
                     {
+                        clsReportResult.fnLog("SendKeys", "Step - Sendkeys on " + pstrElement, "info", false, false);
+                        //Click on element
+                        string[] arrdate = pstrValue.Split('/');
+                        IWebElement objInput = clsWebBrowser.objDriver.FindElement(By.XPath(pstrWebElement));
+                        objInput.Click();
+                        Thread.Sleep(TimeSpan.FromSeconds(1));
+
                         //Select Year
-                        IWebElement objYear = clsWebBrowser.objDriver.FindElement(By.XPath("//div[contains(@class, 'picker--focused')]//select[@class='picker__select--year']"));
-                        objYear.Click();
-                        //Thread.Sleep(TimeSpan.FromSeconds(1));
-                        IList<IWebElement> lsoptYear = clsWebBrowser.objDriver.FindElements(By.XPath("//div[contains(@class, 'picker--focused')]//select[@class='picker__select--year']//option"));
-                        foreach (IWebElement optionYear in lsoptYear) 
-                        {
-                            if (optionYear.GetAttribute("innerText") == arrdate[2]) 
-                            {
-                                blYear = true;
-                                optionYear.Click(); 
-                            }
-                        }
+                        IWebElement objYear = clsWebBrowser.objDriver.FindElement(By.XPath("//div[contains(@class, '--focused') or contains(@class, '--opened')]//select[@class='picker__select--year']"));
+                        SelectElement selectItem = new SelectElement(objYear);
+                        selectItem.SelectByText(arrdate[2]);
 
                         //Select Month
-                        IWebElement objMonth = clsWebBrowser.objDriver.FindElement(By.XPath("//div[contains(@class, '--focused') or contains(@class, '--opened')]//select[@class='picker__select--month']"));
-                        objYear.Click();
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
                         Dictionary<string, string> dicMonths = new Dictionary<string, string>();
-                        dicMonths.Add ("01", "January");
-                        dicMonths.Add ("02", "February");
-                        dicMonths.Add ("03", "March");
-                        dicMonths.Add ("04", "April");
-                        dicMonths.Add ("05", "May");
-                        dicMonths.Add ("06", "June");
-                        dicMonths.Add ("07", "July");
-                        dicMonths.Add ("08", "August");
-                        dicMonths.Add ("09", "September");
-                        dicMonths.Add ("10", "October");
-                        dicMonths.Add ("11", "November");
-                        dicMonths.Add ("12", "December");
-                        IList<IWebElement> lsoptMonth = clsWebBrowser.objDriver.FindElements(By.XPath("//div[contains(@class, '--focused') or contains(@class, '--opened')]//select[@class='picker__select--month']//option"));
-                        string strTempMonth = dicMonths[arrdate[0]];
-                        foreach (IWebElement optionMonth in lsoptYear)
-                        {
-                            if (optionMonth.GetAttribute("innerText") == strTempMonth)
-                            {
-                                blYear = true;
-                                optionMonth.Click();
-                            }
-                        }
+                        dicMonths.Add("01", "January");
+                        dicMonths.Add("02", "February");
+                        dicMonths.Add("03", "March");
+                        dicMonths.Add("04", "April");
+                        dicMonths.Add("05", "May");
+                        dicMonths.Add("06", "June");
+                        dicMonths.Add("07", "July");
+                        dicMonths.Add("08", "August");
+                        dicMonths.Add("09", "September");
+                        dicMonths.Add("10", "October");
+                        dicMonths.Add("11", "November");
+                        dicMonths.Add("12", "December");
+                        IWebElement objMonth = clsWebBrowser.objDriver.FindElement(By.XPath("//div[contains(@class, '--focused') or contains(@class, '--opened')]//select[@class='picker__select--month']"));
+                        selectItem = new SelectElement(objMonth);
+                        selectItem.SelectByText(dicMonths[arrdate[0]]);
 
                         //Select Day
-                        IWebElement objDay = clsWebBrowser.objDriver.FindElement(By.XPath("//div[contains(@class, 'picker--focused') or contains(@class, '--opened')]//td[@role='presentation']//div[contains(@class, 'day--infocus')]"));
-                        objYear.Click();
                         IList<IWebElement> lsDays = clsWebBrowser.objDriver.FindElements(By.XPath("//div[contains(@class, 'picker--focused') or contains(@class, '--opened')]//td[@role='presentation']//div[contains(@class, 'day--infocus')]"));
                         foreach (IWebElement optionDays in lsDays)
                         {
                             string strTempDay = optionDays.GetAttribute("innerText");
-                            if (strTempDay.Length == 1) { strTempDay = "0" + strTempDay;  }
+                            if (strTempDay.Length == 1) { strTempDay = "0" + strTempDay; }
                             if (strTempDay == arrdate[1]) { optionDays.Click(); break; }
                         }
                     }
-                    */
+
                     blResult = true;
                 }
                 catch (Exception objException)

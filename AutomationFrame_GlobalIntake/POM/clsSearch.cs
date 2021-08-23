@@ -102,7 +102,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             //Start Date
                             clsMG.fnEnterDatePicker("Start Date", "//input[@id='date-picker-Start-Date']", objData.fnGetValue("StartDate", ""), false, false);
                             //End Date
-                            clsMG.fnEnterDatePicker("End Date", "date-picker-End-Date", objData.fnGetValue("EndDate", ""), false, false);
+                            clsMG.fnEnterDatePicker("End Date", "//input[@id='date-picker-End-Date']", objData.fnGetValue("EndDate", ""), false, false);
                             //Claimant Data
                             clsMG.fnCleanAndEnterText("Claimant First Name", "//input[contains(@data-bind, 'SearchParameters.ClaimantFirstName')]", objData.fnGetValue("ClaimantFirstName", ""), false, false, "", false);
                             clsMG.fnCleanAndEnterText("Claimant Last Name", "//input[contains(@data-bind, 'SearchParameters.ClaimantLastName')]", objData.fnGetValue("ClaimantLastName", ""), false, false, "", false);
@@ -425,7 +425,197 @@ namespace AutomationFrame_GlobalIntake.POM
                                     }
                                 }
                                 break;
-                            case "ADMINDISSEMINATIONDETAILS":
+                            case "PAGINATIONREVIEW":
+                                clsWE.fnScrollTo(clsWE.fnGetWe("//div[@id='bottomMenu']"), "Scroll to Pagination", true, false);
+                                IList<IWebElement> lsNewPagButton = clsWebBrowser.objDriver.FindElements(By.XPath("//li[contains(@class, 'paginate_button page-item')]"));
+                                blFound = true;
+                                //No Retuls
+                                if (lsNewPagButton.Count == 2)
+                                {
+                                    foreach (IWebElement element in lsNewPagButton) 
+                                    {
+                                        if (element.GetAttribute("class").Contains("disabled"))
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The pagination button is disabled as expected for WebElement: " + element.GetAttribute("id") + ".", "Pass", true, false);
+                                        }
+                                        else 
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The pagination button should disabled WebElement: " + element.GetAttribute("id") + " but is enable: "+ element.GetAttribute("class") + ".", "Fail", true, false);
+                                            blResult = false;
+                                        }
+                                    }
+                                }
+                                else if (lsNewPagButton.Count == 3)
+                                {
+                                    int intSelected = 1;
+                                    foreach (IWebElement element in lsNewPagButton)
+                                    {
+                                        if (intSelected != 2)
+                                        {
+                                            if (!element.GetAttribute("class").Contains("disabled"))
+                                            {
+                                                clsReportResult.fnLog("Search Results", "The pagination button is active as expected for WebElement button [1].", "Pass", true, false);
+                                            }
+                                            else
+                                            {
+                                                clsReportResult.fnLog("Search Results", "The pagination button should be enabled for button [1].", "Fail", true, false);
+                                                blResult = false;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (element.GetAttribute("class").Contains("disabled"))
+                                            {
+                                                clsReportResult.fnLog("Search Results", "The pagination button is disabled as expected for WebElement: " + element.GetAttribute("id") + ".", "Pass", true, false);
+                                            }
+                                            else
+                                            {
+                                                clsReportResult.fnLog("Search Results", "The pagination button should disabled WebElement: " + element.GetAttribute("id") + " but is enable: " + element.GetAttribute("class") + ".", "Fail", true, false);
+                                                blResult = false;
+                                            }
+                                        }
+                                        intSelected++;
+                                    }
+                                }
+                                else if (lsNewPagButton.Count > 3) 
+                                {
+                                    IWebElement elmTotalButtons = clsWebBrowser.objDriver.FindElement(By.XPath("//ul[@class='pagination']//li[last()-1]"));
+                                    string intTotalButtons = elmTotalButtons.GetAttribute("innerText");
+                                    for (int intOption = 1; intOption <= Convert.ToInt32(intTotalButtons)+2; intOption++) 
+                                    {
+                                        //Verify Previous Button
+                                        if (intOption == 1)
+                                        {
+                                            IWebElement elmPrevious = clsWebBrowser.objDriver.FindElement(By.XPath("//li[contains(@class, 'paginate_button page-item')][1]"));
+                                            if (elmPrevious.GetAttribute("class").Contains("disabled"))
+                                            {
+                                                clsReportResult.fnLog("Search Results", "The pagination button is disabled as expected for WebElement: " + elmPrevious.GetAttribute("id") + ".", "Pass", true, false);
+                                            }
+                                            else
+                                            {
+                                                clsReportResult.fnLog("Search Results", "The pagination button should disabled WebElement: " + elmPrevious.GetAttribute("id") + " but is enable: " + elmPrevious.GetAttribute("class") + ".", "Fail", true, false);
+                                                blResult = false;
+                                            }
+                                        }
+                                        else 
+                                        {
+                                            //Verify Page from1 to N
+                                            if (intOption >= 3 && intOption < Convert.ToInt32(Convert.ToInt32(intTotalButtons)) + 2)
+                                            {
+                                                IWebElement elmNext = clsWebBrowser.objDriver.FindElement(By.XPath("//li[@id='results_next']"));
+                                                elmNext.Click();
+                                                Thread.Sleep(TimeSpan.FromSeconds(2));
+                                                IWebElement elmCurrentButton = clsWebBrowser.objDriver.FindElement(By.XPath("//li[contains(@class, 'paginate_button page-item') and a[text()='"+ (intOption-2)+ "']]"));
+                                                //elmCurrentButton = clsWebBrowser.objDriver.FindElement(By.XPath("//li[contains(@class, 'paginate_button page-item')][" + intOption + "]"));
+                                                if (!elmCurrentButton.GetAttribute("class").Contains("disabled"))
+                                                {
+                                                    clsReportResult.fnLog("Search Results", "The pagination button is active as expected for WebElement button [" + (intOption-1) + "].", "Pass", true, false);
+                                                }
+                                                else
+                                                {
+                                                    clsReportResult.fnLog("Search Results", "The pagination button should be enabled for button [" + (intOption-1) + "].", "Fail", true, false);
+                                                    blResult = false;
+                                                }
+                                            }
+                                            else if (intOption == Convert.ToInt32(Convert.ToInt32(intTotalButtons))+2)
+                                            {
+                                                IWebElement elmNext = clsWebBrowser.objDriver.FindElement(By.XPath("//li[@id='results_next']"));
+                                                if (elmNext.GetAttribute("class").Contains("disabled"))
+                                                {
+                                                    clsReportResult.fnLog("Search Results", "The pagination button is disabled as expected for WebElement: " + elmNext.GetAttribute("id") + ".", "Pass", true, false);
+                                                }
+                                                else
+                                                {
+                                                    clsReportResult.fnLog("Search Results", "The pagination button should disabled WebElement: " + elmNext.GetAttribute("id") + " but is enable: " + elmNext.GetAttribute("class") + ".", "Fail", true, false);
+                                                    blResult = false;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+                            case "SORTINGREVIEW":
+                                //Verify if results exist
+                                IList<IWebElement> lsHeaders = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='results']//th"));
+                                if (lsHeaders.Count > 0)
+                                {
+                                    //Iterate
+                                    for (int intElement=2; intElement <= lsHeaders.Count; intElement++) 
+                                    {
+                                        //Get Initial Values
+                                        IWebElement objHeader = clsWebBrowser.objDriver.FindElement(By.XPath("//table[@id='results']//th[" + intElement + "]"));
+                                        objHeader.Click();
+                                        Thread.Sleep(TimeSpan.FromSeconds(1));
+                                        IWebElement objRow = clsWebBrowser.objDriver.FindElement(By.XPath("//table[@id='results']//tbody//tr[1]//td[" + intElement + "]"));
+                                        string strName = objHeader.GetAttribute("innerText");
+                                        string strInitial = objHeader.GetAttribute("aria-sort");
+                                        string strInitalValRow = objRow.GetAttribute("innerText");
+
+                                        //Get Final Values
+                                        objHeader = clsWebBrowser.objDriver.FindElement(By.XPath("//table[@id='results']//th[" + intElement + "]"));
+                                        objHeader.Click();
+                                        Thread.Sleep(TimeSpan.FromSeconds(1));
+                                        objRow = clsWebBrowser.objDriver.FindElement(By.XPath("//table[@id='results']//tbody//tr[1]//td[" + intElement + "]"));
+                                        string strFinal = objHeader.GetAttribute("aria-sort");
+                                        string strFinalValRow = objRow.GetAttribute("innerText");
+
+                                        //Verify Sorting property
+                                        if (strInitial != strFinal)
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The sorting property on " + strName + " header is changing from " + strInitial + " to " + strFinal + " as expected.", "Pass", true, false);
+                                        }
+                                        else
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The sorting property on " + strName + " header is not changing after click on it and keeps the " + strInitial + " sorting.", "Warning", true, false);
+                                            blResult = false;
+                                        }
+                                        //Verify Sorted Value
+                                        if (strInitalValRow != strFinalValRow)
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The sorting on " + strName + " row is changing from " + strInitalValRow + " to " + strFinalValRow + " as expected.", "Pass", true, false);
+                                        }
+                                        else
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The sorting on " + strName + " row is not changing and return the same value: " + strInitalValRow + ".", "Warning", true, false);
+                                            blResult = false;
+                                        }
+                                    }
+                                    blFound = true;
+                                }
+                                else
+                                {
+                                    //Iterate
+                                    for (int intElement = 2; intElement <= lsHeaders.Count; intElement++)
+                                    {
+                                        //Get Initial Values
+                                        IWebElement objHeader = clsWebBrowser.objDriver.FindElement(By.XPath("//table[@id='results']//th[" + intElement + "]"));
+                                        objHeader.Click();
+                                        Thread.Sleep(TimeSpan.FromSeconds(1));
+                                        string strName = objHeader.GetAttribute("innerText");
+                                        string strInitial = objHeader.GetAttribute("aria-sort");
+
+                                        //Get Final Values
+                                        objHeader = clsWebBrowser.objDriver.FindElement(By.XPath("//table[@id='results']//th[" + intElement + "]"));
+                                        objHeader.Click();
+                                        Thread.Sleep(TimeSpan.FromSeconds(1));
+                                        string strFinal = objHeader.GetAttribute("aria-sort");
+
+                                        //Verify Sorting property
+                                        if (strInitial != strFinal)
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The sorting property on " + strName + " header is changing from " + strInitial + " to " + strFinal + " as expected.", "Pass", true, false);
+                                        }
+                                        else
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The sorting property on " + strName + " header is not changing after click on it and keeps the " + strInitial + " sorting.", "Fail", true, false);
+                                            blResult = false;
+                                        }
+                                    }
+                                    blFound = true;
+                                }
+                                break;
+                            case "90DAYS":
+
                                 break;
                             default:
                                 break;

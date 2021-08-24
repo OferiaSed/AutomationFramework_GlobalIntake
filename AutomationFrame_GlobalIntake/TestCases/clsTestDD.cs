@@ -43,6 +43,19 @@ namespace AutomationFrame_GlobalIntake.TestCases
         [Test]
         public void fntest() 
         {
+            var initialDate = DateTime.Parse("09/15/1991");
+            var tableDate = DateTime.Parse("09/18/1991");
+            var tableDate2 = DateTime.Parse("09/10/1991");
+
+            if (initialDate < tableDate)
+            {
+                Console.WriteLine("menor");
+            }
+            else if (tableDate > tableDate2) 
+            {
+                Console.WriteLine("mayor");
+            }
+
             //DateTime dtNewDate;
             //string pstrDefaultValue = "-90";
             //string DefaultValue = pstrDefaultValue.Replace("+", "");

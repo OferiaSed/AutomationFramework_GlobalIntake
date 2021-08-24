@@ -614,7 +614,47 @@ namespace AutomationFrame_GlobalIntake.POM
                                     blFound = true;
                                 }
                                 break;
-                            case "90DAYS":
+                            case "OLDERDATES":
+                                blFound = true;
+                                clsWE.fnClick(clsWE.fnGetWe("//table[@id='results']//thead//th[contains(@aria-label, 'CREATED DATE')]"), "Created Date Sorting", true);
+                                clsWE.fnPageLoad(clsWE.fnGetWe("//table[@id='results']//thead//th[contains(@aria-label, 'CREATED DATE')]"), "Sorting", false, false);
+                                string strColDate = clsWE.fnGetAttribute(clsWE.fnGetWe("//table[@id='results']//tbody//tr[1]//td[6]"), "Column Value", "innerText", false, false);
+                                var initialDate = DateTime.Parse(pobjData.fnGetValue("StartDate", ""));
+                                var tableDate = DateTime.Parse(strColDate);
+                                if (tableDate >= initialDate)
+                                {
+                                    clsReportResult.fnLog("Search Results", "The table returns greater dates han: "+ initialDate.ToString() + " as expected.", "Pass", true, false);
+                                }
+                                else 
+                                {
+                                    clsReportResult.fnLog("Search Results", "The table should return dates equal or greater than " + initialDate.ToString("MM/dd/yyyy") + " but it returned "+ tableDate.ToString("MM/dd/yyyy") + ".", "Fail", true, false);
+                                    blResult = false;
+                                }
+                                break;
+                            case "LOBRESTRICTION":
+                                blFound = true;
+                                clsWE.fnScrollTo(clsWE.fnGetWe("//input[contains(@data-bind, 'ConfirmationNumber')]"), "Scroll Up", true, false);
+                                //Click LOB
+                                clsWE.fnClick(clsWE.fnGetWe("//div[select[contains(@data-bind, 'SearchParameters.Lob')]]//input"), "LOB Dropdown", false);
+                                IList<IWebElement> lsLOB = clsWebBrowser.objDriver.FindElements(By.XPath("//li[contains(@class, 'select2-results__option ')]"));
+                                if (pobjData.fnGetValue("RestrictedLOB", "").Contains(";"))
+                                {
+                                }
+                                else 
+                                {
+                                    foreach (var value in lsLOB) 
+                                    {
+                                        if (value.GetAttribute("innerText").ToUpper() == pobjData.fnGetValue("RestrictedLOB", "").ToUpper())
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The Restricted LOB: " + value + " was found as expected .", "Pass", true, false);
+                                        }
+                                        else 
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The Restricted LOB should be x but was found ().", "Fail", true, false);
+                                            blResult = false;
+                                        }
+                                    }
+                                }
 
                                 break;
                             default:

@@ -110,8 +110,9 @@ namespace AutomationFrame_GlobalIntake.POM
 
         public void WaitWEUntilAppears(string pstrStepName, string pstrLocator, int pintTime)
         {
-            do { Thread.Sleep(TimeSpan.FromSeconds(pintTime)); }
-            while (!clsWE.fnElementExistNoReport(pstrStepName, pstrLocator, false));
+            int intCount = 0;
+            do { Thread.Sleep(TimeSpan.FromSeconds(pintTime)); intCount++; }
+            while (!clsWE.fnElementExistNoReport(pstrStepName, pstrLocator, false) && intCount <= pintTime);
         }
 
         public bool fnCleanAndEnterText(string pstrElement, string pstrWebElement, string pstrValue, bool pblScreenShot = false, bool pblHardStop = false, string pstrHardStopMsg = "", bool bWaitHeader = true)

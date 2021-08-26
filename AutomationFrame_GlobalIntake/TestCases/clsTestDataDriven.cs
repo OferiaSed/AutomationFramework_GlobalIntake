@@ -75,7 +75,6 @@ namespace AutomationFrame_GlobalIntake.TestCases
             objWebEdit.SendKeys(Keys.Tab);
             objWebEdit = clsWebBrowser.objDriver.FindElement(By.XPath("//div[label[contains(text(), 'Confirm New Password')]]//input"));
             objWebEdit.SendKeys("sdfsdfdsfsdf");
-            string x;
             /*
             Imap4Client client = new Imap4Client();
             client.ConnectSsl("imap.gmail.com", 993);

@@ -165,6 +165,9 @@ namespace AutomationFrame_GlobalIntake.TestCases
                             case "RESTRICTEDLOBBYUSER":
                                     if (!clsIntake.fnUserWithLOBRestriction(TempValue)) { blStatus = false; }
                                 break;
+                            case "INTAKESCREEN":
+                                if (!clsIntake.fnIntakeScreen(TempValue)) { blStatus = false; }
+                                break;
                             default:
                                 clsReportResult.fnLog("Data Driven Test", "The action: does not exsit.", "Fail", false);
                                 blStatus = false;

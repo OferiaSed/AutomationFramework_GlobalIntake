@@ -636,21 +636,34 @@ namespace AutomationFrame_GlobalIntake.POM
                                 clsWE.fnScrollTo(clsWE.fnGetWe("//input[contains(@data-bind, 'ConfirmationNumber')]"), "Scroll Up", true, false);
                                 //Click LOB
                                 clsWE.fnClick(clsWE.fnGetWe("//div[select[contains(@data-bind, 'SearchParameters.Lob')]]//input"), "LOB Dropdown", false);
-                                IList<IWebElement> lsLOB = clsWebBrowser.objDriver.FindElements(By.XPath("//li[contains(@class, 'select2-results__option ')]"));
                                 if (pobjData.fnGetValue("RestrictedLOB", "").Contains(";"))
                                 {
+                                    string[] arrLOB = pobjData.fnGetValue("RestrictedLOB", "").Split(';');
+                                    for (int intLob = 0; intLob <= arrLOB.Length; intLob++ ) 
+                                    {
+                                        if (clsMG.IsElementPresent("//li[@class='select2-results__option' and contains(text(), '" + arrLOB[intLob] + "')]"))
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The Restricted LOB: " + arrLOB[intLob] + " was found as expected .", "Pass", true, false);
+                                        }
+                                        else 
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The Restricted LOB "+ arrLOB[intLob] + " was not found in the dropdown.", "Fail", true, false);
+                                            blResult = false;
+                                        }
+                                    }
                                 }
                                 else 
                                 {
+                                    IList<IWebElement> lsLOB = clsWebBrowser.objDriver.FindElements(By.XPath("//li[contains(@class, 'select2-results__option ')]"));
                                     foreach (var value in lsLOB) 
                                     {
                                         if (value.GetAttribute("innerText").ToUpper() == pobjData.fnGetValue("RestrictedLOB", "").ToUpper())
                                         {
-                                            clsReportResult.fnLog("Search Results", "The Restricted LOB: " + value + " was found as expected .", "Pass", true, false);
+                                            clsReportResult.fnLog("Search Results", "The Restricted LOB: " + value.GetAttribute("innerText").ToUpper() + " was found as expected .", "Pass", true, false);
                                         }
                                         else 
                                         {
-                                            clsReportResult.fnLog("Search Results", "The Restricted LOB should be x but was found ().", "Fail", true, false);
+                                            clsReportResult.fnLog("Search Results", "The Restricted LOB should be "+ pobjData.fnGetValue("RestrictedLOB", "") + " but was found "+ value + ".", "Fail", true, false);
                                             blResult = false;
                                         }
                                     }

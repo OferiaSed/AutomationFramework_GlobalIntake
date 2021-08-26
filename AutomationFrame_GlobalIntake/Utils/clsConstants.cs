@@ -14,6 +14,7 @@ namespace AutomationFrame_GlobalIntake.Utils
 
         //Training Mode
         public static bool blTrainingMode = false;
+        public static bool blLogin = false;
         public static string strSubmitClaimTrainingMode = "";
         public static string strResumeClaimTrainingMode = "";
         public static string strSubmitClaimNormalMode = "";

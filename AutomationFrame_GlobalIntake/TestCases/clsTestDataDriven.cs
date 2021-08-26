@@ -32,12 +32,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
                 AfterClass();
         }
 
-        /*public void SetupTest(string )
-        {
-            clsReportResult.objTest = clsReportResult.objExtent.CreateTest(TestContext.CurrentContext.Test.Name);
-            fnOpenBrowser(clsDataDriven.strBrowser);
-        }
-        */
+               
         [SetUp]
         public void SetupTest(string pstrTestCase)
         {
@@ -50,10 +45,22 @@ namespace AutomationFrame_GlobalIntake.TestCases
 
 
 
-        //[Test]
-
+        [Test]
         public void test()
         {
+            clsData objData = new clsData();
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "SearchIntake");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == "12")
+                {
+                    string strTemp = objData.fnGetValue("StartDate", "");
+
+                }
+            }
+
+
             string strURL = "https://intake-uat.sedgwick.com/Account/NewUser?userName=IntakeAuto08162021_0&code=CfDJ8PZO%2B6QMFUlBtIJA6TJ7NdUq6VGEJICUwPrRN3Y6g5rVJhPqs06ADlI1ezCiZHDkqqFb8UcxWiIBdDbKIwHyl2tfpB%2B2mFAfPIup8LYB3FG4WGN9nJALN8CtATzw5wtaLAoXcnhOubo5v31XByd5RS05TXcd%2B3x8IyF27lswFMScUIsUehG7WKpkUIAv5Q3PXP1bxTQYILnfMDtpLpQEoYum7PO1MA0hbL%2B4bei87RhA&confirmEmail=CfDJ8PZO%2B6QMFUlBtIJA6TJ7NdVN0AW6ILGvWyWHaW%2Br%2F0R%2BBg4SSHC15AJQunUWRTbm5Uwh%2BDpElDUkk65e%2FdFV2UrUHsyZbwc4OCweVNm%2BA9KK8mimqsGl1Wm4GugRyAjEE9GdIhnxH7gA05eSaScUYBBmhoOX4x4tUaoZOFuNFSfN2nMTJsMzVfa%2FiwkjbwZwnzodYfjHbkm512aRA%2BfhbkFfIl0PTn8FbE5gYLIiaBvrVN2YWQOX%2BEH6ojOFZhDeyQ%3D%3D";
             clsWebBrowser.objDriver.Navigate().GoToUrl(strURL);
             
@@ -68,7 +75,6 @@ namespace AutomationFrame_GlobalIntake.TestCases
             objWebEdit.SendKeys(Keys.Tab);
             objWebEdit = clsWebBrowser.objDriver.FindElement(By.XPath("//div[label[contains(text(), 'Confirm New Password')]]//input"));
             objWebEdit.SendKeys("sdfsdfdsfsdf");
-            string x;
             /*
             Imap4Client client = new Imap4Client();
             client.ConnectSsl("imap.gmail.com", 993);

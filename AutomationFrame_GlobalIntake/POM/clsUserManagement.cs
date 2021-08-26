@@ -32,14 +32,31 @@ namespace AutomationFrame_GlobalIntake.POM
                 {
                     switch (objData.fnGetValue("Action", "").ToUpper())
                     {
+                        case "EDIT":
+                            if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
+                            {
+                                //Frist Name
+                                clsMG.fnCleanAndEnterText("First Name", "//input[@placeholder='First Name *']", objData.fnGetValue("FirstName", ""), false, false, "", false);
+                                //Last Name
+                                clsMG.fnCleanAndEnterText("Last Name", "//input[@placeholder='Last Name *']", objData.fnGetValue("LastName", ""), false, false, "", false);
+                                //Email Email *
+                                clsMG.fnCleanAndEnterText("Email", "//input[@placeholder='Email *']", objData.fnGetValue("Email", ""), false, false, "", false);
+                            }
+                            else 
+                            {
+                                clsReportResult.fnLog("User Management", "The user cannot be enabled since Edit Page was not loaded.", "Fail", true);
+                                blResult = false;
+                            }
+                            break;
                         case "SEARCH":
                             clsMG.fnHamburgerMenu("User Management;Web Users");
                             clsMG.fnCleanAndEnterText("Username", "//input[@placeholder='Username']", objData.fnGetValue("Username", ""), false, false, "", false);
                             clsWE.fnClick(clsWE.fnGetWe("//button[text()='Search']"), "Search", false);
                             Thread.Sleep(TimeSpan.FromSeconds(3));
-                            if (clsWE.fnElementExist("User Record", "//tr[td[contains(text(), '" + objData.fnGetValue("Username", "") + "')]]//a", false))
+                            //if (clsWE.fnElementExist("User Record", "//tr[td[contains(text(), '" + objData.fnGetValue("Username", "") + "')]]//a", false))
+                            if (clsWE.fnElementExist("User Record", "//tr[td[text()='" + objData.fnGetValue("Username", "") + "']]//a", false))
                             {
-                                clsWE.fnClick(clsWE.fnGetWe("//tr[td[contains(text(), '" + objData.fnGetValue("Username", "") + "')]]//a"), "Edit Record", false);
+                                clsWE.fnClick(clsWE.fnGetWe("//tr[td[text()='" + objData.fnGetValue("Username", "") + "']]//a"), "Edit Record", false);
                                 clsWE.fnPageLoad(clsWE.fnGetWe("//h4[text()='Edit User']"), "Edit User", true, false);
                             }
                             else
@@ -227,21 +244,44 @@ namespace AutomationFrame_GlobalIntake.POM
                 clsMG.fnCleanAndEnterText("Email", "//input[contains(@data-bind,'Email')]", objData.fnGetValue("Email", ""), false, false, "", false);
                 clsMG.fnCleanAndEnterText("Phone", "//input[contains(@data-bind,'PhoneNumber')]", objData.fnGetValue("PhoneNumber", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Role", "//span[@data-select2-id=5]", objData.fnGetValue("Role", ""), true, false, "", false);
-                clsMG.fnSelectDropDownWElm("Clients", "//span[contains(@data-select2-id,'69')]", objData.fnGetValue("Clients", ""), false, false, "", false);
+                //clsMG.fnSelectDropDownWElm("Clients", "//span[contains(@data-select2-id,'69')]", objData.fnGetValue("Clients", ""), false, false, "", false);
+                clsMG.fnSelectDropDownWElm("Clients", "//div[select[contains(@data-bind, 'ClientSecurityTypes')]]//span[@class='select2-selection__rendered']", objData.fnGetValue("Clients", ""), false, false, "", false);
                 clsWE.fnScrollTo(clsWE.fnGetWe("//input[contains(@data-bind,'PhoneNumber')]"), "Scrolling to checkbox two factor authentication", true, false);
-                clsWE.fnClick(clsWE.fnGetWe("//label[contains(text(),'Enable Multifactor Authentication')]"), "Two Factor Autphentication", false);
-                clsMG.WaitWEUntilAppears("Waiting for Line of bussiness", "//input[contains(@class,'select-dropdown form-control')]", 10);
-                clsWE.fnClick(clsWE.fnGetWe("//input[contains(@class,'select-dropdown form-control')]"), "Line of bussiness", false);
-                clsMG.WaitWEUntilAppears("Waiting for LOB active", "//input[contains(@class,'select-dropdown form-control active')]", 5);
-                if (clsMG.IsElementPresent("//input[contains(@class,'select-dropdown form-control active')]"))
+                //MultiFactor Authentication
+                if (objData.fnGetValue("2FA", "False").ToUpper() == "YES" || objData.fnGetValue("2FA", "False").ToUpper() == "TRUE") 
+                { clsWE.fnClick(clsWE.fnGetWe("//label[contains(text(),'Enable Multifactor Authentication')]"), "Two Factor Autphentication", false); }
+                //Line of business
+                if (objData.fnGetValue("Lob", "") != "") 
                 {
-                    clsWE.fnDoubleClick(clsWE.fnGetWe("//label[contains(text(),'Select all')]"), "Select all", true, false);
-                    clsWE.fnClick(clsWE.fnGetWe("//span[contains(text(),'"+ objData.fnGetValue("Lob", "") + "')]"), "Select one LOB", true, false);
+                    clsMG.WaitWEUntilAppears("Waiting for Line of bussiness", "//input[contains(@class,'select-dropdown form-control')]", 10);
+                    //clsWE.fnClick(clsWE.fnGetWe("//input[contains(@class,'select-dropdown form-control')]"), "Line of bussiness", false);
+                    clsWE.fnClick(clsWE.fnGetWe("//div[select[contains(@data-bind, 'LinesOfBusiness')]]//input[@class='select-dropdown form-control']"), "Line of bussiness", false);
+                    clsMG.WaitWEUntilAppears("Waiting for LOB active", "//input[contains(@class,'select-dropdown form-control active')]", 5);
+                    if (clsMG.IsElementPresent("//input[contains(@class,'select-dropdown form-control active')]"))
+                    {
+                        //Deselect all LOBs
+                        if (objData.fnGetValue("Lob", "").Contains(";"))
+                        {
+                            clsWE.fnDoubleClick(clsWE.fnGetWe("//label[contains(text(),'Select all')]"), "Select all", true, false);
+                            string[] arrLOB = objData.fnGetValue("Lob", "").Split(';');
+                            foreach (string value in arrLOB)
+                            {
+                                clsWE.fnClick(clsWE.fnGetWe("//span[contains(text(),'" + value + "')]"), "Select LOB: " + value, true, false);
+                            }
+                        }
+                        else
+                        {
+                            clsWE.fnDoubleClick(clsWE.fnGetWe("//label[contains(text(),'Select all')]"), "Select all", true, false);
+                            clsWE.fnClick(clsWE.fnGetWe("//span[contains(text(),'" + objData.fnGetValue("Lob", "") + "')]"), "Select one LOB", true, false);
+                        }
+                    }
+                    clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Env Bar", false, false);
                 }
-                clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Env Bar", false, false);
+
+                //Save Changes
                 clsMG.WaitWEUntilAppears("Save button", "//button[contains(text(),'Save Changes')]", 10);
                 clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Save Changes')]"), "Saving changes", false);
-
+                //Verify is Error Messages are displayed
                 if (!clsMG.IsElementPresent("//i[contains(@class,'fa fa-warning fa-exclamation-triangle red-text')]"))
                 {
                     clsReportResult.fnLog("Form filled correctly", "The Form was filled successfully.", "Pass", false, false);

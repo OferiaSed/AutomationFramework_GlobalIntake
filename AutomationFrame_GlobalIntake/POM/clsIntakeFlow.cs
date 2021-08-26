@@ -2052,11 +2052,11 @@ namespace AutomationFrame_GlobalIntake.POM
 
             if (equalsExpectedValue) 
             {
-                clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", equalsExpectedValue ? "Pass" : "Fail", true, false);
+                clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", equalsExpectedValue ? "Pass" : "Fail", false);
             }
             else 
             {
-                clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found does not match as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", equalsExpectedValue ? "Pass" : "Fail", false);
+                clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found does not match as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", equalsExpectedValue ? "Pass" : "Fail", true);
             }
             return equalsExpectedValue ? true : false;
         }

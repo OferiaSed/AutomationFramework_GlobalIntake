@@ -2020,7 +2020,7 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
 
         }
-
+        
         public string fnGetConfirmationNumber()
         {
             string strConfNumber = "";
@@ -2031,19 +2031,21 @@ namespace AutomationFrame_GlobalIntake.POM
             return strConfNumber;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="expectedLossData"></param>
+        /// <returns></returns>
         private bool VerifyDOLElement(string expectedLossData)
         {
             string dolElement;
             var dolSelector = "//span[@data-bind='date: headerLossDate']";
             clsMG.WaitWEUntilAppears("Wait for Date of loss to appear", dolSelector, 10);
-            //string actualLossDate;
             var count = 0;
-            bool equalsExpectedValue = false;
+            bool equalsExpectedValue;
             do
             {
                 Thread.Sleep(TimeSpan.FromSeconds(1));
-                //var dolElement = clsWebBrowser.objDriver.FindElement(By.XPath(dolSelector));
-                //actualLossDate = dolElement.Text;
                 dolElement = clsWE.fnGetAttribute(clsWE.fnGetWe(dolSelector), "Date of Loss", "innerText", false);
                 equalsExpectedValue = dolElement.Equals(expectedLossData);
                 count++;
@@ -2052,18 +2054,13 @@ namespace AutomationFrame_GlobalIntake.POM
 
             if (equalsExpectedValue) 
             {
-                clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", equalsExpectedValue ? "Pass" : "Fail", false);
+                clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", "Pass", false);
             }
             else 
             {
-                clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found does not match as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", equalsExpectedValue ? "Pass" : "Fail", true);
+                clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found does not match as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", "Fail", true);
             }
-            return equalsExpectedValue ? true : false;
+            return equalsExpectedValue;
         }
-
-
-
-
-
     }
 }

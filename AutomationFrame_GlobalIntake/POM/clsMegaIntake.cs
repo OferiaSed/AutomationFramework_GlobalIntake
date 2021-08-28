@@ -1,4 +1,5 @@
-﻿using AutomationFramework;
+﻿using AutomationFrame_GlobalIntake.Utils;
+using AutomationFramework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
@@ -113,6 +114,28 @@ namespace AutomationFrame_GlobalIntake.POM
             int intCount = 0;
             do { Thread.Sleep(TimeSpan.FromSeconds(pintTime)); intCount++; }
             while (!clsWE.fnElementExistNoReport(pstrStepName, pstrLocator, false) && intCount <= pintTime);
+        }
+
+        /// <summary>
+        /// Wait for condition to be true
+        /// </summary>
+        /// <param name="condition">Condition to wait for</param>
+        /// <param name="sleepTime">Time to sleep between reattempts</param>
+        /// <param name="attempts">Max number of attempts</param>
+        /// <returns></returns>
+        public bool fnGenericWait(Func<bool> condition, TimeSpan sleepTime, int attempts)
+        {
+            var count = 0;
+            bool success, repeat;
+            do
+            {
+                success = condition.Invoke();
+                count++;
+                repeat = count < attempts && !success;
+                if (repeat) Thread.Sleep((int)sleepTime.TotalMilliseconds);
+            }
+            while (repeat);
+            return success;
         }
 
         public bool fnCleanAndEnterText(string pstrElement, string pstrWebElement, string pstrValue, bool pblScreenShot = false, bool pblHardStop = false, string pstrHardStopMsg = "", bool bWaitHeader = true)
@@ -319,11 +342,22 @@ namespace AutomationFrame_GlobalIntake.POM
         {
             clsReportResult.fnLog("Hamburger Menu", "Selecting a Menu Option: " + pstrMenu.ToString(), "Info", false);
             //Verify if menu is collapsed
-            if (IsElementPresent("//div[@id='slide-out' and not(contains(@style, 'translateX(0px)'))]"))
-            { 
-                clsWE.fnClick(clsWE.fnGetWe("//div[@class='float-left']//i"), "Hamburger Button", false, false);
-                Thread.Sleep(TimeSpan.FromSeconds(2));
-            }
+            var isElementStillPresent = this.fnGenericWait(
+                () =>
+                {
+                    return !IsElementPresent("//div[@id='slide-out' and not(contains(@style, 'translateX(0px)'))]");
+                },
+                TimeSpan.FromMilliseconds(500),
+                10
+            );
+            clsUtils.fnExecuteIf(isElementStillPresent,
+                () =>
+                {
+                    clsWE.fnClick(clsWE.fnGetWe("//div[@class='float-left']//i"), "Hamburger Button", true, false);
+                    Thread.Sleep(TimeSpan.FromSeconds(2));
+                }
+            );
+
             //Select Menu Item
             if (!pstrMenu.Contains(";"))
             {

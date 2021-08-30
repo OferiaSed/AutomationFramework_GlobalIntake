@@ -405,18 +405,17 @@ namespace AutomationFrame_GlobalIntake.POM
             var isElementStillPresent = this.fnGenericWait(
                 () =>
                 {
-                    return !IsElementPresent("//div[@id='slide-out' and not(contains(@style, 'translateX(0px)'))]");
+                    return IsElementPresent("//div[@id='slide-out' and contains(@style, 'translateX(-100%)')]");
                 },
                 TimeSpan.FromMilliseconds(500),
-                10
+                3
             );
-            clsUtils.fnExecuteIf(isElementStillPresent,
-                () =>
-                {
-                    clsWE.fnClick(clsWE.fnGetWe("//div[@class='float-left']//i"), "Hamburger Button", true, false);
-                    Thread.Sleep(TimeSpan.FromSeconds(2));
-                }
-            );
+
+            if (isElementStillPresent) 
+            {
+                clsWE.fnClick(clsWE.fnGetWe("//div[@class='float-left']//i"), "Hamburger Button", true, false);
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+            }
 
             //Select Menu Item
             if (!pstrMenu.Contains(";"))

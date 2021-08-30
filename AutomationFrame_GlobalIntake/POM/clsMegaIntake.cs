@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,65 @@ namespace AutomationFrame_GlobalIntake.POM
         private clsWebElements clsWE = new clsWebElements();
 
         //Common Functions
+        public bool fnDropDownGetElements(string pstrElement, string pstrWebElement, bool pblScreenShot = false, bool pblHardStop = false, string pstrHardStopMsg = "", bool bWaitHeader = true)
+        {
+            bool blResult = true;
+            IWebElement objDropDownContent;
+            IList<IWebElement> objOptions;
+
+            try
+            {
+                clsReportResult.fnLog("SelectDropdown", "Step - Select Dropdown: " + pstrElement, "Info", false);
+                IWebElement objDropDown = clsWebBrowser.objDriver.FindElement(By.XPath(pstrWebElement));
+                objDropDown.Click();
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+                //Get List
+                if (IsElementPresent("//span[@class='select2-results']"))
+                {
+                    //Common Dropdown
+                    objDropDownContent = clsWebBrowser.objDriver.FindElement(By.XPath("//span[@class='select2-results']"));
+                    objOptions = objDropDownContent.FindElements(By.XPath("//li[@role='treeitem']"));
+                }
+                else
+                {
+                    //two Factor Dropdown
+                    objDropDownContent = clsWebBrowser.objDriver.FindElement(By.XPath("//ul[@class='dropdown-content select-dropdown w-100 active']"));
+                    objOptions = objDropDownContent.FindElements(By.XPath("//span[@class='filtrable']"));
+                }
+                //Verify if list is not empty
+                blResult = objOptions.Count > 0;
+                Actions action = new Actions(clsWebBrowser.objDriver);
+                if (blResult) 
+                {
+                    clsReportResult.fnLog("DropDown", $"The {pstrElement} returns {objOptions.Count} codes as expected.", "Pass", true, pblHardStop, pstrHardStopMsg);
+                    foreach (var option in objOptions) 
+                    {
+                        if (option.GetAttribute("innerText") != "No results found")
+                        { clsReportResult.fnLog("DropDown", $"The ( {option.GetAttribute("innerText")} ) was found in the dropdown selected.", "Info", pblScreenShot, pblHardStop, pstrHardStopMsg); }
+                        else 
+                        { 
+                            clsReportResult.fnLog("DropDown", $"The dropdown returns ( {option.GetAttribute("innerText")} ) but should have other values", "false", pblScreenShot, pblHardStop, pstrHardStopMsg);
+                            blResult = false;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    clsReportResult.fnLog("DropDown", $"The dropdown {pstrElement} did not return values and should be displayed.", "Fail", pblScreenShot, pblHardStop, pstrHardStopMsg);
+                }
+                objDropDown = clsWebBrowser.objDriver.FindElement(By.XPath("//nav[@id='EnvironmentBar']"));
+                objDropDown.Click();
+                Thread.Sleep(TimeSpan.FromMilliseconds(2));
+                action.SendKeys(Keys.Escape);
+            }
+            catch (Exception objException)
+            {
+                blResult = false;
+                clsWebElements.fnExceptionHandling(objException);
+            }
+            return blResult;
+        }
 
         public bool fnEnterDatePicker(string pstrElement, string pstrWebElement, string pstrValue, bool pblScreenShot = false, bool pblHardStop = false, string pstrHardStopMsg = "")
         {
@@ -454,7 +514,11 @@ namespace AutomationFrame_GlobalIntake.POM
             js.ExecuteScript("arguments[0].setAttribute('style', 'background: transparent; border: 2px solid red;');", pElement);
         }
 
-
+        public void fnKillProcess(string strProcessName) 
+        {
+            foreach (var process in Process.GetProcessesByName(strProcessName))
+            { process.Kill(); }
+        }
 
     }
 }

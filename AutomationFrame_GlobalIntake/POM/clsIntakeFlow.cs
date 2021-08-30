@@ -2130,9 +2130,6 @@ namespace AutomationFrame_GlobalIntake.POM
                     if (!clsMG.fnDropDownGetElements("Nature Code", "//div[contains(@question-key, 'CLAIM_INJURED_INJURY_INJURY_CODE')]//span[@class='select2-selection select2-selection--single'])", false, false)) { blResult = false; }
                     if (!clsMG.fnDropDownGetElements("Body Part 1", "(//div[contains(@question-key, 'CLAIM_INJURED_INJURY_BODY_PART')]//span[@class='select2-selection select2-selection--single'])[1]", false, false)) { blResult = false; }
                     if (!clsMG.fnDropDownGetElements("Body Part 2", "(//div[contains(@question-key, 'CLAIM_INJURED_INJURY_BODY_PART')]//span[@class='select2-selection select2-selection--single'])[2]", false, false)) { blResult = false; }
-
-
-
                     break;
                 case "AUTOLIABILITY":
                     //Go to First Party Vehicle

@@ -1397,7 +1397,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                                 }
                                             }
                                         );
-
+                                        break;
                                     case "VERIFYCAUSECODES":
                                         blResult = VerifyCodesDropDown(objData.fnGetValue("ActionValues", ""));
                                         break;

@@ -165,6 +165,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\CreateIntakeScreen.cs" />
     <Compile Include="POM\clsAPI.cs" />
     <Compile Include="POM\clsIntakeFlow.cs" />
     <Compile Include="POM\clsLogin.cs" />
@@ -179,6 +180,7 @@
     <Compile Include="Utils\clsRest.cs" />
     <Compile Include="Utils\clsConstants.cs" />
     <Compile Include="Utils\clsEmail.cs" />
+    <Compile Include="Utils\clsUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

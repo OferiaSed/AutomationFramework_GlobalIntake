@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AutomationFrame_GlobalIntake.Utils;
+using AutomationFrame_GlobalIntake.Models;
 
 namespace AutomationFrame_GlobalIntake.POM
 {
@@ -1326,6 +1328,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                 clsMG.fnCleanAndEnterText("First Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterFN", ""), false, false, "", false);
                                 //Reporter Last Name
                                 clsMG.fnCleanAndEnterText("Last Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='Last Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterLN", ""), false, false, "", false);
+                             
                                 //Is This The Loss Location? 
                                 clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[@class='row' and div[span[contains(text(), 'Is This The Loss Location?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IsTheSameLoc", ""), false, false);
 
@@ -1333,6 +1336,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                 clsMG.fnCleanAndEnterText("Date Reported To Sedgwick", "//div[@class='row' and div[span[text()='Date Reported To Sedgwick']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("DateReportedToSedgwick", ""), false, false, "", false);
                                 //Time Reported To Sedgwick
                                 clsMG.fnCleanAndEnterText("Time Reported To Sedgwick", "//div[@class='row' and div[span[text()='Time Reported To Sedgwick']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("TimeReportedToSedgwick", ""), false, false, "", false);
+
                                 //Employee Firt Name
                                 clsMG.fnCleanAndEnterText("Employee First Name", "//div[contains(@question-key, 'EMPLOYEE_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployeeFN", ""), false, false, "", true);
                                 //Employee Last Name
@@ -1371,6 +1375,28 @@ namespace AutomationFrame_GlobalIntake.POM
                                             string strMessage = blResult ? "is not displayed as expected in the Intake Flow Page." : "should not be displayed in the Intake Flow Page for this user role.";
                                             clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
                                         }
+                                        break;
+
+                                    case "VERIFYFLOATINGMENUBAR":
+                                        IList<IWebElement> lsitemsInMenuBar = clsWebBrowser.objDriver.FindElements(CreateIntakeScreen.objFloatingListSelector);
+                                        clsUtils.fnExecuteIf(lsitemsInMenuBar.Count > 0,
+                                            () =>
+                                            {
+                                                foreach (var element in lsitemsInMenuBar)
+                                                {
+                                                    element.Click();
+                                                    var elementIsActive = clsMG.fnGenericWait(() => element.GetAttribute("class").Contains("active"), TimeSpan.FromSeconds(1), 10);
+                                                    if (!elementIsActive)
+                                                    {
+                                                        clsReportResult.fnLog("Element in floating menu shuld be in active status", element.Text, "Fail", true);
+                                                    }
+                                                    else
+                                                    {
+                                                        clsReportResult.fnLog("Element in floating menu is in active status", element.Text, "Pass", true);
+                                                    }
+                                                }
+                                            }
+                                        );
                                         break;
                                     case "VERIFYCAUSECODES":
                                         blResult = VerifyCodesDropDown(objData.fnGetValue("ActionValues", ""));
@@ -1995,7 +2021,7 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
 
         }
-
+        
         public string fnGetConfirmationNumber()
         {
             string strConfNumber = "";
@@ -2006,13 +2032,52 @@ namespace AutomationFrame_GlobalIntake.POM
             return strConfNumber;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="expectedLossData"></param>
+        /// <returns></returns>
+        private bool VerifyFloatingMenuBar()
+        {
+
+            return false;
+            //string dolElement;
+            //var dolSelector = "//span[@data-bind='date: headerLossDate']";
+            //clsMG.WaitWEUntilAppears("Wait for Date of loss to appear", dolSelector, 10);
+            //var count = 0;
+            //bool equalsExpectedValue;
+            //do
+            //{
+            //    Thread.Sleep(TimeSpan.FromSeconds(1));
+            //    dolElement = clsWE.fnGetAttribute(clsWE.fnGetWe(dolSelector), "Date of Loss", "innerText", false);
+            //    equalsExpectedValue = dolElement.Equals(expectedLossData);
+            //    count++;
+            //}
+            //while ((!equalsExpectedValue) && count < 10);
+
+            //if (equalsExpectedValue)
+            //{
+            //    clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", "Pass", false);
+            //}
+            //else
+            //{
+            //    clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found does not match as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", "Fail", true);
+            //}
+            //return equalsExpectedValue;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="expectedLossData"></param>
+        /// <returns></returns>
         private bool VerifyDOLElement(string expectedLossData)
         {
             string dolElement;
             var dolSelector = "//span[@data-bind='date: headerLossDate']";
             clsMG.WaitWEUntilAppears("Wait for Date of loss to appear", dolSelector, 10);
             var count = 0;
-            bool equalsExpectedValue = false;
+            bool equalsExpectedValue;
             do
             {
                 Thread.Sleep(TimeSpan.FromSeconds(1));
@@ -2024,13 +2089,13 @@ namespace AutomationFrame_GlobalIntake.POM
 
             if (equalsExpectedValue) 
             {
-                clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", equalsExpectedValue ? "Pass" : "Fail", false);
+                clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", "Pass", false);
             }
             else 
             {
-                clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found does not match as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", equalsExpectedValue ? "Pass" : "Fail", true);
+                clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", equalsExpectedValue ? "Pass" : "Fail", false);
             }
-            return equalsExpectedValue ? true : false;
+            return equalsExpectedValue;
         }
 
         private bool VerifyCodesDropDown(string pstrLOB) 
@@ -2065,9 +2130,6 @@ namespace AutomationFrame_GlobalIntake.POM
                     if (!clsMG.fnDropDownGetElements("Nature Code", "//div[contains(@question-key, 'CLAIM_INJURED_INJURY_INJURY_CODE')]//span[@class='select2-selection select2-selection--single'])", false, false)) { blResult = false; }
                     if (!clsMG.fnDropDownGetElements("Body Part 1", "(//div[contains(@question-key, 'CLAIM_INJURED_INJURY_BODY_PART')]//span[@class='select2-selection select2-selection--single'])[1]", false, false)) { blResult = false; }
                     if (!clsMG.fnDropDownGetElements("Body Part 2", "(//div[contains(@question-key, 'CLAIM_INJURED_INJURY_BODY_PART')]//span[@class='select2-selection select2-selection--single'])[2]", false, false)) { blResult = false; }
-
-
-
                     break;
                 case "AUTOLIABILITY":
                     //Go to First Party Vehicle
@@ -2160,8 +2222,6 @@ namespace AutomationFrame_GlobalIntake.POM
             
             return blResult;
         }
-
-
 
     }
 }

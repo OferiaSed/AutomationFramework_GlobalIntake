@@ -408,7 +408,7 @@ namespace AutomationFrame_GlobalIntake.POM
                     return IsElementPresent("//div[@id='slide-out' and contains(@style, 'translateX(-100%)')]");
                 },
                 TimeSpan.FromMilliseconds(500),
-                10
+                3
             );
 
             if (isElementStillPresent) 

@@ -197,6 +197,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
             try
             {
                 clsReportResult.objExtent.Flush();
+                clsMG.fnKillProcess("chromedriver");
             }
             catch (Exception objException)
             {

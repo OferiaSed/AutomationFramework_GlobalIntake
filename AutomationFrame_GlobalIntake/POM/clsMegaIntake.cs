@@ -37,7 +37,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 clsReportResult.fnLog("SelectDropdown", "Step - Select Dropdown: " + pstrElement, "Info", false);
                 IWebElement objDropDown = clsWebBrowser.objDriver.FindElement(By.XPath(pstrWebElement));
                 objDropDown.Click();
-                Thread.Sleep(TimeSpan.FromSeconds(1));
+                Thread.Sleep(TimeSpan.FromSeconds(2));
                 //Get List
                 if (IsElementPresent("//span[@class='select2-results']"))
                 {
@@ -63,7 +63,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         { clsReportResult.fnLog("DropDown", $"The ( {option.GetAttribute("innerText")} ) was found in the dropdown selected.", "Info", pblScreenShot, pblHardStop, pstrHardStopMsg); }
                         else 
                         { 
-                            clsReportResult.fnLog("DropDown", $"The dropdown returns ( {option.GetAttribute("innerText")} ) but should have other values", "false", pblScreenShot, pblHardStop, pstrHardStopMsg);
+                            clsReportResult.fnLog("DropDown", $"The dropdown returns ( {option.GetAttribute("innerText")} ) but should have other values", "Fail", pblScreenShot, pblHardStop, pstrHardStopMsg);
                             blResult = false;
                             break;
                         }

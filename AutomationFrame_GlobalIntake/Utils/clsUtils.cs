@@ -20,5 +20,31 @@ namespace AutomationFrame_GlobalIntake.Utils
                 action.Invoke();
             }
         }
+
+        /// <summary>
+        /// Generates a Future/Old/Current Date and return as string with format MM/dd/yyyy
+        /// </summary>
+        /// <param name="pstrDays">Provide a valid formart like Today+Ndays, Today, Today-5days</param>
+        /// <returns></returns>
+        public static string fnGetCustomDate(string pstrDays) 
+        {
+            string newDate = "";
+            if (pstrDays.Contains("+") || pstrDays.Contains("-"))
+            {
+                DateTime dtNewDate;
+                dtNewDate = DateTime.Today.AddDays(Convert.ToDouble(pstrDays.Replace("TODAY", "").Replace("Today", "").Replace("today", "")));
+                newDate = dtNewDate.ToString("MM/dd/yyyy");
+            }
+            else if (pstrDays == "TODAY" || pstrDays == "Today" || pstrDays == "today")
+            {
+                newDate = DateTime.Today.ToString("MM/dd/yyyy");
+            }
+            else if (pstrDays.ToUpper() == "INVALIDDATE") 
+            {
+                newDate = "41/41/9999";
+            }
+            return newDate;
+        }
+
     }
 }

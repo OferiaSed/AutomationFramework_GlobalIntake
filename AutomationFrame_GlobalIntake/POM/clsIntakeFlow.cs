@@ -228,14 +228,16 @@ namespace AutomationFrame_GlobalIntake.POM
                         break;
                 }
 
-                clsWE.fnPageLoad(clsWE.fnGetWe("//span[@data-bind='text:Value.Label']"), "Header Intake", false, false);
-                clsMG.fnCleanAndEnterText("Loss Time", "//div[@class='row' and div[span[text()='Loss Time']]]//input[@class='form-control']", pobjData.fnGetValue("LossTime", ""), false, false, "", false);
-                clsWE.fnClick(clsWE.fnGetWe("//span[@data-bind='text:Value.Label']"), "Header Intake", false);
-                clsMG.fnCleanAndEnterText("Loss Date", "//div[@class='row' and div[span[text()='Loss Date']]]//input[@class='form-control']", pobjData.fnGetValue("LossDate", ""), false, false, "", false);
-                clsMG.fnSelectDropDownWElm("Reporter Type", "//div[@class='row' and div[span[text()='Reporter Type']]]//span[@class='select2-selection select2-selection--single']", pobjData.fnGetValue("ReporterType", ""), false, false, "", false);
-                clsMG.fnSelectDropDownWElm("Reported By", "//div[@class='row' and div[span[text()='Reported By']]]//span[@class='select2-selection select2-selection--single']", pobjData.fnGetValue("ReportedBy", ""), false, false, "", false);
-                clsWE.fnPageLoad(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false, false);
-                clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Move Focus to Header", false);
+                clsWE.fnPageLoad(clsWE.fnGetWe(DuplicateCCModel.strDuplicatePageLabel), "Wait Duplicate CC Header", false, false);
+                clsMG.fnCleanAndEnterText("Loss Time", DuplicateCCModel.strLossTime, pobjData.fnGetValue("LossTime", ""), false, false, "", false);
+                clsWE.fnClick(clsWE.fnGetWe(DuplicateCCModel.strDuplicatePageLabel), "Duplicate CC Header", false);
+                clsMG.fnCleanAndEnterText("Loss Date", DuplicateCCModel.strLossDate, pobjData.fnGetValue("LossDate", ""), false, false, "", false);
+                clsMG.fnSelectDropDownWElm("Reporter Type", DuplicateCCModel.strReporterType, pobjData.fnGetValue("ReporterType", ""), false, false, "", false);
+                clsMG.fnSelectDropDownWElm("Reported By", DuplicateCCModel.strReportedBy, pobjData.fnGetValue("ReportedBy", ""), false, false, "", false);
+                clsWE.fnPageLoad(clsWE.fnGetWe(DuplicateCCModel.strEnvironmentBar), "Environment Bar", false, false);
+                clsMG.fnGenericWait(() => clsMG.IsElementPresent(DuplicateCCModel.strEnvironmentBar), TimeSpan.FromSeconds(1), 10);
+                clsWE.fnClick(clsWE.fnGetWe(DuplicateCCModel.strEnvironmentBar), "Move Focus to Environment Bar", false);
+
                 //Fill EE Lookup
                 if (pobjData.fnGetValue("FillEELookup", "").ToUpper() == "TRUE") { blResult = fnEmployeeLocationLookup(pobjData.fnGetValue("EELookupSet", "")); }
                 //FIll Location Lookup
@@ -243,8 +245,8 @@ namespace AutomationFrame_GlobalIntake.POM
                 //Verify if error messages exist
                 if (blNext.ToUpper() == "TRUE" || blNext.ToUpper() == "YES")
                 {
-                    clsWE.fnClick(clsWE.fnGetWe("//button[text()='Next']"), "Next Button", false);
-                    if (!clsMG.IsElementPresent("//*[@data-bind='text:ValidationMessage']") || !clsMG.IsElementPresent("//div[@class='md-toast md-toast-error']"))
+                    clsWE.fnClick(clsWE.fnGetWe(DuplicateCCModel.strNextbutton), "Next Button", false);
+                    if (!clsMG.IsElementPresent(DuplicateCCModel.strRedWarning) || !clsMG.IsElementPresent(DuplicateCCModel.strRedModalDialog))
                     {
                         clsReportResult.fnLog("Duplicate Claim Check", "The Duplicate Claim Check Page was filled successfully.", "Pass", false, false);
                     }
@@ -276,7 +278,6 @@ namespace AutomationFrame_GlobalIntake.POM
                             clsMG.fnCleanAndEnterText("Loss Date", "//div[@class='row' and div[span[text()='Loss Date']]]//input[@class='form-control']", newDate.ToString(), false, false, "", true);
                             clsWE.fnClick(clsWE.fnGetWe("//button[text()='Next']"), "Next Button", false);
                             Thread.Sleep(TimeSpan.FromSeconds(3));
-                            //clsWE.fnClick(clsWE.fnGetWe("//span[@data-bind='text:Value.Label']"), "Header Intake", false);
                             switch (arrDates[1].ToUpper()) 
                             {
                                 case "VALID":
@@ -855,7 +856,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                         if (clsWE.fnElementExist("Policy Button", "//button[@id='btnJurisLocation_LOCATION_LOOKUP']", true))
                                         {
                                             clsWE.fnClick(clsWE.fnGetWe("//button[@id='btnJurisLocation_LOCATION_LOOKUP']"), "Click Policy Search", false);
-                                            clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]//span[text()='Policy Lookup']"), "Policy Popup", false, false);
+                                            //clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]//span[text()='Policy Lookup']"), "Policy Popup", false, false);
                                             if (clsWE.fnElementExist("Loading element", "//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]//span[text()='Policy Lookup']", true, false))
                                             {
                                                 //Provide Policy Information
@@ -2416,6 +2417,237 @@ namespace AutomationFrame_GlobalIntake.POM
 
             return strLabelElement;
         }
+
+
+        public bool fnUsersHomeRestrictions(string pstrSetNo)
+        {
+            bool blResult = true;
+
+            clsData objData = new clsData();
+            clsReportResult.fnLog("Users Home Restriction", "<<<<<<<<<< Users Home Restriction Function Starts >>>>>>>>>>", "Info", false);
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "UserMGMT");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == pstrSetNo)
+                {
+                    switch (objData.fnGetValue("Role", "").ToUpper())
+                    {
+                        case "CLIENT INTAKE ONLY":
+                            clsReportResult.fnLog("Users Home Restriction", "<<<<<<<<<< Home Validation for " + objData.fnGetValue("Role", "") + "Starts. >>>>>>>>>>>", "Info", false);
+                            clsMG.fnHamburgerMenu("Home");
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'You are currently logged into')]"), "Logged message", false, false);
+                            if (!clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"))
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section is not displayed on Home screen for " + objData.fnGetValue("Role", "") + " as expected.", "Pass", true, false);
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section should not be displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Fail", true, false);
+                                blResult = false;
+                            }
+                            break;
+                        case "CLIENT INTAKE ONLY WITH DASHBOARD":
+                            clsReportResult.fnLog("Users Home Restriction", "<<<<<<<<<< Home Validation for " + objData.fnGetValue("Role", "") + "Starts. >>>>>>>>>>>", "Info", false);
+                            clsMG.fnHamburgerMenu("Home");
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'You are currently logged into')]"), "Logged message", false, false);
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"), TimeSpan.FromSeconds(1), 10);
+                            if (clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"))
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section is displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section is NOT displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Fail", true, false);
+                                blResult = false;
+                            }
+                            break;
+                        case "INTERNAL INTAKE USER":
+                            clsReportResult.fnLog("Users Home Restriction", "<<<<<<<<<< Home Validation for " + objData.fnGetValue("Role", "") + "Starts. >>>>>>>>>>>", "Info", false);
+                            clsMG.fnHamburgerMenu("Home");
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'You are currently logged into')]"), "Logged message", false, false);
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"), TimeSpan.FromSeconds(1), 10);
+                            if (clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"))
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section is displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section is NOT displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Fail", true, false);
+                                blResult = false;
+                            }
+                            break;
+                        case "INTAKE LEAD":
+                            clsReportResult.fnLog("Users Home Restriction", "<<<<<<<<<< Home Validation for " + objData.fnGetValue("Role", "") + "Starts. >>>>>>>>>>>", "Info", false);
+                            clsMG.fnHamburgerMenu("Home");
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'You are currently logged into')]"), "Logged message", false, false);
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"), TimeSpan.FromSeconds(1), 10);
+                            if (clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"))
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section is displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section is NOT displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Fail", true, false);
+                                blResult = false;
+                            }
+                            break;
+                        case "POWER USER ADMIN":
+                            clsReportResult.fnLog("Users Home Restriction", "<<<<<<<<<< Home Validation for " + objData.fnGetValue("Role", "") + "Starts. >>>>>>>>>>>", "Info", false);
+                            clsMG.fnHamburgerMenu("Home");
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'You are currently logged into')]"), "Logged message", false, false);
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"), TimeSpan.FromSeconds(1), 10);
+                            if (clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"))
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section is displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section is NOT displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Fail", true, false);
+                                blResult = false;
+                            }
+                            break;
+                        case "INTAKE SUPER USER":
+                            clsReportResult.fnLog("Users Home Restriction", "<<<<<<<<<< Home Validation for " + objData.fnGetValue("Role", "") + "Starts. >>>>>>>>>>>", "Info", false);
+                            clsMG.fnHamburgerMenu("Home");
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'You are currently logged into')]"), "Logged message", false, false);
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"), TimeSpan.FromSeconds(1), 10);
+                            if (clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"))
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section is displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section is NOT displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Fail", true, false);
+                                blResult = false;
+                            }
+                            break;
+                        case "INTAKE ADMIN":
+                            clsReportResult.fnLog("Users Home Restriction", "<<<<<<<<<< Home Validation for " + objData.fnGetValue("Role", "") + "Starts. >>>>>>>>>>>", "Info", false);
+                            clsMG.fnHamburgerMenu("Home");
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'You are currently logged into')]"), "Logged message", false, false);
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"), TimeSpan.FromSeconds(1), 10);
+                            if (clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"))
+                            {
+                                if (clsMG.IsElementPresent("//a[contains(@data-bind,'getMyCalls')]"))
+                                {
+                                    clsReportResult.fnLog("Users Home Restriction", "The <<< MY INTAKES >>> button exist in CALLS section and is displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                                }
+                                if (clsMG.IsElementPresent("//a[contains(@data-bind,'getResumeCalls')]"))
+                                {
+                                    clsReportResult.fnLog("Users Home Restriction", "The <<< RESUME INTAKES >>> button exist in CALLS section and is displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                                }
+                                if (clsMG.IsElementPresent("//a[contains(@data-bind,'getAbandonedCalls')]"))
+                                {
+                                    clsReportResult.fnLog("Users Home Restriction", "The <<< CANCELLED INTAKES >>> button exist in CALLS section and is displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                                }
+                                if (clsMG.IsElementPresent("//a[contains(@data-bind,'getDisseminationFailCalls')]"))
+                                {
+                                    clsReportResult.fnLog("Users Home Restriction", "The <<< FAILED DISSEMINATIONS >>> button exist in CALLS section and is displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                                }
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section and buttons are displayed correctly on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section is NOT displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Fail", true, false);
+                                blResult = false;
+                            }
+                            break;
+                        case "PRODUCT ADMIN":
+                            clsReportResult.fnLog("Users Home Restriction", "<<<<<<<<<< Home Validation for " + objData.fnGetValue("Role", "") + "Starts. >>>>>>>>>>>", "Info", false);
+                            clsMG.fnHamburgerMenu("Home");
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'You are currently logged into')]"), "Logged message", false, false);
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"), TimeSpan.FromSeconds(1), 10);
+                            if (clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"))
+                            {
+                                if (clsMG.IsElementPresent("//a[contains(@data-bind,'getMyCalls')]"))
+                                {
+                                    clsReportResult.fnLog("Users Home Restriction", "The <<< MY INTAKES >>> button exist in CALLS section and is displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                                }
+                                if (clsMG.IsElementPresent("//a[contains(@data-bind,'getAbandonedCalls')]"))
+                                {
+                                    clsReportResult.fnLog("Users Home Restriction", "The <<< CANCELLED INTAKES >>> button exist in CALLS section and is displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                                }
+                                if (clsMG.IsElementPresent("//a[contains(@data-bind,'getDisseminationFailCalls')]"))
+                                {
+                                    clsReportResult.fnLog("Users Home Restriction", "The <<< FAILED DISSEMINATIONS >>> button exist in CALLS section and is displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                                }
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section and buttons are displayed correctly on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The My Intakes table is NOT displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Fail", true, false);
+                                blResult = false;
+                            }
+                            break;
+                        case "TENANT ADMIN":
+                            clsReportResult.fnLog("Users Home Restriction", "<<<<<<<<<< Home Validation for " + objData.fnGetValue("Role", "") + "Starts. >>>>>>>>>>>", "Info", false);
+                            clsMG.fnHamburgerMenu("Home");
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'You are currently logged into')]"), "Logged message", false, false);
+                            if (!clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"))
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The Home Grid is not displayed for " + objData.fnGetValue("Role", "") + " as expected.", "Pass", true, false);
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The Home Grid is displayed for " + objData.fnGetValue("Role", "") + ".Please verify you have the right access.", "Fail", true, false);
+                                blResult = false;
+                            }
+                            break;
+                        case "AUDIT USER":
+                            clsReportResult.fnLog("Users Home Restriction", "<<<<<<<<<< Home Validation for " + objData.fnGetValue("Role", "") + "Starts. >>>>>>>>>>>", "Info", false);
+                            clsMG.fnHamburgerMenu("Home");
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'You are currently logged into')]"), "Logged message", false, false);
+                            if (!clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"))
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The Home screen is not displayed for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The Home screen is displayed for " + objData.fnGetValue("Role", "") + ".Please verify you have the right access.", "Fail", true, false);
+                                blResult = false;
+                            }
+                            break;
+                        case "QUALITY USER":
+                            clsReportResult.fnLog("Users Home Restriction", "<<<<<<<<<< Home Validation for " + objData.fnGetValue("Role", "") + "Starts. >>>>>>>>>>>", "Info", false);
+                            clsMG.fnHamburgerMenu("Home");
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'You are currently logged into')]"), "Logged message", false, false);
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"), TimeSpan.FromSeconds(1), 10);
+                            if (clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"))
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section is displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The CALLS section is NOT displayed on Home screen for " + objData.fnGetValue("Role", "") + ".", "Fail", true, false);
+                                blResult = false;
+                            }
+                            break;
+                        case "SIMPLE CASE USER":
+                            clsReportResult.fnLog("Users Home Restriction", "<<<<<<<<<< Home Validation for " + objData.fnGetValue("Role", "") + "Starts. >>>>>>>>>>>", "Info", false);
+                            clsMG.fnHamburgerMenu("Home");
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'You are currently logged into')]"), "Logged message", false, false);
+                            if (!clsMG.IsElementPresent("//section[contains(@id,'calls-section')]"))
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The Home screen is not displayed for " + objData.fnGetValue("Role", "") + ".", "Pass", true, false);
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Users Home Restriction", "The Home screen is displayed for " + objData.fnGetValue("Role", "") + ".Please verify you have the right access.", "Fail", true, false);
+                                blResult = false;
+                            }
+                            break;
+                    }
+                }
+            }
+            if (blResult)
+            { clsReportResult.fnLog("Users Home Restriction", "The Users Home Restriction Function was executed successfully.", "Pass", false); }
+            else
+            { clsReportResult.fnLog("Users Home Restriction", "The Users Home Restriction Function was not executed successfully.", "Fail", false); }
+
+            return blResult;
+        }
+
 
 
 

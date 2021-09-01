@@ -1332,7 +1332,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                         {
                                             case "VERIFYTABBINGORDER":
                                                 var labels = clsWebBrowser.objDriver.FindElements(CreateIntakeScreen.objAllLabels)
-                                                    .Take(13)
+                                                    .Take(13) //After 13th element it will fail, client 9066
                                                     .ToList();
                                                 var firstLabel = labels.First();
                                                 new Actions(clsWebBrowser.objDriver).MoveToElement(firstLabel).Build().Perform();

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +10,9 @@ namespace AutomationFrame_GlobalIntake.Utils
 {
     static class clsUtils
     {
+        public static IWebElement fnGetParentNodeFromJavascript(this IWebDriver driver, IWebElement element) => (IWebElement)((IJavaScriptExecutor)driver).ExecuteScript("return arguments[0].parentNode;", element);
+        public static IWebElement fnGetParentNode(this IWebElement element) => element.FindElement(By.XPath("./.."));
+      
         /// <summary>
         /// Executes a method if the specified codition is true
         /// </summary>
@@ -18,6 +23,26 @@ namespace AutomationFrame_GlobalIntake.Utils
             if (condition)
             {
                 action.Invoke();
+            }
+        }
+      
+        /// <summary>
+        /// Verifies if element is visible, if not returns false.
+        /// </summary>
+        /// <param name="By">Provide Locator like xpath, css, id, ect.</param>
+        /// <param name="By">Provide webdriver object.</param>
+        /// <returns></returns>
+        public static bool fnIsElementVisible(By by, IWebDriver driver)
+        {
+            try
+            {
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(by));
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
@@ -45,6 +70,5 @@ namespace AutomationFrame_GlobalIntake.Utils
             }
             return newDate;
         }
-
     }
 }

@@ -1362,209 +1362,240 @@ namespace AutomationFrame_GlobalIntake.POM
                                     Thread.Sleep(TimeSpan.FromSeconds(10));
                                 }
                                 clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='page-container']"), "Intake FLow Page", false, false);
-
-                                //Reporter First Name
-                                clsMG.fnCleanAndEnterText("First Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterFN", ""), false, false, "", false);
-                                //Reporter Last Name
-                                clsMG.fnCleanAndEnterText("Last Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='Last Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterLN", ""), false, false, "", false);
-
-                                //Is This The Loss Location? 
-                                clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[@class='row' and div[span[contains(text(), 'Is This The Loss Location?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IsTheSameLoc", ""), false, false);
-
-                                //Date Reported To Sedgwick
-                                clsMG.fnCleanAndEnterText("Date Reported To Sedgwick", "//div[@class='row' and div[span[text()='Date Reported To Sedgwick']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("DateReportedToSedgwick", ""), false, false, "", false);
-                                //Time Reported To Sedgwick
-                                clsMG.fnCleanAndEnterText("Time Reported To Sedgwick", "//div[@class='row' and div[span[text()='Time Reported To Sedgwick']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("TimeReportedToSedgwick", ""), false, false, "", false);
-
-                                //Employee Firt Name
-                                clsMG.fnCleanAndEnterText("Employee First Name", "//div[contains(@question-key, 'EMPLOYEE_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployeeFN", ""), false, false, "", true);
-                                //Employee Last Name
-                                clsMG.fnCleanAndEnterText("Employee Last Name", "//div[contains(@question-key, 'EMPLOYEE_INFORMATION')]//div[@class='row' and div[span[text()='Last Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployeeLN", ""), false, false, "", true);
-                                //Do You Expect The Team Member To Lose Time From Work?
-                                clsMG.fnSelectDropDownWElm("Do You Expect The Team Member To Lose Time From Work?", "//div[@class='row' and div[span[contains(text(), 'Do You Expect The Team Member To Lose Time From Work?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("TeamMemberLossTime", ""), false, false);
-                                //Employer Notified Date
-                                clsMG.fnCleanAndEnterText("Employer Notified Date", "//div[contains(@question-key, 'INCIDENT_INFORMATION')]//div[@class='row' and div[span[text()='Employer Notified Date']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployerNotifiedDate", ""), false, false, "", false);
-                                //Loss Description 
-                                clsMG.fnCleanAndEnterText("Loss Description", "//div[contains(@question-key, 'INCIDENT_INFORMATION')]//div[@class='row' and div[span[text()='Loss Description']]]//textarea", objData.fnGetValue("LossDescription", ""), false, false, "", false);
-                                //Is Contact Same As Caller?
-                                clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[contains(@question-key, 'CONTACT_INFORMATION')]//div[@class='row' and div[span[contains(text(), 'Is Contact Same As Caller?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IsSameAsCaller", ""), false, false);
-                                //Work Phone Number
-                                clsMG.fnCleanAndEnterText("Contact Work Phone", "//div[contains(@question-key, 'CONTACT_INFORMATION')]//div[@class='row' and div[span[text()='Work Phone Number']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ContactWorkPhone", ""), false, false, "", false);
-
-
-                                //Select validation Before Resume or Submit Claim
-                                switch (objData.fnGetValue("Action", "").ToUpper())
+                              
+                                var actionDriver = objData.fnGetValue("Action");
+                                var actions = actionDriver.Split(';').ToList();
+                                actions.ForEach(action =>
                                 {
-                                    case "VERIFYDOL":
-                                        blResult = VerifyDOLElement(objData.fnGetValue("LossDate", ""));
-                                        break;
-                                    case "VERIFYPREVIEWMODE":
-                                        clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label verification starts on Intake Flow Screen.", "Info", false, false);
-                                        clsMG.fnGoTopPage();
-                                        if (objData.fnGetValue("ActionValues", "").ToUpper() == "TRUE" || objData.fnGetValue("ActionValues", "").ToUpper() == "YES")
-                                        {
-                                            blResult = clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]");
-                                            string strMessage = blResult ? "was displayed in the Intake Flow Page as expected." : "should be displayed in the Intake Flow Page but was not found.";
-                                            clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
-                                        }
-                                        else if (objData.fnGetValue("ActionValues", "").ToUpper() == "FALSE" || objData.fnGetValue("ActionValues", "").ToUpper() == "NO")
-                                        {
+                                    switch (objData.fnGetValue("Action", "").ToUpper())
+                                    {
+                                        case "VERIFYDOL":
+                                            blResult = VerifyDOLElement(objData.fnGetValue("LossDate", ""));
+                                            break;
+                                        case "VERIFYPREVIEWMODE":
+                                            clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label verification starts on Intake Flow Screen.", "Info", false, false);
                                             clsMG.fnGoTopPage();
-                                            blResult = !clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]");
-                                            string strMessage = blResult ? "is not displayed as expected in the Intake Flow Page." : "should not be displayed in the Intake Flow Page for this user role.";
-                                            clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
-                                        }
-                                        break;
-
-                                    case "VERIFYFLOATINGMENUBAR":
-                                        IList<IWebElement> lsitemsInMenuBar = clsWebBrowser.objDriver.FindElements(CreateIntakeScreen.objFloatingListSelector);
-                                        clsUtils.fnExecuteIf(lsitemsInMenuBar.Count > 0,
-                                            () =>
+                                            if (objData.fnGetValue("ActionValues", "").ToUpper() == "TRUE" || objData.fnGetValue("ActionValues", "").ToUpper() == "YES")
                                             {
-                                                foreach (var element in lsitemsInMenuBar)
+                                                blResult = clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]");
+                                                string strMessage = blResult ? "was displayed in the Intake Flow Page as expected." : "should be displayed in the Intake Flow Page but was not found.";
+                                                clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
+                                            }
+                                            else if (objData.fnGetValue("ActionValues", "").ToUpper() == "FALSE" || objData.fnGetValue("ActionValues", "").ToUpper() == "NO")
+                                            {
+                                                clsMG.fnGoTopPage();
+                                                blResult = !clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]");
+                                                string strMessage = blResult ? "is not displayed as expected in the Intake Flow Page." : "should not be displayed in the Intake Flow Page for this user role.";
+                                                clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
+                                            }
+                                            break;
+                                        case "VERIFYTABBINGORDER":
+                                            var labels = clsWebBrowser.objDriver.FindElements(CreateIntakeScreen.objAllLabels)
+                                                .Take(13) //After 13th element it will fail, client 9066
+                                                .ToList();
+                                            var firstLabel = labels.First();
+                                            new Actions(clsWebBrowser.objDriver).MoveToElement(firstLabel).Build().Perform();
+                                            labels.Remove(firstLabel);
+                                            labels.ForEach(
+                                                x =>
                                                 {
-                                                    element.Click();
-                                                    var elementIsActive = clsMG.fnGenericWait(() => element.GetAttribute("class").Contains("active"), TimeSpan.FromSeconds(1), 10);
-                                                    if (!elementIsActive)
+                                                    var parent = x.fnGetParentNode();
+                                                    var question = new
                                                     {
-                                                        clsReportResult.fnLog("Element in floating menu shuld be in active status", element.Text, "Fail", true);
+                                                        inputCount = parent.FindElements(By.XPath(".//button | .//select | .//input")).Count(y => y.Enabled && y.Displayed),
+                                                        labelText = x.Text
+                                                    };
+
+                                                    var result = "Fail";
+                                                    for (var i = 0; i < question.inputCount; i++)
+                                                    {
+                                                        clsWebBrowser.objDriver.FindElement(By.TagName("body")).SendKeys(Keys.Tab);
+                                                        var activeElementLabel = this.fnGetActiveElementLabel();
+                                                        if (question.labelText.Equals(activeElementLabel))
+                                                        {
+                                                            result = "Pass";
+                                                        }
                                                     }
-                                                    else
+                                                    clsReportResult.fnLog("Tabbing: Element is active", $"Tabbing: Element '{question.labelText}' is active", result, true);
+                                                }
+                                            );
+                                        case "VERIFYFLOATINGMENUBAR":
+                                            IList<IWebElement> lsitemsInMenuBar = clsWebBrowser.objDriver.FindElements(CreateIntakeScreen.objFloatingListSelector);
+                                            clsUtils.fnExecuteIf(lsitemsInMenuBar.Count > 0,
+                                                () =>
+                                                {
+                                                    foreach (var element in lsitemsInMenuBar)
                                                     {
-                                                        clsReportResult.fnLog("Element in floating menu is in active status", element.Text, "Pass", true);
+                                                        element.Click();
+                                                        var elementIsActive = clsMG.fnGenericWait(() => element.GetAttribute("class").Contains("active"), TimeSpan.FromSeconds(1), 10);
+                                                        if (!elementIsActive)
+                                                        {
+                                                            clsReportResult.fnLog("Element in floating menu shuld be in active status", element.Text, "Fail", true);
+                                                        }
+                                                        else
+                                                        {
+                                                            clsReportResult.fnLog("Element in floating menu is in active status", element.Text, "Pass", true);
+                                                        }
                                                     }
                                                 }
+                                            );
+                                            break;
+                                        case "VERIFYCAUSECODES":
+                                            blResult = VerifyCodesDropDown(objData.fnGetValue("ActionValues", ""));
+                                            break;
+                                        case "VERIFYCURSORPLACEMENT":
+                                            //Is This The Loss Location? 
+                                            clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[@class='row' and div[span[contains(text(), 'Is This The Loss Location?')]]]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
+                                            if (fnGetActiveElementLabel() != "Client Notified Date")
+                                            {
+                                                clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Is This The Loss Location) but was moved to another field.", "Fail", true);
+                                                blResult = false;
                                             }
-                                        );
-                                        break;
-                                    case "VERIFYCAUSECODES":
-                                        blResult = VerifyCodesDropDown(objData.fnGetValue("ActionValues", ""));
-                                        break;
-                                    case "VERIFYCURSORPLACEMENT":
-                                        //Is This The Loss Location? 
-                                        clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[@class='row' and div[span[contains(text(), 'Is This The Loss Location?')]]]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
-                                        if (fnGetActiveElementLabel() != "Client Notified Date")
-                                        {
-                                            clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Is This The Loss Location) but was moved to another field.", "Fail", true);
-                                            blResult = false;
-                                        }
-                                        else
-                                        { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Is This The Loss Location) as expected.", "Pass", true); }
+                                            else
+                                            { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Is This The Loss Location) as expected.", "Pass", true); }
 
-                                        //First Party Vehicle
-                                        clsWE.fnClick(clsWE.fnGetWe("//a[span[text()='First Party Vehicle']]"), "First Party Vehicle", true, false);
-                                        clsMG.fnSelectDropDownWElm("Was Vehicle Damaged?", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_DAMAGE_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
-                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(3), 10);
-                                        if (fnGetActiveElementLabel() != "Damage Description")
-                                        {
-                                            clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Damage Description) but was moved to another field.", "Fail", true);
-                                            blResult = false;
-                                        }
-                                        else
-                                        { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Damage Description) as expected.", "Pass", true); }
+                                            //First Party Vehicle
+                                            clsWE.fnClick(clsWE.fnGetWe("//a[span[text()='First Party Vehicle']]"), "First Party Vehicle", true, false);
+                                            clsMG.fnSelectDropDownWElm("Was Vehicle Damaged?", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_DAMAGE_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(3), 10);
+                                            if (fnGetActiveElementLabel() != "Damage Description")
+                                            {
+                                                clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Damage Description) but was moved to another field.", "Fail", true);
+                                                blResult = false;
+                                            }
+                                            else
+                                            { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Damage Description) as expected.", "Pass", true); }
 
 
-                                        //Go to First Party Vehicle Driver
-                                        clsWE.fnClick(clsWE.fnGetWe("//a[span[text()='First Party Vehicle Driver']]"), "First Party Vehicle Driver", true, false);
-                                        clsMG.fnSelectDropDownWElm("Was The Driver Injured?", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_DRIVER_INJURY_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
-                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_DRIVER_INJURY_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(3), 10);
-                                        if (fnGetActiveElementLabel() != "Injury Description (All Injuries)")
-                                        {
-                                            clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Injury Description (All Injuries)) but was moved to another field.", "Fail", true);
-                                            blResult = false;
-                                        }
-                                        else
-                                        { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Injury Description (All Injuries)) as expected.", "Pass", true); }
+                                            //Go to First Party Vehicle Driver
+                                            clsWE.fnClick(clsWE.fnGetWe("//a[span[text()='First Party Vehicle Driver']]"), "First Party Vehicle Driver", true, false);
+                                            clsMG.fnSelectDropDownWElm("Was The Driver Injured?", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_DRIVER_INJURY_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_DRIVER_INJURY_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(3), 10);
+                                            if (fnGetActiveElementLabel() != "Injury Description (All Injuries)")
+                                            {
+                                                clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Injury Description (All Injuries)) but was moved to another field.", "Fail", true);
+                                                blResult = false;
+                                            }
+                                            else
+                                            { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Injury Description (All Injuries)) as expected.", "Pass", true); }
 
 
-                                        //Go to First Party Vehicle Passenger
-                                        clsWE.fnClick(clsWE.fnGetWe("//a[span[text()='First Party Vehicle Driver']]"), "First Party Vehicle Passenger", true, false);
-                                        clsWE.fnClick(clsWE.fnGetWe("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PASSENGER')]//button[text()='Add']"), "Add First Party Vehicle Passenger", true, false);
-                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PASSENGER_INJURY_FLG')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
-                                        clsMG.fnSelectDropDownWElm("First Party - Was Passenger Injured?", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PASSENGER_INJURY_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
-                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PASSENGER_INJURY_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(3), 10);
-                                        if (fnGetActiveElementLabel() != "Injury Description (All Injuries)")
-                                        {
-                                            clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Injury Description (All Injuries)) but was moved to another field.", "Fail", true);
-                                            blResult = false;
-                                        }
-                                        else
-                                        { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Injury Description (All Injuries)) as expected.", "Pass", true); }
+                                            //Go to First Party Vehicle Passenger
+                                            clsWE.fnClick(clsWE.fnGetWe("//a[span[text()='First Party Vehicle Driver']]"), "First Party Vehicle Passenger", true, false);
+                                            clsWE.fnClick(clsWE.fnGetWe("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PASSENGER')]//button[text()='Add']"), "Add First Party Vehicle Passenger", true, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PASSENGER_INJURY_FLG')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            clsMG.fnSelectDropDownWElm("First Party - Was Passenger Injured?", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PASSENGER_INJURY_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PASSENGER_INJURY_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(3), 10);
+                                            if (fnGetActiveElementLabel() != "Injury Description (All Injuries)")
+                                            {
+                                                clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Injury Description (All Injuries)) but was moved to another field.", "Fail", true);
+                                                blResult = false;
+                                            }
+                                            else
+                                            { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Injury Description (All Injuries)) as expected.", "Pass", true); }
 
 
-                                        //Go to Third Party Vehicle
-                                        clsWE.fnClick(clsWE.fnGetWe("//a[span[text()='First Party Vehicle Driver']]"), "Third Party Vehicle", true, false);
-                                        clsWE.fnClick(clsWE.fnGetWe("//div[contains(@question-key, 'CLAIM_VEHICLE')]//button[text()='Add']"), "Add Third Party Vehicle", true, false);
-                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_VEHICLE_DAMAGE_FLG')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
-                                        clsMG.fnSelectDropDownWElm("Third Party - Was Vehicle Damaged?", "//div[contains(@question-key, 'CLAIM_VEHICLE_DAMAGE_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
-                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_VEHICLE_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
-                                        if (fnGetActiveElementLabel() != "Damage Description")
-                                        {
-                                            clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Damage Description) but was moved to another field.", "Fail", true);
-                                            blResult = false;
-                                        }
-                                        else
-                                        { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Damage Description) as expected.", "Pass", true); }
+                                            //Go to Third Party Vehicle
+                                            clsWE.fnClick(clsWE.fnGetWe("//a[span[text()='First Party Vehicle Driver']]"), "Third Party Vehicle", true, false);
+                                            clsWE.fnClick(clsWE.fnGetWe("//div[contains(@question-key, 'CLAIM_VEHICLE')]//button[text()='Add']"), "Add Third Party Vehicle", true, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_VEHICLE_DAMAGE_FLG')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            clsMG.fnSelectDropDownWElm("Third Party - Was Vehicle Damaged?", "//div[contains(@question-key, 'CLAIM_VEHICLE_DAMAGE_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_VEHICLE_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            if (fnGetActiveElementLabel() != "Damage Description")
+                                            {
+                                                clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Damage Description) but was moved to another field.", "Fail", true);
+                                                blResult = false;
+                                            }
+                                            else
+                                            { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Damage Description) as expected.", "Pass", true); }
 
 
-                                        //Go to Third Party Driver
-                                        clsMG.fnSelectDropDownWElm("Third Party Vehicle Driver - Was The Driver Injured?", "//div[contains(@question-key, 'CLAIM_VEHICLE_DRIVER_INJURY_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
-                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_VEHICLE_DRIVER_INJURY_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
-                                        if (fnGetActiveElementLabel() != "Injury Description (All Injuries)")
-                                        {
-                                            clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Injury Description (All Injuries)) but was moved to another field.", "Fail", true);
-                                            blResult = false;
-                                        }
-                                        else
-                                        { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Injury Description (All Injuries)) as expected.", "Pass", true); }
+                                            //Go to Third Party Driver
+                                            clsMG.fnSelectDropDownWElm("Third Party Vehicle Driver - Was The Driver Injured?", "//div[contains(@question-key, 'CLAIM_VEHICLE_DRIVER_INJURY_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_VEHICLE_DRIVER_INJURY_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            if (fnGetActiveElementLabel() != "Injury Description (All Injuries)")
+                                            {
+                                                clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Injury Description (All Injuries)) but was moved to another field.", "Fail", true);
+                                                blResult = false;
+                                            }
+                                            else
+                                            { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Injury Description (All Injuries)) as expected.", "Pass", true); }
 
 
-                                        //Go to Third Party Vehicle Passenger
-                                        clsWE.fnClick(clsWE.fnGetWe("//span[text()='Third Party Vehicle Passenger']"), "Third Party Vehicle Passenger", true, false);
-                                        clsWE.fnClick(clsWE.fnGetWe("//div[contains(@question-key, 'CLAIM_VEHICLE_PASSENGER')]//button[text()='Add']"), "Add Third Party Vehicle Passenger", true, false);
-                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("(//div[contains(@question-key, 'CLAIM_VEHICLE_PASSENGER_INJURY_FLG')]//span[@class='select2-selection select2-selection--single'])[2]"), TimeSpan.FromSeconds(1), 10);
-                                        clsMG.fnSelectDropDownWElm("Third Party - Was The Passenger Injured?", "(//div[contains(@question-key, 'CLAIM_VEHICLE_PASSENGER_INJURY_FLG')]//span[@class='select2-selection select2-selection--single'])[2]", "Yes", false, false, "", false);
-                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_VEHICLE_PASSENGER_INJURY_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
-                                        if (fnGetActiveElementLabel() != "Injury Description (All Injuries)")
-                                        {
-                                            clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Injury Description (All Injuries)) but was moved to another field.", "Fail", true);
-                                            blResult = false;
-                                        }
-                                        else
-                                        { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Injury Description (All Injuries)) as expected.", "Pass", true); }
+                                            //Go to Third Party Vehicle Passenger
+                                            clsWE.fnClick(clsWE.fnGetWe("//span[text()='Third Party Vehicle Passenger']"), "Third Party Vehicle Passenger", true, false);
+                                            clsWE.fnClick(clsWE.fnGetWe("//div[contains(@question-key, 'CLAIM_VEHICLE_PASSENGER')]//button[text()='Add']"), "Add Third Party Vehicle Passenger", true, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("(//div[contains(@question-key, 'CLAIM_VEHICLE_PASSENGER_INJURY_FLG')]//span[@class='select2-selection select2-selection--single'])[2]"), TimeSpan.FromSeconds(1), 10);
+                                            clsMG.fnSelectDropDownWElm("Third Party - Was The Passenger Injured?", "(//div[contains(@question-key, 'CLAIM_VEHICLE_PASSENGER_INJURY_FLG')]//span[@class='select2-selection select2-selection--single'])[2]", "Yes", false, false, "", false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_VEHICLE_PASSENGER_INJURY_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            if (fnGetActiveElementLabel() != "Injury Description (All Injuries)")
+                                            {
+                                                clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Injury Description (All Injuries)) but was moved to another field.", "Fail", true);
+                                                blResult = false;
+                                            }
+                                            else
+                                            { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Injury Description (All Injuries)) as expected.", "Pass", true); }
 
 
-                                        // Go to Other Party/Property Damage
-                                        clsWE.fnClick(clsWE.fnGetWe("//a[span[text()='Other Party/Property Damage']]"), "Other Party/Property Damage", true, false);
-                                        clsWE.fnClick(clsWE.fnGetWe("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_THIRDPARTY')]//button"), "Other Parties", true, false);
-                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_THIRDPARTY_INJURY_FLG')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
-                                        clsMG.fnSelectDropDownWElm("Was The Other Party Injured?", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_THIRDPARTY_INJURY_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
-                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_THIRDPARTY_INJURY_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
-                                        if (fnGetActiveElementLabel() != "Injury Description (All Injuries)")
-                                        { 
-                                            clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Injury Description (All Injuries)) but was moved to another field.", "Fail", true);
-                                            blResult = false;
-                                        }
-                                        else
-                                        { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Injury Description (All Injuries)) as expected.", "Pass", true); }
+                                            // Go to Other Party/Property Damage
+                                            clsWE.fnClick(clsWE.fnGetWe("//a[span[text()='Other Party/Property Damage']]"), "Other Party/Property Damage", true, false);
+                                            clsWE.fnClick(clsWE.fnGetWe("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_THIRDPARTY')]//button"), "Other Parties", true, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_THIRDPARTY_INJURY_FLG')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            clsMG.fnSelectDropDownWElm("Was The Other Party Injured?", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_THIRDPARTY_INJURY_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_THIRDPARTY_INJURY_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            if (fnGetActiveElementLabel() != "Injury Description (All Injuries)")
+                                            {
+                                                clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Injury Description (All Injuries)) but was moved to another field.", "Fail", true);
+                                                blResult = false;
+                                            }
+                                            else
+                                            { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Injury Description (All Injuries)) as expected.", "Pass", true); }
 
 
-                                        // Go to Other Properties
-                                        clsWE.fnClick(clsWE.fnGetWe("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PROPERTY')]//button"), "Other Properties", true, false);
-                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PROPERTY_DAMAGE_FLG')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
-                                        clsMG.fnSelectDropDownWElm("Was The Property Damaged?", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PROPERTY_DAMAGE_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
-                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PROPERTY_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
-                                        if (fnGetActiveElementLabel() != "Property Damage Description") 
-                                        {
-                                            clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Property Damage Description) but was moved to another field.", "Fail", true);
-                                            blResult = false;
-                                        }
-                                        else
-                                        { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Property Damage Description) as expected.", "Pass", true); }
+                                            // Go to Other Properties
+                                            clsWE.fnClick(clsWE.fnGetWe("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PROPERTY')]//button"), "Other Properties", true, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PROPERTY_DAMAGE_FLG')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            clsMG.fnSelectDropDownWElm("Was The Property Damaged?", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PROPERTY_DAMAGE_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_PROPERTY_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            if (fnGetActiveElementLabel() != "Property Damage Description")
+                                            {
+                                                clsReportResult.fnLog("Verify Cursor Placement", "The cursor should be moved to next field (Property Damage Description) but was moved to another field.", "Fail", true);
+                                                blResult = false;
+                                            }
+                                            else
+                                            { clsReportResult.fnLog("Verify Cursor Placement", "The cursor was moved to next field (Property Damage Description) as expected.", "Pass", true); }
+                                            break;
+                                        default:
+                                            //Reporter First Name
+                                            clsMG.fnCleanAndEnterText("First Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterFN", ""), false, false, "", false);
+                                            //Reporter Last Name
+                                            clsMG.fnCleanAndEnterText("Last Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='Last Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterLN", ""), false, false, "", false);
 
+                                            //Is This The Loss Location? 
+                                            clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[@class='row' and div[span[contains(text(), 'Is This The Loss Location?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IsTheSameLoc", ""), false, false);
 
-                                        break;
-                                }
+                                            //Date Reported To Sedgwick
+                                            clsMG.fnCleanAndEnterText("Date Reported To Sedgwick", "//div[@class='row' and div[span[text()='Date Reported To Sedgwick']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("DateReportedToSedgwick", ""), false, false, "", false);
+                                            //Time Reported To Sedgwick
+                                            clsMG.fnCleanAndEnterText("Time Reported To Sedgwick", "//div[@class='row' and div[span[text()='Time Reported To Sedgwick']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("TimeReportedToSedgwick", ""), false, false, "", false);
+
+                                            //Employee Firt Name
+                                            clsMG.fnCleanAndEnterText("Employee First Name", "//div[contains(@question-key, 'EMPLOYEE_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployeeFN", ""), false, false, "", true);
+                                            //Employee Last Name
+                                            clsMG.fnCleanAndEnterText("Employee Last Name", "//div[contains(@question-key, 'EMPLOYEE_INFORMATION')]//div[@class='row' and div[span[text()='Last Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployeeLN", ""), false, false, "", true);
+                                            //Do You Expect The Team Member To Lose Time From Work?
+                                            clsMG.fnSelectDropDownWElm("Do You Expect The Team Member To Lose Time From Work?", "//div[@class='row' and div[span[contains(text(), 'Do You Expect The Team Member To Lose Time From Work?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("TeamMemberLossTime", ""), false, false);
+                                            //Employer Notified Date
+                                            clsMG.fnCleanAndEnterText("Employer Notified Date", "//div[contains(@question-key, 'INCIDENT_INFORMATION')]//div[@class='row' and div[span[text()='Employer Notified Date']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployerNotifiedDate", ""), false, false, "", false);
+                                            //Loss Description 
+                                            clsMG.fnCleanAndEnterText("Loss Description", "//div[contains(@question-key, 'INCIDENT_INFORMATION')]//div[@class='row' and div[span[text()='Loss Description']]]//textarea", objData.fnGetValue("LossDescription", ""), false, false, "", false);
+                                            //Is Contact Same As Caller?
+                                            clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[contains(@question-key, 'CONTACT_INFORMATION')]//div[@class='row' and div[span[contains(text(), 'Is Contact Same As Caller?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IsSameAsCaller", ""), false, false);
+                                            //Work Phone Number
+                                            clsMG.fnCleanAndEnterText("Contact Work Phone", "//div[contains(@question-key, 'CONTACT_INFORMATION')]//div[@class='row' and div[span[text()='Work Phone Number']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ContactWorkPhone", ""), false, false, "", false);
+                                            break;
+                                    }
+                                });
 
                                 //Submit Claim
                                 if (objData.fnGetValue("SubmitClaim", "").ToUpper() == "YES" || objData.fnGetValue("SubmitClaim", "").ToUpper() == "TRUE")
@@ -1734,7 +1765,40 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
+        private string fnGetActiveElementLabel()
+        {
+            string strLabelElement = "";
+            Thread.Sleep(TimeSpan.FromSeconds(2));
+            var activeElement = clsWebBrowser.objDriver.SwitchTo().ActiveElement();
+            IWebElement tempElement = null;
+            do
+            {
+                IWebElement getParentElement;
+                if (tempElement == null)
+                { getParentElement = clsWebBrowser.objDriver.fnGetParentNodeFromJavascript(activeElement); }
+                else
+                { getParentElement = clsWebBrowser.objDriver.fnGetParentNodeFromJavascript(tempElement); }
+                tempElement = getParentElement;
+            }
+            while (tempElement.GetAttribute("class") != "row");
+            //Get Current Label
+            if (tempElement != null)
+            {
+                By byXPath = By.XPath(".//div[1]//span");
+                IWebElement getCurrentLabel;
+                try
+                {
+                    getCurrentLabel = tempElement.FindElement(byXPath);
+                }
+                catch(NoSuchElementException)
+                {
+                    getCurrentLabel = tempElement.fnGetParentNode().fnGetParentNode().FindElements(byXPath).First(x => !string.IsNullOrEmpty(x.Text));
+                }
+                strLabelElement = getCurrentLabel.Text;
+            }
 
+            return strLabelElement;
+        }
 
         public bool fnReportedByVerification(string pstrSetNo)
         {

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenQA.Selenium.Support.UI;
+using AutomationFrame_GlobalIntake.Models;
 
 namespace AutomationFrame_GlobalIntake.POM
 {
@@ -34,14 +35,14 @@ namespace AutomationFrame_GlobalIntake.POM
                     { clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv) + "/training"); }
                     else
                     { clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv)); }
-                    clsWE.fnPageLoad(clsWE.fnGetWe("//button[text()='BEGIN']"), "Login", false, true);
-                    if (clsMG.IsElementPresent("//button[@id='cookie-accept']")) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
+                    clsWE.fnPageLoad(clsWE.fnGetWe(LoginModel.strBeginButton), "Login", false, true);
+                    if (clsMG.IsElementPresent(LoginModel.strAcceptCookies)) { clsWE.fnClick(clsWE.fnGetWe(LoginModel.strAcceptCookies), "Accept Cookies Button", false); }
                     fnEnterCredentails(objData.fnGetValue("User", ""), objData.fnGetValue("Password", ""));
                     //Verify Normal Login or Training Mode
                     if (objData.fnGetValue("TrainingMode", "").ToUpper() == "FALSE" || objData.fnGetValue("TrainingMode", "").ToUpper() == "NO" || objData.fnGetValue("TrainingMode", "").ToUpper() == "")
                     {
                         clsConstants.blTrainingMode = false;
-                        blResult = clsWE.fnElementExist("Login Label", "//span[contains(text(), 'You are currently logged into')]", false, false);
+                        blResult = clsWE.fnElementExist("Login Label", LoginModel.strLoggedInLabel, false, false);
                         if (blResult)
                         { clsReportResult.fnLog("Login Page", "Login Page was successfully.", "Pass", true); }
                         else
@@ -52,7 +53,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         clsConstants.blTrainingMode = true;
                         if (objData.fnGetValue("TrainingLoginType", "").ToUpper() == "VALID" || objData.fnGetValue("TrainingLoginType", "").ToUpper() == "")
                         {
-                            blResult = clsWE.fnElementExist("Login Label", "//span[text()='Training Mode - ']", false, false);
+                            blResult = clsWE.fnElementExist("Login Label", LoginModel.strLoggedInTraining, false, false);
                             if (blResult)
                             {
                                 clsReportResult.fnLog("Login Page", "Login Page was successfully.", "Pass", false);
@@ -63,7 +64,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         }
                         else if(objData.fnGetValue("TrainingLoginType", "").ToUpper() == "INVALID")
                         {
-                            if (clsWE.fnElementExist("Login Invalid Message", "//*[contains(text(), 'You do not have permission to access Training Mode. Please return to the main login screen.')]", false, false))
+                            if (clsWE.fnElementExist("Login Invalid Message", LoginModel.strNoAccessMessage, false, false))
                             { clsReportResult.fnLog("Login Page", "The message for invalid user roles allowed in training mode is displayed as expected.", "Pass", true); }
                             else
                             {
@@ -71,8 +72,81 @@ namespace AutomationFrame_GlobalIntake.POM
                                 blResult = false;
                             }
                         }
+                    }
+                }
+            }
+            return blResult;
+        }
 
-                        
+        public bool fnLogInAction(string pstrSetNo)
+        {
+            bool blResult = true;
+            clsData objData = new clsData();
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == pstrSetNo)
+                {
+                    clsReportResult.fnLog("Login Function", "<<<<<<<<<< The Login Functions Starts. >>>>>>>>>>", "Info", false);
+                    //Verify if active session exist
+                    if (clsConstants.blLogin) { fnLogOffSession(); }
+                    
+                    //Navigate to Training Mode
+                    if (objData.fnGetValue("Action", "").ToUpper() == "TRUE" || objData.fnGetValue("Action", "").ToUpper() == "YES")
+                    { 
+                        clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv) + "training"); 
+                        clsConstants.blTrainingMode = true;
+                    }
+
+                    //Verify if Cokkies button exist
+                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(LoginModel.strBeginButton), TimeSpan.FromSeconds(1), 10);
+                    if (clsMG.IsElementPresent(LoginModel.strAcceptCookies)) { clsWE.fnClick(clsWE.fnGetWe(LoginModel.strAcceptCookies), "Accept Cookies Button", false); }
+                    //Enter Credentials
+                    fnEnterCredentails(objData.fnGetValue("User", ""), objData.fnGetValue("Password", ""));
+
+                    #region Actions After Enter Credentials
+                    switch (objData.fnGetValue("Action", "").ToUpper())
+                    {
+                        case "VERIFYTRAININGMODE":
+                            if (objData.fnGetValue("ActionValue", "").ToUpper() == "TRUE" || objData.fnGetValue("ActionValue", "").ToUpper() == "YES") 
+                            {
+                                clsConstants.blTrainingMode = true;
+                                if (objData.fnGetValue("TrainingLoginType", "").ToUpper() == "VALID" || objData.fnGetValue("TrainingLoginType", "").ToUpper() == "")
+                                {
+                                    blResult = clsWE.fnElementExist("Login Label", LoginModel.strLoggedInTraining, false, false);
+                                    if (blResult)
+                                    {
+                                        clsReportResult.fnLog("Login Page", "Login Page was successfully.", "Pass", false);
+                                        clsReportResult.fnLog("Login Page", "The Training Mode Label is displayed as expected.", "Pass", true);
+                                    }
+                                    else
+                                    { clsReportResult.fnLog("Login Page", "Login Page was not successfully or Training Label was not displayed.", "Fail", true, true); }
+                                }
+                                else if (objData.fnGetValue("TrainingLoginType", "").ToUpper() == "INVALID")
+                                {
+                                    if (clsWE.fnElementExist("Login Invalid Message", LoginModel.strNoAccessMessage, false, false))
+                                    { clsReportResult.fnLog("Login Page", "The message for invalid user roles allowed in training mode is displayed as expected.", "Pass", true); }
+                                    else
+                                    {
+                                        clsReportResult.fnLog("Login Page", "The message for invalid user roles allowed in training mode is not displayed as expected.", "Fail", true);
+                                        blResult = false;
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                    #endregion
+
+                    //Verify Normal Login or Training Mode
+                    if (!clsConstants.blTrainingMode) 
+                    {
+                        clsConstants.blTrainingMode = false;
+                        blResult = clsWE.fnElementExist("Login Label", LoginModel.strLoggedInLabel, false, false);
+                        if (blResult)
+                        { clsReportResult.fnLog("Login Page", "Login Page was successfully.", "Pass", true); }
+                        else
+                        { clsReportResult.fnLog("Login Page", "Login Page was not successfully.", "Fail", true, true); }
                     }
                 }
             }

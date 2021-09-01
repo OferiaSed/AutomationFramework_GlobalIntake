@@ -168,6 +168,12 @@ namespace AutomationFrame_GlobalIntake.TestCases
                             case "INTAKESCREEN":
                                 if (!clsIntake.fnIntakeScreen(TempValue)) { blStatus = false; }
                                 break;
+                            case "USERSHOMERESTRICTION":
+                                if (!clsIntake.fnUsersHomeRestrictions(TempValue)) { blStatus = false; }
+                                break;
+                            case "LOGINTEMP":
+                                if (!clsLG.fnLogInAction(TempValue)) { blStatus = false; }
+                                break;
                             default:
                                 clsReportResult.fnLog("Data Driven Test", "The action: does not exsit.", "Fail", false);
                                 blStatus = false;

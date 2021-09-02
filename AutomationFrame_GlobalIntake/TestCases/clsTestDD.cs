@@ -175,7 +175,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
                                 if (!clsLG.fnLogInAction(TempValue)) { blStatus = false; }
                                 break;
                             default:
-                                clsReportResult.fnLog("Data Driven Test", "The action: does not exsit.", "Fail", false);
+                                clsReportResult.fnLog("Data Driven Test", "The action: "+ item.ToString() + " does not exsit.", "Fail", false);
                                 blStatus = false;
                                 break;
                         }

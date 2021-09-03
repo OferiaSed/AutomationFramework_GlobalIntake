@@ -38,6 +38,11 @@ namespace AutomationFrame_GlobalIntake.Models
         public static string strResumeReasonDropdown = "(//div[@id='abandonModal' and contains(@style, 'display: block')]//span[@role='combobox'])[2]";
         public static string strResumeRow = "//table[@id='myCalls']//tr[td[text()='{CLIENT}'] and td[text()='{REASON}'] and td[contains(text(), '{DATE}')]]//i";
 
+        //Branch Office
+        public static string strBONumber = "//span[contains(@data-bind, 'Answer.OfficeNumber()')]";
+        public static string strBenefitLabel = "//h2//*[text()='Benefit State']";
+        public static string strDefaultBenefitState = "//div[contains(@class, 'row') and div[span[text()='Default Benefit State']]]//div[2]/span";
+        public static string strReviewLabel = "(//span[@data-bind='html:HelpText'])[1]";
 
     }
 }

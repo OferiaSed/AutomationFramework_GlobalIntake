@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutomationFrame_GlobalIntake.Utils;
 using AutomationFrame_GlobalIntake.Models;
+using System.Data;
 
 namespace AutomationFrame_GlobalIntake.POM
 {
@@ -1715,26 +1716,29 @@ namespace AutomationFrame_GlobalIntake.POM
                                                 blResult = false;
                                             }
                                             break;
-                                        default:
+                                        case "FILLDATA":
                                             //Reporter First Name
                                             clsMG.fnCleanAndEnterText("First Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterFN", ""), false, false, "", false);
                                             //Reporter Last Name
                                             clsMG.fnCleanAndEnterText("Last Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='Last Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterLN", ""), false, false, "", false);
-
                                             //Is This The Loss Location? 
                                             clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[@class='row' and div[span[contains(text(), 'Is This The Loss Location?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IsTheSameLoc", ""), false, false);
-
+                                            //Loss Location Phone Number
+                                            clsMG.fnCleanAndEnterText("Loss Location Phone", "//div[contains(@question-key, 'LOSS_LOCATION')]//div[@class='row' and div[span[text()='Phone Number']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("LossLocPhone", ""), false, false, "", false);
                                             //Date Reported To Sedgwick
                                             clsMG.fnCleanAndEnterText("Date Reported To Sedgwick", "//div[@class='row' and div[span[text()='Date Reported To Sedgwick']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("DateReportedToSedgwick", ""), false, false, "", false);
                                             //Time Reported To Sedgwick
                                             clsMG.fnCleanAndEnterText("Time Reported To Sedgwick", "//div[@class='row' and div[span[text()='Time Reported To Sedgwick']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("TimeReportedToSedgwick", ""), false, false, "", false);
-
                                             //Employee Firt Name
                                             clsMG.fnCleanAndEnterText("Employee First Name", "//div[contains(@question-key, 'EMPLOYEE_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployeeFN", ""), false, false, "", true);
                                             //Employee Last Name
                                             clsMG.fnCleanAndEnterText("Employee Last Name", "//div[contains(@question-key, 'EMPLOYEE_INFORMATION')]//div[@class='row' and div[span[text()='Last Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployeeLN", ""), false, false, "", true);
+                                            //SSN
+                                            clsMG.fnCleanAndEnterText("SSN", "//div[contains(@question-key, 'EMPLOYEE_INFORMATION')]//div[@class='row' and div[span[text()='SSN']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("SSN", ""), false, false, "", true);
                                             //Do You Expect The Team Member To Lose Time From Work?
                                             clsMG.fnSelectDropDownWElm("Do You Expect The Team Member To Lose Time From Work?", "//div[@class='row' and div[span[contains(text(), 'Do You Expect The Team Member To Lose Time From Work?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("TeamMemberLossTime", ""), false, false);
+                                            //Did Employee Miss Work Beyond Their Normal Shift?
+                                            clsMG.fnSelectDropDownWElm("Did Employee Miss Work Beyond Their Normal Shift?", "//div[@class='row' and div[span[contains(text(), 'Did Employee Miss Work Beyond Their Normal Shift?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("DidEmployeeMissWorkBeyond", ""), false, false);
                                             //Employer Notified Date
                                             clsMG.fnCleanAndEnterText("Employer Notified Date", "//div[contains(@question-key, 'INCIDENT_INFORMATION')]//div[@class='row' and div[span[text()='Employer Notified Date']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployerNotifiedDate", ""), false, false, "", false);
                                             //Loss Description 
@@ -1775,10 +1779,38 @@ namespace AutomationFrame_GlobalIntake.POM
                                                         clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
                                                     }
                                                     break;
+                                                case "VERIFYOFFICENUMBER":
+                                                    clsReportResult.fnLog("Verify Branch Office", "The Branch Office Verification Starts.", "Info", false, false);
+                                                    if (clsMG.IsElementPresent(CreateIntakeScreen.strBONumber))
+                                                    {
+                                                        //Get BO Provided
+                                                        clsWE.fnScrollTo(clsWE.fnGetWe(CreateIntakeScreen.strBenefitLabel), "Benefit State", false);
+                                                        var strActualBO = (clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strBONumber), "Get Current BO", "innerText", false)).Replace("(", "").Replace(")", "");
+                                                        var strDefaultState = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strDefaultBenefitState), "Get Default State", "innerText", false);
+                                                        var strDBOffice = fnGetBranchOffice(objData.fnGetValue("ClientNo", ""), strDefaultState);
+                                                        clsMG.fnGoTopPage();
+                                                        if (strActualBO.Replace("(", "").Replace(")", "") == strDBOffice)
+                                                        {
+                                                            clsWE.fnScrollTo(clsWE.fnGetWe(CreateIntakeScreen.strReviewLabel), "Review State", false);
+                                                            clsReportResult.fnLog("Verify Branch Office", "The Branch Office matches as expected, the DB return(" + strDBOffice + ") and UI has(" + strActualBO + ")", "Pass", true, false);
+                                                        }
+                                                        else 
+                                                        {
+                                                            clsReportResult.fnLog("Verify Branch Office", "The Branch Office does not match, the DB return("+ strDBOffice + ") but UI has("+ strActualBO.Replace("(", "").Replace(")", "") + ")", "Fail", true, false);
+                                                            blResult = false;
+                                                        }
+                                                    }
+                                                    else 
+                                                    {
+                                                        clsReportResult.fnLog("Verify Branch Office", "The Branch Office Number is not displayed on UI.", "Fail", false, false);
+                                                        blResult = false;
+                                                    }
+                                                    break;
                                             }
                                         });
                                         
                                         clsReportResult.fnLog("Submit Claim", "Submiting Claim Created.", "Info", true, false);
+                                        clsMG.fnGoTopPage();
                                         clsWE.fnClick(clsWE.fnGetWe("//button[@id='top-submit']"), "Submit Button", false, false);
                                         if (!clsMG.IsElementPresent("//*[@data-bind='text:ValidationMessage']"))
                                         {
@@ -2835,7 +2867,14 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
-
+        private string fnGetBranchOffice(string strClientNo, string strState)
+        {
+            clsDB objDBOR = new clsDB();
+            objDBOR.fnOpenConnection(objDBOR.GetConnectionString("lltcsed1dvq-scan", "1521", "viaonei", "oferia", "P@ssw0rd#02"));
+            string strQuery = "select ex_office from viaone.cont_st_off where cont_num = '{CLIENTNO}' and data_set = 'WC' and state = '{STATE}' fetch first 1 row only";
+            var strValue = objDBOR.fnGetSingleValue(strQuery.Replace("{CLIENTNO}", strClientNo).Replace("{STATE}", strState));
+            return strValue;
+        }
 
 
 

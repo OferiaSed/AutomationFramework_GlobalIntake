@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutomationFrame_GlobalIntake.Utils;
 using AutomationFrame_GlobalIntake.Models;
+using SpreadsheetLight;
 
 namespace AutomationFrame_GlobalIntake.POM
 {
@@ -1330,12 +1331,15 @@ namespace AutomationFrame_GlobalIntake.POM
                                         //Select validation
                                         switch (action.ToUpper())
                                         {
+                                            case "VERIFYTABBINGONFORCEREFRESHFIELDS":
+                                                this.VerifyTabbingOrderInForceRefreshFields(objData.fnGetValue("ActionValues", ""));
+                                                break;
                                             case "VERIFYTABBINGORDER":
                                                 var labels = clsWebBrowser.objDriver.FindElements(CreateIntakeScreen.objAllLabels)
-                                                    .Take(13) //After 13th element it will fail, client 9066
+                                                    .Take(int.Parse(objData.fnGetValue("ActionValues", "3"))) //After 13th element it will fail, client 9066
                                                     .ToList();
                                                 var firstLabel = labels.First();
-                                                new Actions(clsWebBrowser.objDriver).MoveToElement(firstLabel).Build().Perform();
+                                                clsWebBrowser.objDriver.fnScrollToElement(firstLabel);
                                                 labels.Remove(firstLabel);
                                                 labels.ForEach(
                                                     x =>
@@ -2287,5 +2291,84 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
+        /// <summary>
+        /// Verifies that each Force Refresh-Enabled field actually refreshes the page after its value is updated
+        /// </summary>
+        /// <param name="spreadsheetFileName"></param>
+        private void VerifyTabbingOrderInForceRefreshFields(string spreadsheetFileName)
+        {
+            // Create list of questions required for validation
+            var forceRefreshQuestionKeys = new List<KeyValuePair<string, string>>();
+            using (var questionsSheet = new SLDocument(spreadsheetFileName, "Questions"))
+            {
+                var stats = questionsSheet.GetWorksheetStatistics();
+                for (var rowIndex = 2; rowIndex <= stats.EndRowIndex; rowIndex++)
+                {
+                    // Verify the question is enabled to forcefully refresh on value change
+                    if (questionsSheet.GetCellValueAsBoolean(rowIndex, 9))
+                    {
+                        var section = questionsSheet.GetCellValueAsString(rowIndex, 1);
+                        var question = questionsSheet.GetCellValueAsString(rowIndex, 2);
+                        forceRefreshQuestionKeys.Add(
+                            new KeyValuePair<string, string>(
+                                $"{section}.{question}",
+                                questionsSheet.GetCellValueAsString(rowIndex, 6))
+                        );
+                    }
+                }
+            }
+
+            forceRefreshQuestionKeys.ForEach(
+                questionKey =>
+                {
+                    var selector = CreateIntakeScreen.objQuestionXPathByQuestionKey(questionKey.Key);
+                    IWebElement question;
+                    try
+                    {
+                        question = clsWebBrowser.objDriver.FindElement(selector);
+                    }
+                    catch (NoSuchElementException)
+                    {
+                        // Element is not present in this page
+                        return;
+                    }
+
+                    clsWebBrowser.objDriver.fnScrollToElement(question);
+                    var fields = question.FindElements(By.XPath(".//button | .//select | .//input")).Where(y => y.Enabled && y.Displayed).ToList();
+
+                    // Skip Question if it contains any button
+                    if (fields.Exists(x => x.TagName.ToUpper() == "BUTTON"))
+                    {
+                        return;
+                    }
+
+                    // Test
+                    foreach (var field in fields)
+                    {
+                        var inputType = questionKey.Value;
+                        switch (field.TagName.ToUpper())
+                        {
+                            case "INPUT":
+                                var text = field.GetAttribute("inputmode") == "numeric" ? "1" : "TEST TEXT";
+                                field.SendKeys(text);
+                                clsWebBrowser.objDriver.FindElement(By.TagName("body")).SendKeys(Keys.Tab);
+                                break;
+                            case "SELECT":
+                                field.fnGetParentNode().FindElement(By.XPath(".//span[@role='combobox']")).Click();
+                                var optionValues = field.FindElements(By.TagName("option"));
+                                var valueToSelect = optionValues.First(x => !string.IsNullOrWhiteSpace(x.Text)).Text;
+                                var optionElement = clsWebBrowser.objDriver.FindElement(By.XPath($"//ul[@role='tree']/li[contains(text(), '{valueToSelect}')]"));
+                                clsWebBrowser.objDriver.fnScrollToElement(optionElement);
+                                optionElement.Click();
+                                break;
+                        }
+                        var visible = CreateIntakeScreen.fnUntilSpinnerVisible(clsMG, clsWebBrowser.objDriver);
+                        var hidden = CreateIntakeScreen.fnUntilSpinnerHidden(clsMG, clsWebBrowser.objDriver);
+                        var result = visible && hidden ? "Pass" : "Fail";
+                        clsReportResult.fnLog("Force Refresh", $"Force Refresh: Page is refreshed after changing value of '{questionKey.Key}'.", result, true);
+                    }
+                }
+            );
+        }
     }
 }

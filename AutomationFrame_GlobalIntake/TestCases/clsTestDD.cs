@@ -95,85 +95,96 @@ namespace AutomationFrame_GlobalIntake.TestCases
                     string[] arrFunctions = objData.fnGetValue("Funcions").Split(';');
                     string[] arrValue = objData.fnGetValue("Values").Split(';');
                     int intCount = -1;
-                    SetupTest(objData.fnGetValue("Description", ""));
-                    fnNavigateToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv));
 
-                    //Iterate and select function
-                    foreach (string item in arrFunctions) 
+                    SetupTest(objData.fnGetValue("Description", ""));
+
+                    // Using try to catch any unhandled exception at Test Level
+                    try
                     {
-                        intCount = intCount + 1;
-                        var TempValue = "";
-                        //if (intCount < arrValue.Length)
-                        if (intCount < arrValue.Length && blStatus)
-                            { if (arrValue[intCount] != "") { TempValue = arrValue[intCount].Split('=')[1]; } }
-                        switch (item.ToUpper()) 
+                        fnNavigateToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv));
+
+                        //Iterate and select function
+                        foreach (string item in arrFunctions)
                         {
-                            case "LOGIN":
-                                if (!clsLG.fnLoginData(TempValue)) { blStatus = false; }
-                                break;
-                            case "2FALOGIN":
-                                if (!clsLG.fnTwoFactorsVerification(TempValue)) { blStatus = false; }
-                                break;
-                            case "FORGOTPASSWORD":
-                                if (!clsLG.fnForgotPasswordVerification(TempValue)) { blStatus = false; }
-                                break;
-                            case "FORGOTUSERNAME":
-                                if (!clsLG.fnForgotUsernameVerification(TempValue)) { blStatus = false; }
-                                break;
-                            case "EXPIREDUSERRESTRICTION":
-                                if (!clsLG.fnExpiredUserRestriction(TempValue)) { blStatus = false; }
-                                break;
-                            case "TIMEOUTSESSION":
-                                if (!clsLG.fnTimeoutSessionVerification(TempValue)) { blStatus = false; }
-                                break;
-                            case "USERMANAGEMENT":
-                                if (!clsUM.fnUserMagmtWebUser(TempValue)) { blStatus = false; }
-                                break;
-                            case "ACCOUNTUNITSECURITY":
-                                if (!clsIntake.fnAccountUnitSecurityVerification(TempValue)) { blStatus = false; }
-                                break;
-                            case "CREATECLAIM":
-                                if (!clsIntake.fnCreateAndSubmitClaim(TempValue)) { blStatus = false; }
-                                break;
-                            case "SEARCHTRAININGCLAIM":
-                                if (!clsSearch.fnVerifyTrainingModeClaims()) { blStatus = false; }
-                                break;
-                            case "POLICYLOOKUP":
-                                if (!clsIntake.fnPolicyLookupVerification(TempValue)) { blStatus = false; }
-                                break;
-                            case "INTAKEONLYRESUME":
-                                //if (!clsIntake.fnIntakeOnlyResumeVerification(TempValue)) { blStatus = false; }
-                                break;
-                            case "REPORTEDBYRESTRICTION":
-                                if (!clsIntake.fnReportedByVerification(TempValue)) { blStatus = false; }
-                                break;
-                            case "INTAKEINSTANCEAPI":
-                                if (!clsAPI.fnIntakeInstanceAPI(TempValue)) { blStatus = false; }
-                                break;
-                            case "INTAKEONLYDASHBOARD":
-                                if (!clsIntake.fnIntakeOnlyDashboardResumeAPI()) { blStatus = false; }
-                                break;
-                            case "IMAGEBLOCKANNONYMOUSACCESS":
-                                if (!clsIntake.fnImagesBlockedAnnonymousAccess()) { blStatus = false; }
-                                break;
-                            case "IMAGEBLOCKANNONYMOUSACCESSLOGIN":
-                                if (!clsIntake.fnImagesBlockedAnnonymousAccessLogin()) { blStatus = false; }
-                                break;
-                            case "SEARCHRESULTS":
-                                if (!clsSearch.fnSearchResults(TempValue)) { blStatus = false; }
-                                break;
-                            case "RESTRICTEDLOBBYUSER":
+                            intCount = intCount + 1;
+                            var TempValue = "";
+                            //if (intCount < arrValue.Length)
+                            if (intCount < arrValue.Length && blStatus)
+                            { if (arrValue[intCount] != "") { TempValue = arrValue[intCount].Split('=')[1]; } }
+                            switch (item.ToUpper())
+                            {
+                                case "LOGIN":
+                                    if (!clsLG.fnLoginData(TempValue)) { blStatus = false; }
+                                    break;
+                                case "2FALOGIN":
+                                    if (!clsLG.fnTwoFactorsVerification(TempValue)) { blStatus = false; }
+                                    break;
+                                case "FORGOTPASSWORD":
+                                    if (!clsLG.fnForgotPasswordVerification(TempValue)) { blStatus = false; }
+                                    break;
+                                case "FORGOTUSERNAME":
+                                    if (!clsLG.fnForgotUsernameVerification(TempValue)) { blStatus = false; }
+                                    break;
+                                case "EXPIREDUSERRESTRICTION":
+                                    if (!clsLG.fnExpiredUserRestriction(TempValue)) { blStatus = false; }
+                                    break;
+                                case "TIMEOUTSESSION":
+                                    if (!clsLG.fnTimeoutSessionVerification(TempValue)) { blStatus = false; }
+                                    break;
+                                case "USERMANAGEMENT":
+                                    if (!clsUM.fnUserMagmtWebUser(TempValue)) { blStatus = false; }
+                                    break;
+                                case "ACCOUNTUNITSECURITY":
+                                    if (!clsIntake.fnAccountUnitSecurityVerification(TempValue)) { blStatus = false; }
+                                    break;
+                                case "CREATECLAIM":
+                                    if (!clsIntake.fnCreateAndSubmitClaim(TempValue)) { blStatus = false; }
+                                    break;
+                                case "SEARCHTRAININGCLAIM":
+                                    if (!clsSearch.fnVerifyTrainingModeClaims()) { blStatus = false; }
+                                    break;
+                                case "POLICYLOOKUP":
+                                    if (!clsIntake.fnPolicyLookupVerification(TempValue)) { blStatus = false; }
+                                    break;
+                                case "INTAKEONLYRESUME":
+                                    //if (!clsIntake.fnIntakeOnlyResumeVerification(TempValue)) { blStatus = false; }
+                                    break;
+                                case "REPORTEDBYRESTRICTION":
+                                    if (!clsIntake.fnReportedByVerification(TempValue)) { blStatus = false; }
+                                    break;
+                                case "INTAKEINSTANCEAPI":
+                                    if (!clsAPI.fnIntakeInstanceAPI(TempValue)) { blStatus = false; }
+                                    break;
+                                case "INTAKEONLYDASHBOARD":
+                                    if (!clsIntake.fnIntakeOnlyDashboardResumeAPI()) { blStatus = false; }
+                                    break;
+                                case "IMAGEBLOCKANNONYMOUSACCESS":
+                                    if (!clsIntake.fnImagesBlockedAnnonymousAccess()) { blStatus = false; }
+                                    break;
+                                case "IMAGEBLOCKANNONYMOUSACCESSLOGIN":
+                                    if (!clsIntake.fnImagesBlockedAnnonymousAccessLogin()) { blStatus = false; }
+                                    break;
+                                case "SEARCHRESULTS":
+                                    if (!clsSearch.fnSearchResults(TempValue)) { blStatus = false; }
+                                    break;
+                                case "RESTRICTEDLOBBYUSER":
                                     if (!clsIntake.fnUserWithLOBRestriction(TempValue)) { blStatus = false; }
-                                break;
-                            case "INTAKESCREEN":
-                                if (!clsIntake.fnIntakeScreen(TempValue)) { blStatus = false; }
-                                break;
-                            default:
-                                clsReportResult.fnLog("Data Driven Test", "The action: does not exsit.", "Fail", false);
-                                blStatus = false;
-                                break;
+                                    break;
+                                case "INTAKESCREEN":
+                                    if (!clsIntake.fnIntakeScreen(TempValue)) { blStatus = false; }
+                                    break;
+                                default:
+                                    clsReportResult.fnLog("Data Driven Test", "The action: does not exsit.", "Fail", false);
+                                    blStatus = false;
+                                    break;
+                            }
                         }
+                    }catch(Exception ex)
+                    {
+                        //Log Exception, then continue and properly close browser;
+                        clsReportResult.fnLog("Unhandled Error", $"{ex.Message} => {ex.StackTrace}", "Fail", true);
                     }
+
                     //Check Status
                     if (blStatus)
                     { objData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "TestCases", "Status", intRow, "Pass"); }

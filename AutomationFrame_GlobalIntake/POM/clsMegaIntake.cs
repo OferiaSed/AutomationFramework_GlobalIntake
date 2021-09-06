@@ -20,7 +20,7 @@ using Tesseract;
 
 namespace AutomationFrame_GlobalIntake.POM
 {
-    class clsMegaIntake
+    public class clsMegaIntake
     {
         //Object Declaration
         private clsWebElements clsWE = new clsWebElements();

@@ -37,7 +37,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 clsReportResult.fnLog("SelectDropdown", "Step - Select Dropdown: " + pstrElement, "Info", false);
                 IWebElement objDropDown = clsWebBrowser.objDriver.FindElement(By.XPath(pstrWebElement));
                 objDropDown.Click();
-                Thread.Sleep(TimeSpan.FromSeconds(1));
+                Thread.Sleep(TimeSpan.FromSeconds(2));
                 //Get List
                 if (IsElementPresent("//span[@class='select2-results']"))
                 {
@@ -63,7 +63,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         { clsReportResult.fnLog("DropDown", $"The ( {option.GetAttribute("innerText")} ) was found in the dropdown selected.", "Info", pblScreenShot, pblHardStop, pstrHardStopMsg); }
                         else 
                         { 
-                            clsReportResult.fnLog("DropDown", $"The dropdown returns ( {option.GetAttribute("innerText")} ) but should have other values", "false", pblScreenShot, pblHardStop, pstrHardStopMsg);
+                            clsReportResult.fnLog("DropDown", $"The dropdown returns ( {option.GetAttribute("innerText")} ) but should have other values", "Fail", pblScreenShot, pblHardStop, pstrHardStopMsg);
                             blResult = false;
                             break;
                         }
@@ -405,18 +405,17 @@ namespace AutomationFrame_GlobalIntake.POM
             var isElementStillPresent = this.fnGenericWait(
                 () =>
                 {
-                    return !IsElementPresent("//div[@id='slide-out' and not(contains(@style, 'translateX(0px)'))]");
+                    return IsElementPresent("//div[@id='slide-out' and contains(@style, 'translateX(-100%)')]");
                 },
                 TimeSpan.FromMilliseconds(500),
-                10
+                3
             );
-            clsUtils.fnExecuteIf(isElementStillPresent,
-                () =>
-                {
-                    clsWE.fnClick(clsWE.fnGetWe("//div[@class='float-left']//i"), "Hamburger Button", true, false);
-                    Thread.Sleep(TimeSpan.FromSeconds(2));
-                }
-            );
+
+            if (isElementStillPresent) 
+            {
+                clsWE.fnClick(clsWE.fnGetWe("//div[@class='float-left']//i"), "Hamburger Button", true, false);
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+            }
 
             //Select Menu Item
             if (!pstrMenu.Contains(";"))

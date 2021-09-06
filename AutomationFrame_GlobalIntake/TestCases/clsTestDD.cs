@@ -1,9 +1,11 @@
 ﻿using AutomationFrame_GlobalIntake.POM;
+using AutomationFrame_GlobalIntake.Utils;
 using AutomationFramework;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,39 +45,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
         [Test]
         public void fntest() 
         {
-            var initialDate = DateTime.Parse("09/15/1991");
-            var tableDate = DateTime.Parse("09/18/1991");
-            var tableDate2 = DateTime.Parse("09/10/1991");
-
-            if (initialDate < tableDate)
-            {
-                Console.WriteLine("menor");
-            }
-            else if (tableDate > tableDate2) 
-            {
-                Console.WriteLine("mayor");
-            }
-
-            //DateTime dtNewDate;
-            //string pstrDefaultValue = "-90";
-            //string DefaultValue = pstrDefaultValue.Replace("+", "");
-            //dtNewDate = DateTime.Today.AddDays(Convert.ToDouble(pstrDefaultValue));
-            //dtNewDate = DateTime.Today.AddDays(-90);
-            //pstrDefaultValue = dtNewDate.ToString();
-
-
-
-            clsData objData = new clsData();
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "SearchIntake");
-            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
-            {
-                objData.CurrentRow = intRow;
-                if (objData.fnGetValue("Set", "") == "12")
-                {
-                    string strTemp = objData.fnGetValue("StartDate", "");
-
-                }
-            }
+           
 
         }
 
@@ -168,8 +138,14 @@ namespace AutomationFrame_GlobalIntake.TestCases
                             case "INTAKESCREEN":
                                 if (!clsIntake.fnIntakeScreen(TempValue)) { blStatus = false; }
                                 break;
+                            case "USERSHOMERESTRICTION":
+                                if (!clsIntake.fnUsersHomeRestrictions(TempValue)) { blStatus = false; }
+                                break;
+                            case "LOGINTEMP":
+                                if (!clsLG.fnLogInAction(TempValue)) { blStatus = false; }
+                                break;
                             default:
-                                clsReportResult.fnLog("Data Driven Test", "The action: does not exsit.", "Fail", false);
+                                clsReportResult.fnLog("Data Driven Test", "The action: "+ item.ToString() + " does not exsit.", "Fail", false);
                                 blStatus = false;
                                 break;
                         }

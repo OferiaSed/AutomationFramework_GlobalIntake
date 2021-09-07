@@ -1719,6 +1719,78 @@ namespace AutomationFrame_GlobalIntake.POM
                                                 blResult = false;
                                             }
                                             break;
+                                        case "VERIFYEDITREVIEWSCREEN":
+
+                                            clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Next')]"), "Next Button", false, false);
+                                            if (!clsMG.IsElementPresent("//*[@class='col-md-8 secondary-red']"))
+                                            {
+                                                clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strReviewScreen), TimeSpan.FromSeconds(1), 10);
+                                                var lsFields = objData.fnGetValue("ActionValues", "").Split(';');
+                                                foreach (var field in lsFields)
+                                                {
+                                                    clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strReviewEditField.Replace("{NAMEFIELD}", field)), "Edit " + field + " Button", false, false);
+                                                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strIntakeFlowPage), TimeSpan.FromSeconds(1), 10);
+                                                    var activeElementLabel = fnGetActiveElementLabel();
+                                                    if (field.Equals(activeElementLabel))
+                                                    {
+                                                        clsReportResult.fnLog("Verify Edit on Review Screen", "The Edit button on field: "+ field +" move the focus as expected on intake flow to field ("+ activeElementLabel + ").", "Pass", true, false);
+                                                    }
+                                                    else
+                                                    {
+                                                        clsReportResult.fnLog("Verify Edit on Review Screen", "The Edit button on field: "+ field +" does not move the focus to another field ("+ activeElementLabel + ").", "Fail", true, false);
+                                                        blResult = false;
+                                                    }
+                                                    clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Next')]"), "Next Button", false, false);
+                                                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strReviewScreen), TimeSpan.FromSeconds(1), 10);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                clsReportResult.fnLog("Verify Edit on Review Screen", "The Review screen cannot be opened and the review cannot continue", "Fail", true, false);
+                                                blResult = false;
+                                            }
+                                            break;
+
+                                        case "VERIFYNOOVERRIDELOCATION":
+                                            //Go to EE Information
+                                            clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strMenuEmployeeInformation), "Employee Information Floating Menu", false, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strSearchEEAddress), TimeSpan.FromSeconds(1), 10);
+                                            var searchEELocation = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeScreen.strSearchEEAddress));
+                                            searchEELocation.Click();
+                                            Thread.Sleep(TimeSpan.FromSeconds(2));
+                                            searchEELocation.SendKeys("1 A");
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strSearchableAddress), TimeSpan.FromSeconds(2), 10);
+                                            var searchableField = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeScreen.strSearchableAddress));
+                                            if (searchableField.Displayed) 
+                                            {
+                                                clsReportResult.fnLog("Verify No Override Location", "Employee Address Information.", "Info", true, false);
+                                                searchableField.Click();
+                                                var EEAddress1 = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strEEAddress1), "EE Address 1", "value", false);
+                                                var EEZipCode = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strEEZipCode), "EE Zip Code", "value", false);
+                                                var EECity = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strEECity), "EE City", "value", false);
+                                                clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strMenuClientLocationInformation), "Client Information Floating Menu", false, false);
+                                                Thread.Sleep(TimeSpan.FromSeconds(3));
+                                                clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[@class='row' and div[span[contains(text(), 'Is This The Loss Location?')]]]//span[@class='select2-selection select2-selection--single']", "No", false, false);
+                                                Thread.Sleep(TimeSpan.FromSeconds(2));
+                                                var LLAddress1 = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strLossLocddress1), "Loss Location Address 1", "value", false);
+                                                var LLZipCode = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.stsLossLocZipCode), "Loss Location Zip Code", "value", false);
+                                                var LLCity = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strLossLocCity), "Loss Location City", "value", false);
+                                                if (EEAddress1 != LLAddress1 && EECity != LLCity && EEZipCode != LLZipCode)
+                                                {
+                                                    clsReportResult.fnLog("Verify No Override Location", "The Loss Location Address was not overrided with EE Location as expected.", "Pass", true, false);
+                                                }
+                                                else 
+                                                {
+                                                    clsReportResult.fnLog("Verify No Override Location", "One value EE Address is equal to Loss Location Address, EE Address1 = "+ EEAddress1 +" vs Loss Address = "+ LLAddress1 +" | EE City = "+ EECity +" vs Loss City = "+ LLCity +" | EE ZipCode = "+ EEZipCode +" vs Loss ZipCode = "+ LLZipCode +".", "Fail", true, false);
+                                                    blResult = false;
+                                                }
+                                            }
+                                            else 
+                                            {
+                                                clsReportResult.fnLog("Verify No Override Location", "The search EE field does not return data and override can not be validated.", "Fail", true, false);
+                                                blResult = false;
+                                            }
+                                            break;
                                         case "FILLDATA":
                                             //Reporter First Name
                                             clsMG.fnCleanAndEnterText("First Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterFN", ""), false, false, "", false);
@@ -1873,31 +1945,6 @@ namespace AutomationFrame_GlobalIntake.POM
                                     objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "EventInfo", "ClaimNumber", intRow, strClaimNo);
                                     clsConstants.strResumeClaimTrainingMode = strClaimNo;
                                     clsReportResult.fnLog("Create Claim", "The resume claim: " + strClaimNo + " was created.", "Pass", true, false);
-                                    /*
-                                    switch (objData.fnGetValue("Action", "").ToUpper())
-                                    {
-                                        case "VERIFYDOL":
-                                            blResult = VerifyDOLElement(objData.fnGetValue("LossDate", ""));
-                                            break;
-                                        
-                                        case "VERIFYPREVIEWMODE":
-                                            clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label verification starts on Intake Flow Screen.", "Info", false, false);
-                                            if (objData.fnGetValue("ActionValues", "").ToUpper() == "TRUE" || objData.fnGetValue("ActionValues", "").ToUpper() == "YES")
-                                            {
-                                                blResult = clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]");
-                                                string strMessage = blResult ? "was displayed in the Intake Flow Page as expected." : "should be displayed in the Intake Flow Page but was not found.";
-                                                clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
-                                            }
-                                            else if (objData.fnGetValue("ActionValues", "").ToUpper() == "FALSE" || objData.fnGetValue("ActionValues", "").ToUpper() == "NO")
-                                            {
-                                                clsMG.fnGoTopPage();
-                                                blResult = !clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]");
-                                                string strMessage = blResult ? "is not displayed as expected in the Intake Flow Page." : "should not be displayed in the Intake Flow Page for this user role.";
-                                                clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
-                                            }
-                                            break;
-                                    }
-                                    */
                                 }
                             }
                             else

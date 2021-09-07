@@ -10,9 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using AutomationFrame_GlobalIntake.Utils;
 using AutomationFrame_GlobalIntake.Models;
 using System.Data;
+using SpreadsheetLight;
 
 namespace AutomationFrame_GlobalIntake.POM
 {
@@ -1366,7 +1366,7 @@ namespace AutomationFrame_GlobalIntake.POM
                               
                                 var actionDriver = objData.fnGetValue("Action");
                                 var actions = actionDriver.Split(';').ToList();
-                                actions.ForEach(action =>
+                                actions.ForEach(action =>         
                                 {
                                     switch (action.ToUpper())
                                     {
@@ -1501,12 +1501,15 @@ namespace AutomationFrame_GlobalIntake.POM
                                                 clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
                                             }
                                             break;
+                                        case "VERIFYTABBINGONFORCEREFRESHFIELDS":
+                                            this.VerifyTabbingOrderInForceRefreshFields(objData.fnGetValue("ActionValues", ""));
+                                            break;
                                         case "VERIFYTABBINGORDER":
                                             var labels = clsWebBrowser.objDriver.FindElements(CreateIntakeScreen.objAllLabels)
-                                                .Take(13) //After 13th element it will fail, client 9066
+                                                .Take(int.Parse(objData.fnGetValue("ActionValues", "3"))) //After 13th element it will fail, client 9066
                                                 .ToList();
                                             var firstLabel = labels.First();
-                                            new Actions(clsWebBrowser.objDriver).MoveToElement(firstLabel).Build().Perform();
+                                            clsWebBrowser.objDriver.fnScrollToElement(firstLabel);
                                             labels.Remove(firstLabel);
                                             labels.ForEach(
                                                 x =>
@@ -1716,6 +1719,78 @@ namespace AutomationFrame_GlobalIntake.POM
                                                 blResult = false;
                                             }
                                             break;
+                                        case "VERIFYEDITREVIEWSCREEN":
+
+                                            clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Next')]"), "Next Button", false, false);
+                                            if (!clsMG.IsElementPresent("//*[@class='col-md-8 secondary-red']"))
+                                            {
+                                                clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strReviewScreen), TimeSpan.FromSeconds(1), 10);
+                                                var lsFields = objData.fnGetValue("ActionValues", "").Split(';');
+                                                foreach (var field in lsFields)
+                                                {
+                                                    clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strReviewEditField.Replace("{NAMEFIELD}", field)), "Edit " + field + " Button", false, false);
+                                                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strIntakeFlowPage), TimeSpan.FromSeconds(1), 10);
+                                                    var activeElementLabel = fnGetActiveElementLabel();
+                                                    if (field.Equals(activeElementLabel))
+                                                    {
+                                                        clsReportResult.fnLog("Verify Edit on Review Screen", "The Edit button on field: "+ field +" move the focus as expected on intake flow to field ("+ activeElementLabel + ").", "Pass", true, false);
+                                                    }
+                                                    else
+                                                    {
+                                                        clsReportResult.fnLog("Verify Edit on Review Screen", "The Edit button on field: "+ field +" does not move the focus to another field ("+ activeElementLabel + ").", "Fail", true, false);
+                                                        blResult = false;
+                                                    }
+                                                    clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Next')]"), "Next Button", false, false);
+                                                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strReviewScreen), TimeSpan.FromSeconds(1), 10);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                clsReportResult.fnLog("Verify Edit on Review Screen", "The Review screen cannot be opened and the review cannot continue", "Fail", true, false);
+                                                blResult = false;
+                                            }
+                                            break;
+
+                                        case "VERIFYNOOVERRIDELOCATION":
+                                            //Go to EE Information
+                                            clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strMenuEmployeeInformation), "Employee Information Floating Menu", false, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strSearchEEAddress), TimeSpan.FromSeconds(1), 10);
+                                            var searchEELocation = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeScreen.strSearchEEAddress));
+                                            searchEELocation.Click();
+                                            Thread.Sleep(TimeSpan.FromSeconds(2));
+                                            searchEELocation.SendKeys("1 A");
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strSearchableAddress), TimeSpan.FromSeconds(2), 10);
+                                            var searchableField = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeScreen.strSearchableAddress));
+                                            if (searchableField.Displayed) 
+                                            {
+                                                clsReportResult.fnLog("Verify No Override Location", "Employee Address Information.", "Info", true, false);
+                                                searchableField.Click();
+                                                var EEAddress1 = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strEEAddress1), "EE Address 1", "value", false);
+                                                var EEZipCode = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strEEZipCode), "EE Zip Code", "value", false);
+                                                var EECity = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strEECity), "EE City", "value", false);
+                                                clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strMenuClientLocationInformation), "Client Information Floating Menu", false, false);
+                                                Thread.Sleep(TimeSpan.FromSeconds(3));
+                                                clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[@class='row' and div[span[contains(text(), 'Is This The Loss Location?')]]]//span[@class='select2-selection select2-selection--single']", "No", false, false);
+                                                Thread.Sleep(TimeSpan.FromSeconds(2));
+                                                var LLAddress1 = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strLossLocddress1), "Loss Location Address 1", "value", false);
+                                                var LLZipCode = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.stsLossLocZipCode), "Loss Location Zip Code", "value", false);
+                                                var LLCity = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strLossLocCity), "Loss Location City", "value", false);
+                                                if (EEAddress1 != LLAddress1 && EECity != LLCity && EEZipCode != LLZipCode)
+                                                {
+                                                    clsReportResult.fnLog("Verify No Override Location", "The Loss Location Address was not overrided with EE Location as expected.", "Pass", true, false);
+                                                }
+                                                else 
+                                                {
+                                                    clsReportResult.fnLog("Verify No Override Location", "One value EE Address is equal to Loss Location Address, EE Address1 = "+ EEAddress1 +" vs Loss Address = "+ LLAddress1 +" | EE City = "+ EECity +" vs Loss City = "+ LLCity +" | EE ZipCode = "+ EEZipCode +" vs Loss ZipCode = "+ LLZipCode +".", "Fail", true, false);
+                                                    blResult = false;
+                                                }
+                                            }
+                                            else 
+                                            {
+                                                clsReportResult.fnLog("Verify No Override Location", "The search EE field does not return data and override can not be validated.", "Fail", true, false);
+                                                blResult = false;
+                                            }
+                                            break;
                                         case "FILLDATA":
                                             //Reporter First Name
                                             clsMG.fnCleanAndEnterText("First Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterFN", ""), false, false, "", false);
@@ -1870,31 +1945,6 @@ namespace AutomationFrame_GlobalIntake.POM
                                     objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "EventInfo", "ClaimNumber", intRow, strClaimNo);
                                     clsConstants.strResumeClaimTrainingMode = strClaimNo;
                                     clsReportResult.fnLog("Create Claim", "The resume claim: " + strClaimNo + " was created.", "Pass", true, false);
-                                    /*
-                                    switch (objData.fnGetValue("Action", "").ToUpper())
-                                    {
-                                        case "VERIFYDOL":
-                                            blResult = VerifyDOLElement(objData.fnGetValue("LossDate", ""));
-                                            break;
-                                        
-                                        case "VERIFYPREVIEWMODE":
-                                            clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label verification starts on Intake Flow Screen.", "Info", false, false);
-                                            if (objData.fnGetValue("ActionValues", "").ToUpper() == "TRUE" || objData.fnGetValue("ActionValues", "").ToUpper() == "YES")
-                                            {
-                                                blResult = clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]");
-                                                string strMessage = blResult ? "was displayed in the Intake Flow Page as expected." : "should be displayed in the Intake Flow Page but was not found.";
-                                                clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
-                                            }
-                                            else if (objData.fnGetValue("ActionValues", "").ToUpper() == "FALSE" || objData.fnGetValue("ActionValues", "").ToUpper() == "NO")
-                                            {
-                                                clsMG.fnGoTopPage();
-                                                blResult = !clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]");
-                                                string strMessage = blResult ? "is not displayed as expected in the Intake Flow Page." : "should not be displayed in the Intake Flow Page for this user role.";
-                                                clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
-                                            }
-                                            break;
-                                    }
-                                    */
                                 }
                             }
                             else
@@ -2867,6 +2917,81 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
+        /// <summary>
+        /// Verifies that each Force Refresh-Enabled field actually refreshes the page after its value is updated
+        /// </summary>
+        /// <param name="spreadsheetFileName"></param>
+        private void VerifyTabbingOrderInForceRefreshFields(string spreadsheetFileName)
+        {
+            // Create list of questions required for validation
+            var forceRefreshQuestionKeys = new List<string>();
+            using (var questionsSheet = new SLDocument(spreadsheetFileName, "Questions"))
+            {
+                var stats = questionsSheet.GetWorksheetStatistics();
+                for (var rowIndex = 2; rowIndex <= stats.EndRowIndex; rowIndex++)
+                {
+                    // Verify the question is enabled to forcefully refresh on value change
+                    if (questionsSheet.GetCellValueAsBoolean(rowIndex, 9))
+                    {
+                        var section = questionsSheet.GetCellValueAsString(rowIndex, 1);
+                        var question = questionsSheet.GetCellValueAsString(rowIndex, 2);
+                        forceRefreshQuestionKeys.Add($"{section}.{question}");
+                    }
+                }
+            }
+
+            forceRefreshQuestionKeys.ForEach(
+                questionKey =>
+                {
+                    var selector = CreateIntakeScreen.objQuestionXPathByQuestionKey(questionKey);
+                    IWebElement question;
+                    try
+                    {
+                        question = clsWebBrowser.objDriver.FindElement(selector);
+                    }
+                    catch (NoSuchElementException)
+                    {
+                        // Element is not present in this page
+                        return;
+                    }
+
+                    clsWebBrowser.objDriver.fnScrollToElement(question);
+                    var fields = question.FindElements(By.XPath(".//button | .//select | .//input")).Where(y => y.Enabled && y.Displayed).ToList();
+
+                    // Skip Question if it contains any button
+                    if (fields.Exists(x => x.TagName.ToUpper() == "BUTTON"))
+                    {
+                        return;
+                    }
+
+                    // Test
+                    foreach (var field in fields)
+                    {
+                        switch (field.TagName.ToUpper())
+                        {
+                            case "INPUT":
+                                var text = field.GetAttribute("inputmode") == "numeric" ? "1" : "TEST TEXT";
+                                field.SendKeys(text);
+                                clsWebBrowser.objDriver.FindElement(By.TagName("body")).SendKeys(Keys.Tab);
+                                break;
+                            case "SELECT":
+                                field.fnGetParentNode().FindElement(By.XPath(".//span[@role='combobox']")).Click();
+                                var optionValues = field.FindElements(By.TagName("option"));
+                                var valueToSelect = optionValues.First(x => !string.IsNullOrWhiteSpace(x.Text)).Text;
+                                var optionElement = clsWebBrowser.objDriver.FindElement(By.XPath($"//ul[@role='tree']/li[contains(text(), '{valueToSelect}')]"));
+                                clsWebBrowser.objDriver.fnScrollToElement(optionElement);
+                                optionElement.Click();
+                                break;
+                        }
+                        var visible = CreateIntakeScreen.fnUntilSpinnerVisible(clsMG, clsWebBrowser.objDriver);
+                        var hidden = CreateIntakeScreen.fnUntilSpinnerHidden(clsMG, clsWebBrowser.objDriver);
+                        var result = visible && hidden ? "Pass" : "Fail";
+                        clsReportResult.fnLog("Force Refresh", $"Force Refresh: Page is refreshed after changing value of '{questionKey}'.", result, true);
+                    }
+                }
+            );
+        }
+
         private string fnGetBranchOffice(string strClientNo, string strState)
         {
             clsDB objDBOR = new clsDB();
@@ -2875,8 +3000,5 @@ namespace AutomationFrame_GlobalIntake.POM
             var strValue = objDBOR.fnGetSingleValue(strQuery.Replace("{CLIENTNO}", strClientNo).Replace("{STATE}", strState));
             return strValue;
         }
-
-
-
     }
 }

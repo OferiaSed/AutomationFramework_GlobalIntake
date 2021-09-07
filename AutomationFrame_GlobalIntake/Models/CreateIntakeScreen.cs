@@ -7,11 +7,35 @@ using OpenQA.Selenium;
 
 namespace AutomationFrame_GlobalIntake.Models
 {
-    public static class CreateIntakeScreen
+    public class CreateIntakeScreen : clsBasePageModel
     {
+        /// <summary>
+        /// The selector for the floating list in Create Intake Screen
+        /// </summary>
         public static By objFloatingListSelector = By.XPath("//div[@id='list-example']/a[span]");
+
+        /// <summary>
+        /// Xpath Selector for all the labels present in Create Intake Screen
+        /// </summary>
         public static By objAllLabels = By.XPath("//div[contains(@class, 'question-row')]/div/div[@class='row']//div[@class='row']//div[@class='col-md-12']");
+
+        /// <summary>
+        /// Question selector by specific Question Key wich can be found in script test file.
+        /// </summary>
+        /// <param name="questionKey">The question key. Example: EMPLOYEE_INFO.ADDRESS</param>
+        /// <returns>Returns XPath selector</returns>
+        public static By objQuestionXPathByQuestionKey(string questionKey) => By.XPath($"//div[contains(@class, 'question-row') and @question-key='{questionKey}']");
         public static By objIsThisTheLossLocation = By.XPath("//div[@class='row' and div[span[contains(text(), 'Is This The Loss Location?')]]]//span[@class='select2-selection select2-selection--single']");
+
+        //Intake Flow Page
+        public static string strIntakeFlowPage = "//h1[@data-bind='text: IntakeName']";
+
+        //Intake Floating Menu
+        public static string strMenuEmployeeInformation = "//a[@id='NavOption_EMPLOYEE_INFORMATION']";
+        public static string strMenuLossLocationInformation = "//a[@id='NavOption_LOSS_LOCATION']";
+        public static string strMenuClientLocationInformation = "//a[@id='NavOption_LOCAL_BUSINESS_EMPLOYER_INFORMATION']";
+
+
 
         //Intake Dashboard
         public static string strDashboard = "//section[@id='calls-section']";
@@ -43,6 +67,24 @@ namespace AutomationFrame_GlobalIntake.Models
         public static string strBenefitLabel = "//h2//*[text()='Benefit State']";
         public static string strDefaultBenefitState = "//div[contains(@class, 'row') and div[span[text()='Default Benefit State']]]//div[2]/span";
         public static string strReviewLabel = "(//span[@data-bind='html:HelpText'])[1]";
+
+        //Review Screen
+        public static string strReviewScreen = "//span[text()='Review']";
+        public static string strReviewEditField = "//div[@class='row py-2' and div[span[contains(text(), '{NAMEFIELD}')]]]//a";
+
+        //Employee Information
+        public static string strSearchEEAddress = "//input[@id='CLAIM_EMPLOYEE_ADDRESS']";
+        public static string strSearchableAddress = "(//div[@class='tt-suggestion tt-selectable'])[1]";
+        public static string strEEAddress1 = "//div[@id='address_CLAIM_EMPLOYEE_ADDRESS']//input[@placeholder='Address Line 1']";
+        public static string strEEZipCode = "//div[@id='address_CLAIM_EMPLOYEE_ADDRESS']//input[@placeholder='Zip Code']";
+        public static string strEECity = "//div[@id='address_CLAIM_EMPLOYEE_ADDRESS']//input[@placeholder='City']";
+
+        //Loss Location Information
+        public static string strLossLocddress1 = "//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[@placeholder='Address Line 1']";
+        public static string stsLossLocZipCode = "//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[@placeholder='Zip Code']";
+        public static string strLossLocCity = "//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[@placeholder='City']";
+
+
 
     }
 }

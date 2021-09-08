@@ -208,6 +208,7 @@ namespace AutomationFrame_GlobalIntake.POM
                     clsReportResult.fnLog("SendKeys", "Step - Sendkeys on " + pstrElement, "info", false, false);
                     IWebElement objWebEdit = clsWebBrowser.objDriver.FindElement(By.XPath(pstrWebElement));
                     Actions action = new Actions(clsWebBrowser.objDriver);
+                    clsWebBrowser.objDriver.fnScrollToElement(objWebEdit);
                     objWebEdit.Click();
                     action.KeyDown(Keys.Control).SendKeys(Keys.Home).Perform();
                     objWebEdit.SendKeys(Keys.Delete);

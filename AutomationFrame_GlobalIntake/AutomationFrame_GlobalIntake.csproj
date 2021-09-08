@@ -168,6 +168,7 @@
     <Compile Include="Models\CreateIntakeScreen.cs" />
     <Compile Include="Models\DuplicateCCModel.cs" />
     <Compile Include="Models\LoginModel.cs" />
+    <Compile Include="Models\ReviewIntakeScreen.cs" />
     <Compile Include="POM\clsAPI.cs" />
     <Compile Include="POM\clsIntakeFlow.cs" />
     <Compile Include="POM\clsLogin.cs" />

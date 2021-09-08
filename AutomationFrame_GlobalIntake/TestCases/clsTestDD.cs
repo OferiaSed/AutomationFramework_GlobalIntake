@@ -22,9 +22,9 @@ namespace AutomationFrame_GlobalIntake.TestCases
         clsData objData = new clsData();
         clsLogin clsLG = new clsLogin();
         clsAPI clsAPI = new clsAPI();
-        clsSearch clsSearch = new clsSearch();
+        clsSearch clsSearch;
         clsMegaIntake clsMG = new clsMegaIntake();
-        clsIntakeFlow clsIntake = new clsIntakeFlow();
+        clsIntakeFlow clsIntake;
         clsUserManagment clsUM = new clsUserManagment();
 
         [OneTimeSetUp]
@@ -39,6 +39,8 @@ namespace AutomationFrame_GlobalIntake.TestCases
         {
             clsReportResult.objTest = clsReportResult.objExtent.CreateTest(pstrTestCase);
             fnOpenBrowser(clsDataDriven.strBrowser);
+            this.clsIntake = new clsIntakeFlow();
+            this.clsSearch = new clsSearch();
         }
 
 

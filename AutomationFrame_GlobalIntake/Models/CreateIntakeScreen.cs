@@ -9,6 +9,11 @@ namespace AutomationFrame_GlobalIntake.Models
 {
     public class CreateIntakeScreen : clsBasePageModel
     {
+        public CreateIntakeScreen(IWebDriver driver) : base(driver)
+        {
+
+        }
+
         /// <summary>
         /// The selector for the floating list in Create Intake Screen
         /// </summary>
@@ -95,7 +100,13 @@ namespace AutomationFrame_GlobalIntake.Models
         public static string strLossLocCity = "//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[@placeholder='City']";
         public static string strLossLocStateAndCountrySelector = $"{strQuestionXPathByQuestionKey("LOSS_LOCATION.CLAIM_LOSS_LOCATION_ADDRESS")}//span[@class='select2-selection select2-selection--single']";
 
+        //Employement Information
+        public static string strClaimEmployeeMissWorkBeyondShifFlag = $"{strQuestionXPathByQuestionKey("EMPLOYMENT_INFORMATION.CLAIM_EMPLOYEE_MISS_WORK_BEYOND_SHIFT_FLG")}//span[@class='select2-selection select2-selection--single']";
 
+        //Contact Information
+        public static string strWorkPhoneNumber = $"{strQuestionXPathByQuestionKey("CONTACT_INFORMATION.CONTACT_PHONE_WORK")}//input";
 
+        //Lost Time Information
+        public static string strEmployeeReturnedToWork = $"{strQuestionXPathByQuestionKey("LOST_TIME_INFORMATION.CLAIM_EMPLOYEE_RTW_FLG")}//span[@class='select2-selection select2-selection--single']";
     }
 }

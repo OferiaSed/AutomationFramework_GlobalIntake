@@ -29,5 +29,7 @@ namespace AutomationFrame_GlobalIntake.Utils
 
         //Claim Creation
         public static string strTempClaimNo = "";
+        public static string strOfficeEmail = "";
+
     }
 }

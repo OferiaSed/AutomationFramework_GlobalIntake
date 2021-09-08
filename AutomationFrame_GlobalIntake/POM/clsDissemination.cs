@@ -17,14 +17,12 @@ namespace AutomationFrame_GlobalIntake.POM
         private clsIntakeFlow clsIF = new clsIntakeFlow();
 
 
-
-
         public bool fnDisseminationPage(string pstrSetNo) 
         {
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Dissemination Page", "<<<<<<<<<< The Dissemination Page Starts. >>>>>>>>>>.", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "YourDataSheet");
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "Dissemination");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -55,7 +53,10 @@ namespace AutomationFrame_GlobalIntake.POM
                                 case "FILLDATA":
                                     //Select Client
                                     if (objData.fnGetValue("ClientNo", "") != "" && objData.fnGetValue("ClientName", "") != "") 
-                                    { if (!clsIF.fnSelectClientPopup(objData.fnGetValue("ClientNo", ""), objData.fnGetValue("ClientName", ""))) { blResult = false; } ; }
+                                    {
+                                        clsMG.fnGoTopPage();
+                                        if (!clsIF.fnSelectClientPopup(objData.fnGetValue("ClientNo", ""), objData.fnGetValue("ClientName", ""))) { blResult = false; } ; 
+                                    }
                                     //Dissemination type
                                     clsMG.fnSelectDropDownWElm("Dissemination Type", DisseminationModel.strDisseminationType, objData.fnGetValue("DisseminationType", ""), false, false);
                                     //Dissemination Status

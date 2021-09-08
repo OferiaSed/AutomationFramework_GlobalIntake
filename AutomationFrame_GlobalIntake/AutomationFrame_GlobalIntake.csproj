@@ -169,6 +169,7 @@
     <Compile Include="Models\DisseminationModel.cs" />
     <Compile Include="Models\DuplicateCCModel.cs" />
     <Compile Include="Models\LoginModel.cs" />
+    <Compile Include="Models\ReviewIntakeScreen.cs" />
     <Compile Include="POM\clsAPI.cs" />
     <Compile Include="POM\clsDissemination.cs" />
     <Compile Include="POM\clsIntakeFlow.cs" />

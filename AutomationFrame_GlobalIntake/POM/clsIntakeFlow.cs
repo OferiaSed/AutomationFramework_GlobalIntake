@@ -20,7 +20,7 @@ namespace AutomationFrame_GlobalIntake.POM
     {
         private readonly clsMegaIntake clsMG = new clsMegaIntake();
         private readonly clsWebElements clsWE = new clsWebElements();
-
+        private ReviewIntakeScreen reviewIntakeScreen = new ReviewIntakeScreen(clsWebBrowser.objDriver);
 
         public bool fnSelectClientPopup(string pstrClientNumber, string pstrClientName)
         {
@@ -1791,13 +1791,38 @@ namespace AutomationFrame_GlobalIntake.POM
                                                 blResult = false;
                                             }
                                             break;
+                                        case "VERIFYSSNMASKINGININTAKEREVIEWEMAILDISSEMINATIONANDFROIPDF":
+                                            this.fnVerifySsnMaskedInCreateIntakeScreen();
+                                            break;
                                         case "FILLDATA":
+                                            clsWebBrowser.objDriver.FindElement(By.TagName("body")).SendKeys(Keys.Escape);
                                             //Reporter First Name
                                             clsMG.fnCleanAndEnterText("First Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterFN", ""), false, false, "", false);
                                             //Reporter Last Name
                                             clsMG.fnCleanAndEnterText("Last Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='Last Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterLN", ""), false, false, "", false);
                                             //Is This The Loss Location? 
                                             clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[@class='row' and div[span[contains(text(), 'Is This The Loss Location?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IsTheSameLoc", ""), false, false);
+
+                                            //<<<<Loss Location Information>>>>
+                                            //Loss Location name
+                                            clsMG.fnCleanAndEnterText("Loss Location Name", CreateIntakeScreen.strLossLocName, "Mokena");
+                                            //Non Standard Address Checkbox
+                                            var nonStandardAddressCheckbox = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeScreen.strLossLocNonStandardAddress));
+                                            clsWebBrowser.objDriver.fnScrollToElement(nonStandardAddressCheckbox);
+                                            nonStandardAddressCheckbox.Click();
+                                            //Address Line 1
+                                            clsMG.fnCleanAndEnterText("Loss Location Address Line 1", CreateIntakeScreen.strLossLocddress1, "8656 Jockey Hollow Ave.");
+                                            //Zip Code
+                                            clsMG.fnCleanAndEnterText("Loss Location Zip Code", CreateIntakeScreen.stsLossLocZipCode, "60448");
+                                            //City
+                                            clsMG.fnCleanAndEnterText("Loss Location City", CreateIntakeScreen.strLossLocCity, "Mokena");
+
+                                            var addressDropdowns = clsWebBrowser.objDriver.FindElements(By.XPath(CreateIntakeScreen.strLossLocStateAndCountrySelector));
+                                            //Country
+                                            clsMG.fnSelectDropDownWElm("Loss Location Country", addressDropdowns[0], "United States of America", false, false);
+                                            //State
+                                            clsMG.fnSelectDropDownWElm("Loss Location State", addressDropdowns[1], "Illinois", false, false);
+
                                             //Loss Location Phone Number
                                             clsMG.fnCleanAndEnterText("Loss Location Phone", "//div[contains(@question-key, 'LOSS_LOCATION')]//div[@class='row' and div[span[text()='Phone Number']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("LossLocPhone", ""), false, false, "", false);
                                             //Date Reported To Sedgwick
@@ -1812,18 +1837,29 @@ namespace AutomationFrame_GlobalIntake.POM
                                             clsMG.fnCleanAndEnterText("SSN", "//div[contains(@question-key, 'EMPLOYEE_INFORMATION')]//div[@class='row' and div[span[text()='SSN']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("SSN", ""), false, false, "", true);
                                             //Do You Expect The Team Member To Lose Time From Work?
                                             clsMG.fnSelectDropDownWElm("Do You Expect The Team Member To Lose Time From Work?", "//div[@class='row' and div[span[contains(text(), 'Do You Expect The Team Member To Lose Time From Work?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("TeamMemberLossTime", ""), false, false);
+                                            
+                                            //<<<<Employment Information>>>>
                                             //Did Employee Miss Work Beyond Their Normal Shift?
                                             clsMG.fnSelectDropDownWElm("Did Employee Miss Work Beyond Their Normal Shift?", "//div[@class='row' and div[span[contains(text(), 'Did Employee Miss Work Beyond Their Normal Shift?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("DidEmployeeMissWorkBeyond", ""), false, false);
+                                            //Do you expect the team member to lose time from work
+                                            clsMG.fnCleanAndEnterText("Do You Expect The Team Member To Lose Time From Work?", CreateIntakeScreen.strClaimEmployeeMissWorkBeyondShifFlag, "No");
+                                            
                                             //Employer Notified Date
                                             clsMG.fnCleanAndEnterText("Employer Notified Date", "//div[contains(@question-key, 'INCIDENT_INFORMATION')]//div[@class='row' and div[span[text()='Employer Notified Date']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployerNotifiedDate", ""), false, false, "", false);
                                             //Loss Description 
                                             clsMG.fnCleanAndEnterText("Loss Description", "//div[contains(@question-key, 'INCIDENT_INFORMATION')]//div[@class='row' and div[span[text()='Loss Description']]]//textarea", objData.fnGetValue("LossDescription", ""), false, false, "", false);
                                             //Escalation Criteria
                                             clsMG.fnSelectDropDownWElm("Escalation Criteria", "//div[contains(@question-key, 'INJURY_INFORMATION.CLAIM_EMPLOYEE_INJURY_SEVERITY')]//div[@class='row' and div[span[contains(text(), 'Escalation Criteria')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("EscalationCriteria", ""), false, false);
+                                            
+                                            //<<<<Contact Information>>>>
                                             //Is Contact Same As Caller?
                                             clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[contains(@question-key, 'CONTACT_INFORMATION')]//div[@class='row' and div[span[contains(text(), 'Is Contact Same As Caller?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IsSameAsCaller", ""), false, false);
                                             //Work Phone Number
-                                            clsMG.fnCleanAndEnterText("Contact Work Phone", "//div[contains(@question-key, 'CONTACT_INFORMATION')]//div[@class='row' and div[span[text()='Work Phone Number']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ContactWorkPhone", ""), false, false, "", false);
+                                            clsMG.fnCleanAndEnterText("Contact Work Phone", CreateIntakeScreen.strWorkPhoneNumber, objData.fnGetValue("ContactWorkPhone", ""), false, false, "", false);
+
+                                            //<<<<Lost Time Information>>>>
+                                            //Employee Returned To Work?
+                                            clsMG.fnCleanAndEnterText("Employee Returned To Work", CreateIntakeScreen.strEmployeeReturnedToWork, "No");
                                             break;
                                     }
                                 });
@@ -1840,6 +1876,13 @@ namespace AutomationFrame_GlobalIntake.POM
                                         actions.ForEach(action => {
                                             switch (action.ToUpper())
                                             {
+                                                case "VERIFYSSNMASKINGININTAKEREVIEWEMAILDISSEMINATIONANDFROIPDF":
+                                                    this.fnVerifySsnMaskedInReviewIntakeScreen();
+                                                    this.reviewIntakeScreen.ClickEditFieldValue("SSN");
+                                                    this.fnVerifySsnMaskedInCreateIntakeScreen();
+                                                    clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Next')]"), "Next Button", false, false);
+                                                    clsMG.IsElementPresent("//*[@class='col-md-8 secondary-red']");
+                                                    break;
                                                 case "VERIFYPREVIEWMODE":
                                                     clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label verification starts on Closing Script Screen.", "Info", false, false);
                                                     if (objData.fnGetValue("ActionValues", "").ToUpper() == "TRUE" || objData.fnGetValue("ActionValues", "").ToUpper() == "YES")
@@ -2694,6 +2737,36 @@ namespace AutomationFrame_GlobalIntake.POM
             return strLabelElement;
         }
         */
+
+        public void fnVerifySsnMaskedInCreateIntakeScreen()
+        {
+            var driver = clsWebBrowser.objDriver;
+            var jsExecutor = (IJavaScriptExecutor)driver;
+
+            var question = clsWebBrowser.objDriver.FindElement(CreateIntakeScreen.objQuestionXPathByQuestionKey("EMPLOYEE_INFORMATION.CLAIM_EMPLOYEE_SSN"));
+            driver.fnScrollToElement(question);
+            
+            var input = question.FindElement(By.TagName("input"));
+            driver.fnScrollToElement(input);
+            clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Move Focus to Header", false);
+
+            var maskedSsn = jsExecutor.ExecuteScript("return arguments[0].inputmask.undoValue", input).ToString();
+            clsReportResult.fnLog("SSN Masked", $"SSN should be masked. Expected: XXX-XX-{maskedSsn.Substring(7)}", maskedSsn.Contains("XXX-XX-") ? "Pass" : "Fail", true);
+            clsMG.fnGenericWait(
+                () => { try { input.Click(); return true; } catch (ElementNotInteractableException) { return false; } },
+                TimeSpan.Zero,
+                5
+            );
+            
+            var notMaskedSsn = jsExecutor.ExecuteScript("return arguments[0].inputmask.undoValue", input).ToString();
+            clsReportResult.fnLog("SSN Not Masked", $"SSN should not be masked. Expected: {notMaskedSsn}", !notMaskedSsn.Contains("XXX-XX-") ? "Pass" : "Fail", true);
+        }
+
+        public void fnVerifySsnMaskedInReviewIntakeScreen()
+        {
+            var maskedSsn = this.reviewIntakeScreen.GetFieldValue("SSN");
+            clsReportResult.fnLog("SSN Masked", $"SSN should be masked. Expected: XXX-XX-{maskedSsn.Substring(7)}", maskedSsn.Contains("XXX-XX-") ? "Pass" : "Fail", true);
+        }
 
         public bool fnUsersHomeRestrictions(string pstrSetNo)
         {

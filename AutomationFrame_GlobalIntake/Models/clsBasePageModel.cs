@@ -11,6 +11,12 @@ namespace AutomationFrame_GlobalIntake.Models
 {
     public class clsBasePageModel
     {
+        protected IWebDriver driver;
+        protected clsBasePageModel(IWebDriver driver)
+        {
+            this.driver = driver;
+        }
+
         /// <summary>
         /// The load spinner showed when any page is loading
         /// </summary>

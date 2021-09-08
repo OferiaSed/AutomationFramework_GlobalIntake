@@ -54,15 +54,15 @@ namespace AutomationFrame_GlobalIntake.POM
                 //Verify if list is not empty
                 blResult = objOptions.Count > 0;
                 Actions action = new Actions(clsWebBrowser.objDriver);
-                if (blResult) 
+                if (blResult)
                 {
                     clsReportResult.fnLog("DropDown", $"The {pstrElement} returns {objOptions.Count} codes as expected.", "Pass", true, pblHardStop, pstrHardStopMsg);
-                    foreach (var option in objOptions) 
+                    foreach (var option in objOptions)
                     {
                         if (option.GetAttribute("innerText") != "No results found")
                         { clsReportResult.fnLog("DropDown", $"The ( {option.GetAttribute("innerText")} ) was found in the dropdown selected.", "Info", pblScreenShot, pblHardStop, pstrHardStopMsg); }
-                        else 
-                        { 
+                        else
+                        {
                             clsReportResult.fnLog("DropDown", $"The dropdown returns ( {option.GetAttribute("innerText")} ) but should have other values", "Fail", pblScreenShot, pblHardStop, pstrHardStopMsg);
                             blResult = false;
                             break;
@@ -93,7 +93,7 @@ namespace AutomationFrame_GlobalIntake.POM
             {
                 try
                 {
-                    if (pstrWebElement != "" && pstrValue !="") 
+                    if (pstrWebElement != "" && pstrValue != "")
                     {
                         clsReportResult.fnLog("SendKeys", "Step - Sendkeys on " + pstrElement, "info", false, false);
                         //Click on element
@@ -248,6 +248,20 @@ namespace AutomationFrame_GlobalIntake.POM
 
         public bool fnSelectDropDownWElm(string pstrElement, string pstrWebElement, string pstrValue, bool pblScreenShot = false, bool pblHardStop = false, string pstrHardStopMsg = "", bool bWaitHeader = true)
         {
+            IWebElement element;
+            try
+            {
+                element = clsWebBrowser.objDriver.FindElement(By.XPath(pstrWebElement));
+            }
+            catch (NoSuchElementException)
+            {
+                return false;
+            }
+            return this.fnSelectDropDownWElm(pstrElement, element, pstrValue, pblScreenShot, pblHardStop, pstrHardStopMsg, bWaitHeader, pstrWebElement);
+        }
+
+        public bool fnSelectDropDownWElm(string pstrElement, IWebElement objWebElement, string pstrValue, bool pblScreenShot = false, bool pblHardStop = false, string pstrHardStopMsg = "", bool bWaitHeader = true, string pstrWebElement = "undefined")
+        {
             clsWebElements clsWE = new clsWebElements();
             bool blResult = true;
             IWebElement objDropDownContent;
@@ -258,8 +272,8 @@ namespace AutomationFrame_GlobalIntake.POM
                 if (pstrElement != "" && pstrValue != "")
                 {
                     clsReportResult.fnLog("SelectDropdown", "Step - Select Dropdown: " + pstrElement + " With Value: " + pstrValue, "Info", false);
-                    IWebElement objDropDown = clsWebBrowser.objDriver.FindElement(By.XPath(pstrWebElement));
-                    objDropDown.Click();
+                    IWebElement objDropDown = objWebElement;
+                    objWebElement.Click();
                     Thread.Sleep(1000);
 
                     if (IsElementPresent("//span[@class='select2-results']"))

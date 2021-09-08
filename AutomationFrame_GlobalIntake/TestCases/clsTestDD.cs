@@ -19,13 +19,14 @@ namespace AutomationFrame_GlobalIntake.TestCases
         public bool blStatus;
         public string dtStartTime;
         public string dtEndTime;
-        clsData objData = new clsData();
-        clsLogin clsLG = new clsLogin();
-        clsAPI clsAPI = new clsAPI();
-        clsSearch clsSearch = new clsSearch();
-        clsMegaIntake clsMG = new clsMegaIntake();
-        clsIntakeFlow clsIntake = new clsIntakeFlow();
-        clsUserManagment clsUM = new clsUserManagment();
+        readonly clsData objData = new clsData();
+        readonly clsLogin clsLG = new clsLogin();
+        readonly clsAPI clsAPI = new clsAPI();
+        readonly clsSearch clsSearch = new clsSearch();
+        readonly clsMegaIntake clsMG = new clsMegaIntake();
+        readonly clsIntakeFlow clsIntake = new clsIntakeFlow();
+        readonly clsUserManagment clsUM = new clsUserManagment();
+        readonly clsDissemination clsDiss = new clsDissemination();
 
         [OneTimeSetUp]
         public void BeforeClass()
@@ -40,15 +41,6 @@ namespace AutomationFrame_GlobalIntake.TestCases
             clsReportResult.objTest = clsReportResult.objExtent.CreateTest(pstrTestCase);
             fnOpenBrowser(clsDataDriven.strBrowser);
         }
-
-
-        [Test]
-        public void fntest() 
-        {
-           
-
-        }
-
 
         [Test]
         public void fnTest_DataDriven()
@@ -78,7 +70,6 @@ namespace AutomationFrame_GlobalIntake.TestCases
                         {
                             intCount = intCount + 1;
                             var TempValue = "";
-                            //if (intCount < arrValue.Length)
                             if (intCount < arrValue.Length && blStatus)
                             { if (arrValue[intCount] != "") { TempValue = arrValue[intCount].Split('=')[1]; } }
                             switch (item.ToUpper())
@@ -148,6 +139,9 @@ namespace AutomationFrame_GlobalIntake.TestCases
                                     break;
                                 case "LOGINTEMP":
                                     if (!clsLG.fnLogInAction(TempValue)) { blStatus = false; }
+                                    break;
+                                case "DISSEMINATION":
+                                    if (!clsDiss.fnDisseminationPage(TempValue)) { blStatus = false; }
                                     break;
                                 default:
                                     clsReportResult.fnLog("Data Driven Test", "The action: "+ item.ToString() + " does not exsit.", "Fail", false);

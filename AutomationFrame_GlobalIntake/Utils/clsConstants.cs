@@ -27,5 +27,7 @@ namespace AutomationFrame_GlobalIntake.Utils
         public static string strSubmitClaimNormalMode = "";
         public static string strResumeClaimNormalgMode = "";
 
+        //Claim Creation
+        public static string strTempClaimNo = "";
     }
 }

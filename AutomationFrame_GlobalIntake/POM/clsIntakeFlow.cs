@@ -1819,12 +1819,10 @@ namespace AutomationFrame_GlobalIntake.POM
                                             clsMG.fnCleanAndEnterText("Loss Location Zip Code", CreateIntakeScreen.stsLossLocZipCode, objData.fnGetValue("LossLocZipCode", ""));
                                             //City
                                             clsMG.fnCleanAndEnterText("Loss Location City", CreateIntakeScreen.strLossLocCity, objData.fnGetValue("LossLocCity", ""));
-
-                                            var addressDropdowns = clsWebBrowser.objDriver.FindElements(By.XPath(CreateIntakeScreen.strLossLocStateAndCountrySelector));
                                             //Country
-                                            clsMG.fnSelectDropDownWElm("Loss Location Country", CreateIntakeScreen.strLossLocStateAndCountrySelector, objData.fnGetValue("LossLocCountry", ""), false, false);
+                                            clsMG.fnSelectDropDownWElm("Loss Location Country", CreateIntakeScreen.strLossLocCountrySelector, objData.fnGetValue("LossLocCountry", ""), false, false);
                                             //State
-                                            clsMG.fnSelectDropDownWElm("Loss Location State", addressDropdowns[1], objData.fnGetValue("LossLocState", ""), false, false);
+                                            clsMG.fnSelectDropDownWElm("Loss Location State", CreateIntakeScreen.strLossLocStateSelector, objData.fnGetValue("LossLocState", ""), false, false);
 
                                             //Loss Location Phone Number
                                             clsMG.fnCleanAndEnterText("Loss Location Phone", "//div[contains(@question-key, 'LOSS_LOCATION')]//div[@class='row' and div[span[text()='Phone Number']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("LossLocPhone", ""), false, false, "", false);

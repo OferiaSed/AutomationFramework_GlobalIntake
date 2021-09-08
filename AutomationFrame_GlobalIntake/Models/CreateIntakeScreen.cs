@@ -98,7 +98,8 @@ namespace AutomationFrame_GlobalIntake.Models
         public static string strLossLocddress1 = "//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[@placeholder='Address Line 1']";
         public static string stsLossLocZipCode = "//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[@placeholder='Zip Code']";
         public static string strLossLocCity = "//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[@placeholder='City']";
-        public static string strLossLocStateAndCountrySelector = $"{strQuestionXPathByQuestionKey("LOSS_LOCATION.CLAIM_LOSS_LOCATION_ADDRESS")}//span[@class='select2-selection select2-selection--single']";
+        public static string strLossLocCountrySelector = "(//div[contains(@class, 'question-row') and @question-key='LOSS_LOCATION.CLAIM_LOSS_LOCATION_ADDRESS']//span[@class='select2-selection__rendered'])[1]";
+        public static string strLossLocStateSelector = "(//div[contains(@class, 'question-row') and @question-key='LOSS_LOCATION.CLAIM_LOSS_LOCATION_ADDRESS']//span[@class='select2-selection__rendered'])[1]";
 
         //Employement Information
         public static string strClaimEmployeeMissWorkBeyondShifFlag = $"{strQuestionXPathByQuestionKey("EMPLOYMENT_INFORMATION.CLAIM_EMPLOYEE_MISS_WORK_BEYOND_SHIFT_FLG")}//span[@class='select2-selection select2-selection--single']";

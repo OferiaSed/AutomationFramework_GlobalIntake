@@ -166,9 +166,11 @@
   <ItemGroup>
     <Compile Include="Models\clsBasePageModel.cs" />
     <Compile Include="Models\CreateIntakeScreen.cs" />
+    <Compile Include="Models\DisseminationModel.cs" />
     <Compile Include="Models\DuplicateCCModel.cs" />
     <Compile Include="Models\LoginModel.cs" />
     <Compile Include="POM\clsAPI.cs" />
+    <Compile Include="POM\clsDissemination.cs" />
     <Compile Include="POM\clsIntakeFlow.cs" />
     <Compile Include="POM\clsLogin.cs" />
     <Compile Include="POM\clsMegaIntake.cs" />

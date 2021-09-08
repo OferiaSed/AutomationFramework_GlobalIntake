@@ -1848,6 +1848,8 @@ namespace AutomationFrame_GlobalIntake.POM
                                             clsMG.fnCleanAndEnterText("Employer Notified Date", "//div[contains(@question-key, 'INCIDENT_INFORMATION')]//div[@class='row' and div[span[text()='Employer Notified Date']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployerNotifiedDate", ""), false, false, "", false);
                                             //Loss Description 
                                             clsMG.fnCleanAndEnterText("Loss Description", "//div[contains(@question-key, 'INCIDENT_INFORMATION')]//div[@class='row' and div[span[text()='Loss Description']]]//textarea", objData.fnGetValue("LossDescription", ""), false, false, "", false);
+                                            //Escalation Criteria
+                                            clsMG.fnSelectDropDownWElm("Escalation Criteria", "//div[contains(@question-key, 'INJURY_INFORMATION.CLAIM_EMPLOYEE_INJURY_SEVERITY')]//div[@class='row' and div[span[contains(text(), 'Escalation Criteria')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("EscalationCriteria", ""), false, false);
                                             
                                             //<<<<Contact Information>>>>
                                             //Is Contact Same As Caller?
@@ -1962,6 +1964,9 @@ namespace AutomationFrame_GlobalIntake.POM
                                                             string strMessage = blResult ? "is not displayed as expected in the Submit Page." : "should not be displayed in the Submit Page for this user role.";
                                                             clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
                                                         }
+                                                        break;
+                                                    case "SAVETEMPCLAIM":
+                                                        clsConstants.strTempClaimNo = strClaimNo;
                                                         break;
                                                 }
                                             });

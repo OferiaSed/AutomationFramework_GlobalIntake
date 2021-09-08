@@ -22,11 +22,11 @@ namespace AutomationFrame_GlobalIntake.TestCases
         readonly clsData objData = new clsData();
         readonly clsLogin clsLG = new clsLogin();
         readonly clsAPI clsAPI = new clsAPI();
-        readonly clsSearch clsSearch;
         readonly clsMegaIntake clsMG = new clsMegaIntake();
-        readonly clsIntakeFlow clsIntake;
         readonly clsUserManagment clsUM = new clsUserManagment();
         readonly clsDissemination clsDiss = new clsDissemination();
+        clsIntakeFlow clsIntake;
+        clsSearch clsSearch;
 
         [OneTimeSetUp]
         public void BeforeClass()

@@ -22,11 +22,11 @@ namespace AutomationFrame_GlobalIntake.TestCases
         readonly clsData objData = new clsData();
         readonly clsLogin clsLG = new clsLogin();
         readonly clsAPI clsAPI = new clsAPI();
-        readonly clsSearch clsSearch = new clsSearch();
         readonly clsMegaIntake clsMG = new clsMegaIntake();
-        readonly clsIntakeFlow clsIntake = new clsIntakeFlow();
         readonly clsUserManagment clsUM = new clsUserManagment();
         readonly clsDissemination clsDiss = new clsDissemination();
+        clsIntakeFlow clsIntake;
+        clsSearch clsSearch;
 
         [OneTimeSetUp]
         public void BeforeClass()
@@ -40,6 +40,8 @@ namespace AutomationFrame_GlobalIntake.TestCases
         {
             clsReportResult.objTest = clsReportResult.objExtent.CreateTest(pstrTestCase);
             fnOpenBrowser(clsDataDriven.strBrowser);
+            this.clsIntake = new clsIntakeFlow();
+            this.clsSearch = new clsSearch();
         }
 
         [Test]

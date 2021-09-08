@@ -9,6 +9,11 @@ namespace AutomationFrame_GlobalIntake.Models
 {
     public class CreateIntakeScreen : clsBasePageModel
     {
+        public CreateIntakeScreen(IWebDriver driver) : base(driver)
+        {
+
+        }
+
         /// <summary>
         /// The selector for the floating list in Create Intake Screen
         /// </summary>
@@ -20,11 +25,19 @@ namespace AutomationFrame_GlobalIntake.Models
         public static By objAllLabels = By.XPath("//div[contains(@class, 'question-row')]/div/div[@class='row']//div[@class='row']//div[@class='col-md-12']");
 
         /// <summary>
-        /// Question selector by specific Question Key wich can be found in script test file.
+        /// Question selector string by specific Question Key which can be found in script test file.
+        /// </summary>
+        /// <param name="questionKey">The question key. Example: EMPLOYEE_INFO.ADDRESS</param>
+        /// <returns>Returns XPath selector in string format</returns>
+        public static string strQuestionXPathByQuestionKey(string questionKey) => $"//div[contains(@class, 'question-row') and @question-key='{questionKey}']";
+
+        /// <summary>
+        /// Question selector by specific Question Key which can be found in script test file.
         /// </summary>
         /// <param name="questionKey">The question key. Example: EMPLOYEE_INFO.ADDRESS</param>
         /// <returns>Returns XPath selector</returns>
-        public static By objQuestionXPathByQuestionKey(string questionKey) => By.XPath($"//div[contains(@class, 'question-row') and @question-key='{questionKey}']");
+        public static By objQuestionXPathByQuestionKey(string questionKey) => By.XPath(strQuestionXPathByQuestionKey(questionKey));
+
         public static By objIsThisTheLossLocation = By.XPath("//div[@class='row' and div[span[contains(text(), 'Is This The Loss Location?')]]]//span[@class='select2-selection select2-selection--single']");
 
         //Intake Flow Page
@@ -80,11 +93,20 @@ namespace AutomationFrame_GlobalIntake.Models
         public static string strEECity = "//div[@id='address_CLAIM_EMPLOYEE_ADDRESS']//input[@placeholder='City']";
 
         //Loss Location Information
+        public static string strLossLocName = $"{strQuestionXPathByQuestionKey("LOSS_LOCATION.CLAIM_LOSS_LOCATION_NAME")}//input";
+        public static string strLossLocNonStandardAddress = $"{strQuestionXPathByQuestionKey("LOSS_LOCATION.CLAIM_LOSS_LOCATION_ADDRESS")}//input[@type='checkbox']";
         public static string strLossLocddress1 = "//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[@placeholder='Address Line 1']";
         public static string stsLossLocZipCode = "//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[@placeholder='Zip Code']";
         public static string strLossLocCity = "//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[@placeholder='City']";
+        public static string strLossLocStateAndCountrySelector = $"{strQuestionXPathByQuestionKey("LOSS_LOCATION.CLAIM_LOSS_LOCATION_ADDRESS")}//span[@class='select2-selection select2-selection--single']";
 
+        //Employement Information
+        public static string strClaimEmployeeMissWorkBeyondShifFlag = $"{strQuestionXPathByQuestionKey("EMPLOYMENT_INFORMATION.CLAIM_EMPLOYEE_MISS_WORK_BEYOND_SHIFT_FLG")}//span[@class='select2-selection select2-selection--single']";
 
+        //Contact Information
+        public static string strWorkPhoneNumber = $"{strQuestionXPathByQuestionKey("CONTACT_INFORMATION.CONTACT_PHONE_WORK")}//input";
 
+        //Lost Time Information
+        public static string strEmployeeReturnedToWork = $"{strQuestionXPathByQuestionKey("LOST_TIME_INFORMATION.CLAIM_EMPLOYEE_RTW_FLG")}//span[@class='select2-selection select2-selection--single']";
     }
 }

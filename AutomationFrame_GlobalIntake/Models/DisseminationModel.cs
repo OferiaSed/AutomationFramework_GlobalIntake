@@ -21,9 +21,16 @@ namespace AutomationFrame_GlobalIntake.Models
         public static string strClearButton = "//button[@id='primaryClear']";
         public static string strSearchButton = "//button[contains(@data-bind, 'searchDisseminations')]";
         public static string strFilterResults = "//input[@placeholder='Filter Results']";
-        public static string strDetailButtonList = "//tr[td[text()='{DisseminationType}']]//a[contains(@class, 'details-button')]";
-        public static string strDetailModal = "//div[@id='detailsModal' and contains(@style, 'display: block')]";
-        public static string strDetailEmailMessage = "//div[@id='detailsModal' and contains(@style, 'display: block')]//div[@data-bind='text: Message']";
-        public static string strCloseButton = "//div[@id='detailsModal' and contains(@style, 'display: block')]//a[text()='Close']";
+        public static string strDetailButtonList = "//tr[td[text()='{DisseminationType}']]//a[contains(@class, '{MSGTYPE}-button')]";
+        public static string strDetailModal = "//div[@aria-labelledby='myModalLabel' and contains(@style, 'display: block')]";
+        public static string strDetailMessage = "//div[@aria-labelledby='myModalLabel' and contains(@style, 'display: block')]//div[@data-bind='text: Message']";
+        public static string strContentMessage = "//div[@aria-labelledby='myModalLabel' and contains(@style, 'display: block')]//div[contains(@data-bind, 'Content()')]";
+        public static string strCloseButton = "//div[@aria-labelledby='myModalLabel' and contains(@style, 'display: block')]//a[text()='Close']";
+        public static string strRowCheckbox = "(//table[@id='results']//label[@class='form-check-label'])[2]";
+        public static string strResendButton = "//button[contains(text(), 'Resend Selected')]";
+        public static string strResendModal = "//button[contains(text(), 'Resend Selected')]";
+        public static string strCancelResend = "//div[@id='megaModalDialog' and contains(@style, 'display: block')]//button[text()='Cancel']";
+        public static string strConfirmResend = "//div[@id='megaModalDialog' and contains(@style, 'display: block')]//button[text()='Confirm']";
+        public static string strResendGreenMessage = "//div[text()='Resend dissemination scheduled.']";
     }
 }

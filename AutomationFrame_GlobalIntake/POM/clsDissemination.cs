@@ -38,11 +38,15 @@ namespace AutomationFrame_GlobalIntake.POM
                         //Clear Filter
                         clsWE.fnClick(clsWE.fnGetWe(DisseminationModel.strClearButton), "Clear Filter", false, false);
                         Thread.Sleep(TimeSpan.FromSeconds(3));
+                      
+                        clsMG.fnGoTopPage();
+
                         //Verify Action
                         var actionDriver = objData.fnGetValue("Action");
                         var actions = actionDriver.Split(';').ToList();
                         actions.ForEach(action =>
                         {
+                            Thread.Sleep(TimeSpan.FromSeconds(3));
                             switch (action.ToUpper()) 
                             {
                                 case "VERIFYRESENDBUTTON":
@@ -89,6 +93,60 @@ namespace AutomationFrame_GlobalIntake.POM
                                     clsConstants.strTempClaimNo = "";
                                     clsConstants.strOfficeEmail = "";
                                     break;
+
+                                case "VERIFYDISSEMINATION":
+                                    if (objData.fnGetValue("DisseminationType", "JurisDissemination").ToUpper() == "JURISDISSEMINATION")
+                                    {
+                                        clsReportResult.fnLog("Search Results", ">>>>> The Search for JURIS Dissemination Starts ", "Info", false, false);
+                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//table[@id='results']"), TimeSpan.FromSeconds(2), 10);
+                                        //Click edit button
+                                        clsWE.fnClick(clsWE.fnGetWe("(//tr[td[text()='JURISDissemination']]//a[@class='btn-floating btn-sm details-button'])[1]"), "Click Details Button", true, false);
+                                        //Loading Intake Details screen
+                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@id='contentModal' and contains(@style, 'display: block;')]//div[contains(@class,'modal-content')]"), TimeSpan.FromSeconds(2), 10);
+                                        //Is dissemination modal header displayed
+                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//p[contains(text(),'Dissemination Details')]"), TimeSpan.FromSeconds(2), 10);
+                                        if (clsMG.IsElementPresent("//div[contains(text(),'Success for DisseminationInstance Id')]"))
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The Success message is present on screen", "Pass", true, false);
+                                        }
+                                        else
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The Success message is not present on screen", "Fail", true, false);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        clsReportResult.fnLog("Search Results", "Please enter a Disemination Type to contiue with the scenario", "Fail", false, false);
+                                    }
+                                    break;
+                                case "RESENDFAILDISSEMINATION":
+                                    if (objData.fnGetValue("DisseminationType", "JurisDissemination").ToUpper() == "JURISDISSEMINATION")
+                                    {
+                                        clsReportResult.fnLog("Search Results", ">>>>> The Search for JURIS Fail Dissemination Starts ", "Info", false, false);
+                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//table[@id='results']"), TimeSpan.FromSeconds(2), 10);
+                                        //Click to select juris
+                                        if (objData.fnGetValue("SelectToResend", "False").ToUpper() == "YES" || objData.fnGetValue("SelectToResend", "False").ToUpper() == "TRUE")
+                                        { clsWE.fnClick(clsWE.fnGetWe("(//input[contains(@class,'form-check-input dissemination-check')]/following-sibling::label[contains(@class,'form-check-label')])[1]"), "Select Juris to Resend", false); }
+                                        //Waiting resend button on screen
+                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//button[contains(text(),'Resend Selected')]"), TimeSpan.FromSeconds(2), 10);
+                                        clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Resend Selected')]"), "Select Juris to Resend", false);
+                                        //Is dissemination modal header displayed
+                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//p[contains(text(),'Resend Disseminations')]"), TimeSpan.FromSeconds(2), 10);
+                                        if (clsMG.IsElementPresent("//div[@id='megaModalDialog' and contains(@style, 'display: block;')]//div[contains(@class,'modal-content')]"))
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The Resend Dissemination modal is present on screen", "Pass", true, false);
+                                        }
+                                        else
+                                        {
+                                            clsReportResult.fnLog("Search Results", "The Resend Dissemination modal is not present on screen", "Fail", true, false);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        clsReportResult.fnLog("Search Results", "Please enter a Disemination Type to contiue with the scenario", "Fail", false, false);
+                                    }
+                                    break;
+
                                 case "SEARCH":
                                     clsWE.fnClick(clsWE.fnGetWe(DisseminationModel.strSearchButton), "Search Button", false, false);
                                     Thread.Sleep(TimeSpan.FromSeconds(3));
@@ -117,7 +175,17 @@ namespace AutomationFrame_GlobalIntake.POM
                                     //Confirmation Number
                                     clsMG.fnCleanAndEnterText("Confirmation Number", DisseminationModel.strConfirmationNumber, objData.fnGetValue("ConfirmationNumber", ""), false, false, "", false);
                                     //Claim Number
+
                                     clsMG.fnCleanAndEnterText("Claim Number", DisseminationModel.strClaimNumber, objData.fnGetValue("ClaimNumber", clsConstants.strTempClaimNo), false, false, "", false);
+
+                                    if (objData.fnGetValue("Action", "VerifyDissemination").ToUpper() == "VERIFYDISSEMINATION")
+                                    {
+                                        string ClaimNumbervalue = GetExcelValue(32, "EventInfo", "ClaimNumber");
+                                        clsMG.fnCleanAndEnterText("Claim Number", DisseminationModel.strClaimNumber, ClaimNumbervalue, false, false, "", false);
+
+                                    }
+                                    clsMG.fnCleanAndEnterText("Claim Number", DisseminationModel.strClaimNumber, objData.fnGetValue("ClaimNumber", ""), false, false, "", false);
+                                
                                     //Group by
                                     clsMG.fnSelectDropDownWElm("Group by", DisseminationModel.strGroupby, objData.fnGetValue("GroupBy", ""), false, false);
                                     break;
@@ -181,6 +249,15 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
+
+        public string GetExcelValue(int intRow, string strDataSheet, string strColumn)
+        {
+            clsData objGetConfNumber = new clsData();
+            objGetConfNumber.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], strDataSheet);
+            objGetConfNumber.CurrentRow = intRow;
+            var strValue = objGetConfNumber.fnGetValue(strColumn, "");
+            return strValue;
+        }
 
     }
 }

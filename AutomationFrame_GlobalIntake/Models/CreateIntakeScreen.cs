@@ -80,6 +80,7 @@ namespace AutomationFrame_GlobalIntake.Models
         public static string strBenefitLabel = "//h2//*[text()='Benefit State']";
         public static string strDefaultBenefitState = "//div[contains(@class, 'row') and div[span[text()='Default Benefit State']]]//div[2]/span";
         public static string strReviewLabel = "(//span[@data-bind='html:HelpText'])[1]";
+        public static string strOfficeEmail = "//span[contains(@data-bind, 'Answer.EmailAddress')]";
 
         //Review Screen
         public static string strReviewScreen = "//span[text()='Review']";

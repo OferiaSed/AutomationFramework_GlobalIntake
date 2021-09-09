@@ -1860,7 +1860,7 @@ namespace AutomationFrame_GlobalIntake.POM
 
                                             //<<<<Lost Time Information>>>>
                                             //Employee Returned To Work?
-                                            clsMG.fnCleanAndEnterText("Employee Returned To Work", CreateIntakeScreen.strEmployeeReturnedToWork, "No");
+                                            clsMG.fnCleanAndEnterText("Employee Returned To Work", CreateIntakeScreen.strEmployeeReturnedToWork, objData.fnGetValue("EmployeeReturnedToWork", ""));
                                             break;
                                     }
                                 });
@@ -1927,7 +1927,8 @@ namespace AutomationFrame_GlobalIntake.POM
                                                         blResult = false;
                                                     }
                                                     break;
-                                                case "SAVE":
+                                                case "SAVEEMAILOFFICE":
+                                                    clsConstants.strOfficeEmail = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strOfficeEmail), "Get Email Office", "innerText", false);
                                                     break;
                                             }
                                         });

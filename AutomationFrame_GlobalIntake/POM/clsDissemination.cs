@@ -1,5 +1,7 @@
 ﻿using AutomationFrame_GlobalIntake.Models;
+using AutomationFrame_GlobalIntake.Utils;
 using AutomationFramework;
+using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -36,6 +38,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         //Clear Filter
                         clsWE.fnClick(clsWE.fnGetWe(DisseminationModel.strClearButton), "Clear Filter", false, false);
                         Thread.Sleep(TimeSpan.FromSeconds(3));
+                      
                         clsMG.fnGoTopPage();
 
                         //Verify Action
@@ -47,7 +50,45 @@ namespace AutomationFrame_GlobalIntake.POM
                             switch (action.ToUpper()) 
                             {
                                 case "VERIFYEMAILOFFICENUMBER":
+                                    bool blEmailFound = false;
+                                    clsUtils.fnScrollToElement(clsWebBrowser.objDriver, clsWE.fnGetWe(DisseminationModel.strFilterResults));
+                                    clsMG.fnCleanAndEnterText("Filter Results", DisseminationModel.strFilterResults, objData.fnGetValue("FilterResults", ""), false, false, "", false);
+                                    Thread.Sleep(TimeSpan.FromSeconds(2));
+                                    var lsDetails = clsWebBrowser.objDriver.FindElements(By.XPath(DisseminationModel.strDetailButtonList.Replace("{DisseminationType}", objData.fnGetValue("FilterResults", ""))));
+                                    if (lsDetails.Count > 0)
+                                    {
+                                        foreach (var detailButton in lsDetails) 
+                                        {
+                                            detailButton.Click();
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent(DisseminationModel.strDetailModal), TimeSpan.FromSeconds(1), 10);
+                                            var detailMessage = clsWE.fnGetAttribute(clsWE.fnGetWe(DisseminationModel.strDetailEmailMessage), "Get Details Message", "innerText", true);
+                                            if (detailMessage.Contains(clsConstants.strOfficeEmail))
+                                            {
+                                                clsReportResult.fnLog("Verify Email Office Sent", "The office email: "+ clsConstants.strOfficeEmail +" dissemination was found as expected.", "Pass", true, false);
+                                                blEmailFound = true;
+                                                break;
+                                            }
+                                            clsWE.fnClick(clsWE.fnGetWe(DisseminationModel.strCloseButton), "Close Modal Detail", false, false);
+                                        }
+                                        if (!blEmailFound)
+                                        {
+                                            clsReportResult.fnLog("Verify Email Office Sent", "The email office: " + clsConstants.strOfficeEmail + " was not found in the emails dissemination.", "Fail", true, false);
+                                            blResult = false;
+                                        }
+                                        else 
+                                        {
+                                            clsWE.fnClick(clsWE.fnGetWe(DisseminationModel.strCloseButton), "Close Modal Detail", false, false);
+                                        }
+                                    }
+                                    else 
+                                    {
+                                        clsReportResult.fnLog("Verify Email Office Sent", "No EmailDisseminations were found and scenario cannot continue", "Fail", true, false);
+                                        blResult = false;
+                                    }
+                                    clsConstants.strTempClaimNo = "";
+                                    clsConstants.strOfficeEmail = "";
                                     break;
+
                                 case "VERIFYDISSEMINATION":
                                     if (objData.fnGetValue("DisseminationType", "JurisDissemination").ToUpper() == "JURISDISSEMINATION")
                                     {
@@ -100,6 +141,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                         clsReportResult.fnLog("Search Results", "Please enter a Disemination Type to contiue with the scenario", "Fail", false, false);
                                     }
                                     break;
+
                                 case "SEARCH":
                                     clsWE.fnClick(clsWE.fnGetWe(DisseminationModel.strSearchButton), "Search Button", false, false);
                                     Thread.Sleep(TimeSpan.FromSeconds(3));
@@ -126,6 +168,9 @@ namespace AutomationFrame_GlobalIntake.POM
                                     //Confirmation Number
                                     clsMG.fnCleanAndEnterText("Confirmation Number", DisseminationModel.strConfirmationNumber, objData.fnGetValue("ConfirmationNumber", ""), false, false, "", false);
                                     //Claim Number
+
+                                    clsMG.fnCleanAndEnterText("Claim Number", DisseminationModel.strClaimNumber, objData.fnGetValue("ClaimNumber", clsConstants.strTempClaimNo), false, false, "", false);
+
                                     if (objData.fnGetValue("Action", "VerifyDissemination").ToUpper() == "VERIFYDISSEMINATION")
                                     {
                                         string ClaimNumbervalue = GetExcelValue(32, "EventInfo", "ClaimNumber");
@@ -133,6 +178,7 @@ namespace AutomationFrame_GlobalIntake.POM
 
                                     }
                                     clsMG.fnCleanAndEnterText("Claim Number", DisseminationModel.strClaimNumber, objData.fnGetValue("ClaimNumber", ""), false, false, "", false);
+                                
                                     //Group by
                                     clsMG.fnSelectDropDownWElm("Group by", DisseminationModel.strGroupby, objData.fnGetValue("GroupBy", ""), false, false);
                                     break;

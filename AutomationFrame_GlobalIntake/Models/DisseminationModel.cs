@@ -18,9 +18,12 @@ namespace AutomationFrame_GlobalIntake.Models
         public static string strConfirmationNumber = "//input[contains(@data-bind, 'ConfirmationNumber')]";
         public static string strClaimNumber = "//input[contains(@data-bind, 'ClaimNumber')]";
         public static string strGroupby = "//div[select[contains(@data-bind, 'groupBy')]]//span[@role='combobox']";
-
         public static string strClearButton = "//button[@id='primaryClear']";
         public static string strSearchButton = "//button[contains(@data-bind, 'searchDisseminations')]";
-        
+        public static string strFilterResults = "//input[@placeholder='Filter Results']";
+        public static string strDetailButtonList = "//tr[td[text()='{DisseminationType}']]//a[contains(@class, 'details-button')]";
+        public static string strDetailModal = "//div[@id='detailsModal' and contains(@style, 'display: block')]";
+        public static string strDetailEmailMessage = "//div[@id='detailsModal' and contains(@style, 'display: block')]//div[@data-bind='text: Message']";
+        public static string strCloseButton = "//div[@id='detailsModal' and contains(@style, 'display: block')]//a[text()='Close']";
     }
 }

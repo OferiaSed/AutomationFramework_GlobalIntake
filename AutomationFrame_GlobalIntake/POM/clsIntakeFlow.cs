@@ -1808,23 +1808,24 @@ namespace AutomationFrame_GlobalIntake.POM
 
                                             //<<<<Loss Location Information>>>>
                                             //Loss Location name
-                                            clsMG.fnCleanAndEnterText("Loss Location Name", CreateIntakeScreen.strLossLocName, "Mokena");
+                                            clsMG.fnCleanAndEnterText("Loss Location Name", CreateIntakeScreen.strLossLocName, objData.fnGetValue("LossLocationName", ""));
                                             //Non Standard Address Checkbox
-                                            var nonStandardAddressCheckbox = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeScreen.strLossLocNonStandardAddress));
-                                            clsWebBrowser.objDriver.fnScrollToElement(nonStandardAddressCheckbox);
-                                            nonStandardAddressCheckbox.Click();
+                                            if (objData.fnGetValue("LossLocationNonStandardAddress", "").ToUpper() == "TRUE" || objData.fnGetValue("LossLocationNonStandardAddress", "").ToUpper() == "YES") 
+                                            {
+                                                var nonStandardAddressCheckbox = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeScreen.strLossLocNonStandardAddress));
+                                                clsWebBrowser.objDriver.fnScrollToElement(nonStandardAddressCheckbox);
+                                                nonStandardAddressCheckbox.Click();
+                                            }
                                             //Address Line 1
-                                            clsMG.fnCleanAndEnterText("Loss Location Address Line 1", CreateIntakeScreen.strLossLocddress1, "8656 Jockey Hollow Ave.");
+                                            clsMG.fnCleanAndEnterText("Loss Location Address Line 1", CreateIntakeScreen.strLossLocddress1, objData.fnGetValue("LossLocAddress1", ""));
                                             //Zip Code
-                                            clsMG.fnCleanAndEnterText("Loss Location Zip Code", CreateIntakeScreen.stsLossLocZipCode, "60448");
+                                            clsMG.fnCleanAndEnterText("Loss Location Zip Code", CreateIntakeScreen.stsLossLocZipCode, objData.fnGetValue("LossLocZipCode", ""));
                                             //City
-                                            clsMG.fnCleanAndEnterText("Loss Location City", CreateIntakeScreen.strLossLocCity, "Mokena");
-
-                                            var addressDropdowns = clsWebBrowser.objDriver.FindElements(By.XPath(CreateIntakeScreen.strLossLocStateAndCountrySelector));
+                                            clsMG.fnCleanAndEnterText("Loss Location City", CreateIntakeScreen.strLossLocCity, objData.fnGetValue("LossLocCity", ""));
                                             //Country
-                                            clsMG.fnSelectDropDownWElm("Loss Location Country", addressDropdowns[0], "United States of America", false, false);
+                                            clsMG.fnSelectDropDownWElm("Loss Location Country", CreateIntakeScreen.strLossLocCountrySelector, objData.fnGetValue("LossLocCountry", ""), false, false);
                                             //State
-                                            clsMG.fnSelectDropDownWElm("Loss Location State", addressDropdowns[1], "Illinois", false, false);
+                                            clsMG.fnSelectDropDownWElm("Loss Location State", CreateIntakeScreen.strLossLocStateSelector, objData.fnGetValue("LossLocState", ""), false, false);
 
                                             //Loss Location Phone Number
                                             clsMG.fnCleanAndEnterText("Loss Location Phone", "//div[contains(@question-key, 'LOSS_LOCATION')]//div[@class='row' and div[span[text()='Phone Number']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("LossLocPhone", ""), false, false, "", false);
@@ -1862,7 +1863,7 @@ namespace AutomationFrame_GlobalIntake.POM
 
                                             //<<<<Lost Time Information>>>>
                                             //Employee Returned To Work?
-                                            clsMG.fnCleanAndEnterText("Employee Returned To Work", CreateIntakeScreen.strEmployeeReturnedToWork, "No");
+                                            clsMG.fnCleanAndEnterText("Employee Returned To Work", CreateIntakeScreen.strEmployeeReturnedToWork, objData.fnGetValue("EmployeeReturnedToWork", ""));
                                             break;
                                     }
                                 });
@@ -1929,7 +1930,8 @@ namespace AutomationFrame_GlobalIntake.POM
                                                         blResult = false;
                                                     }
                                                     break;
-                                                case "SAVE":
+                                                case "SAVEEMAILOFFICE":
+                                                    clsConstants.strOfficeEmail = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strOfficeEmail), "Get Email Office", "innerText", false);
                                                     break;
                                             }
                                         });

@@ -73,6 +73,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                         }
                     }
+                    break;
                 }
             }
             return blResult;

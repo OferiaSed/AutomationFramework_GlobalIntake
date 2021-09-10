@@ -108,5 +108,9 @@ namespace AutomationFrame_GlobalIntake.Models
 
         //Lost Time Information
         public static string strEmployeeReturnedToWork = $"{strQuestionXPathByQuestionKey("LOST_TIME_INFORMATION.CLAIM_EMPLOYEE_RTW_FLG")}//span[@class='select2-selection select2-selection--single']";
+
+        //Created Claim Email
+        public static string strHTMLEmailSSNDelimiterStart = "<tr class='m-1'> <td class='question-label'>SSN</td> <td class='pl-2'><div class='text-spacing-1'>";
+        public static string strHTMLEmailSSNDelimiterEnd = "<br/></div></td> </tr>";
     }
 }

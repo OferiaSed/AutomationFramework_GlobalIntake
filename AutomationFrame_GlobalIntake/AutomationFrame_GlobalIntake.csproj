@@ -70,8 +70,8 @@
     <Reference Include="AutomationFramework">
       <HintPath>.\AutomationFramework.dll</HintPath>
     </Reference>
-    <Reference Include="BouncyCastle.Crypto, Version=1.8.10.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
-      <HintPath>packages\Portable.BouncyCastle.1.8.10\lib\net40\BouncyCastle.Crypto.dll</HintPath>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>packages\BouncyCastle.1.8.9\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="DnsClient, Version=1.0.7.0, Culture=neutral, PublicKeyToken=4574bb5573c51424, processorArchitecture=MSIL">
       <HintPath>packages\DnsClient.1.0.7\lib\net45\DnsClient.dll</HintPath>
@@ -81,6 +81,9 @@
     </Reference>
     <Reference Include="ExtentReports, Version=4.0.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\ExtentReports.4.0.2\lib\ExtentReports.dll</HintPath>
+    </Reference>
+    <Reference Include="GemBox.Pdf, Version=17.0.0.1015, Culture=neutral, PublicKeyToken=b1b72c69714d4847, processorArchitecture=MSIL">
+      <HintPath>packages\GemBox.Pdf.17.0.1015\lib\net35\GemBox.Pdf.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
@@ -110,9 +113,15 @@
     <Reference Include="Oracle.ManagedDataAccess, Version=4.122.19.1, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
       <HintPath>packages\Oracle.ManagedDataAccess.19.11.0\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
     </Reference>
+    <Reference Include="Pkcs11Interop, Version=5.1.1.0, Culture=neutral, PublicKeyToken=c10e9c2d8c006d2a, processorArchitecture=MSIL">
+      <HintPath>packages\Pkcs11Interop.5.1.1\lib\net45\Pkcs11Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="RazorEngine, Version=3.10.0.0, Culture=neutral, PublicKeyToken=9ee697374c7e744a, processorArchitecture=MSIL">
       <HintPath>packages\RazorEngine.3.10.0\lib\net45\RazorEngine.dll</HintPath>
     </Reference>
+    <Reference Include="ReachFramework" />
     <Reference Include="SeleniumExtras.WaitHelpers, Version=3.11.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\DotNetSeleniumExtras.WaitHelpers.3.11.0\lib\net45\SeleniumExtras.WaitHelpers.dll</HintPath>
     </Reference>
@@ -137,6 +146,7 @@
     <Reference Include="System.IO.Packaging, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.IO.Packaging.5.0.0\lib\net46\System.IO.Packaging.dll</HintPath>
     </Reference>
+    <Reference Include="System.Printing" />
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Runtime.InteropServices.RuntimeInformation.4.0.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
       <Private>True</Private>
@@ -181,6 +191,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestCases\clsTestDD.cs" />
     <Compile Include="TestCases\clsTestDataDriven.cs" />
+    <Compile Include="Utils\clsEmailV2.cs" />
+    <Compile Include="Utils\clsOCR.cs" />
     <Compile Include="Utils\clsResponseModel.cs" />
     <Compile Include="Utils\clsRest.cs" />
     <Compile Include="Utils\clsConstants.cs" />
@@ -201,7 +213,9 @@
     <Error Condition="!Exists('packages\NUnit3TestAdapter.4.0.0\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\NUnit3TestAdapter.4.0.0\build\net35\NUnit3TestAdapter.props'))" />
     <Error Condition="!Exists('packages\Tesseract.4.1.1\build\Tesseract.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Tesseract.4.1.1\build\Tesseract.targets'))" />
     <Error Condition="!Exists('packages\Selenium.WebDriver.ChromeDriver.93.0.4577.1500\build\Selenium.WebDriver.ChromeDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Selenium.WebDriver.ChromeDriver.93.0.4577.1500\build\Selenium.WebDriver.ChromeDriver.targets'))" />
+    <Error Condition="!Exists('packages\GemBox.Pdf.17.0.1015\build\netstandard2.0\GemBox.Pdf.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\GemBox.Pdf.17.0.1015\build\netstandard2.0\GemBox.Pdf.targets'))" />
   </Target>
   <Import Project="packages\Tesseract.4.1.1\build\Tesseract.targets" Condition="Exists('packages\Tesseract.4.1.1\build\Tesseract.targets')" />
   <Import Project="packages\Selenium.WebDriver.ChromeDriver.93.0.4577.1500\build\Selenium.WebDriver.ChromeDriver.targets" Condition="Exists('packages\Selenium.WebDriver.ChromeDriver.93.0.4577.1500\build\Selenium.WebDriver.ChromeDriver.targets')" />
+  <Import Project="packages\GemBox.Pdf.17.0.1015\build\netstandard2.0\GemBox.Pdf.targets" Condition="Exists('packages\GemBox.Pdf.17.0.1015\build\netstandard2.0\GemBox.Pdf.targets')" />
 </Project>

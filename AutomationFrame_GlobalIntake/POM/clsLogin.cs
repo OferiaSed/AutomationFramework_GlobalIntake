@@ -17,6 +17,7 @@ namespace AutomationFrame_GlobalIntake.POM
     {
         private clsWebElements clsWE = new clsWebElements();
         private clsMegaIntake clsMG = new clsMegaIntake();
+        public static int loginSet;
 
         //Page Object Methods
         public bool fnLoginData(string pstrSetNo)
@@ -29,6 +30,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 objData.CurrentRow = intRow;
                 if (objData.fnGetValue("Set", "") == pstrSetNo)
                 {
+                    loginSet = int.Parse(pstrSetNo);
                     clsReportResult.fnLog("Login Function", "<<<<<<<<<< The Login Functions Starts. >>>>>>>>>>", "Info", false);
                     fnLogOffSession();
                     if (objData.fnGetValue("TrainingMode", "").ToUpper() == "TRUE" || objData.fnGetValue("TrainingMode", "").ToUpper() == "YES")
@@ -73,6 +75,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                         }
                     }
+                    break;
                 }
             }
             return blResult;

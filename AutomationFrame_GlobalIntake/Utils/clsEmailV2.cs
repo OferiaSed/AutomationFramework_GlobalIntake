@@ -180,7 +180,7 @@ namespace MyUtils.Email
                 strResult = this.Html.fnTextBetween(pstrHTMLTextStart, pstrHTMLTextEnd);
             }
 
-            return strResult.Replace("\n", "").Replace("\r", "");
+            return strResult.fnToSingleLineText();
         }
 
         public static Dictionary<string, string> fnGetUserAndPasswordEmail(string pstrSetNo)

@@ -2,6 +2,7 @@
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using System;
+using System.Text.RegularExpressions;
 
 namespace AutomationFrame_GlobalIntake.Utils
 {
@@ -113,6 +114,13 @@ namespace AutomationFrame_GlobalIntake.Utils
         /// <returns>The parent element</returns>
         public static IWebElement fnGetParentNode(this IWebElement element) => element.FindElement(By.XPath("./.."));
 
+        /// <summary>
+        /// Find text between two sections of text
+        /// </summary>
+        /// <param name="str">string to extract text from</param>
+        /// <param name="start">left limit string</param>
+        /// <param name="end">right limit string</param>
+        /// <returns></returns>
         public static string fnTextBetween(this string str, string start, string end)
         {
             var index = str.IndexOf(start) + start.Length;
@@ -120,6 +128,28 @@ namespace AutomationFrame_GlobalIntake.Utils
             var lenght = result.IndexOf(end);
             result = result.Substring(0, lenght);
             return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string fnToSingleLineText(this string str)
+        {
+            return str.Replace("\n", "").Replace("\r", "");
+        }
+
+        /// <summary>
+        /// Returns the string without any non-alphanumeric character
+        /// </summary>
+        /// <param name="str">string to clean</param>
+        /// <returns></returns>
+        public static string fnOnlyAlphanumericChars(this string str)
+        {
+            Regex rgx = new Regex("[^a-zA-Z0-9 -]");
+            str = rgx.Replace(str, "");
+            return str;
         }
     }
 }

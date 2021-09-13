@@ -13,8 +13,6 @@ using System.Threading.Tasks;
 using AutomationFrame_GlobalIntake.Models;
 using System.Data;
 using SpreadsheetLight;
-using MyUtils.Email;
-using MyUtils;
 
 namespace AutomationFrame_GlobalIntake.POM
 {
@@ -23,8 +21,6 @@ namespace AutomationFrame_GlobalIntake.POM
         private readonly clsMegaIntake clsMG = new clsMegaIntake();
         private readonly clsWebElements clsWE = new clsWebElements();
         private ReviewIntakeScreen reviewIntakeScreen = new ReviewIntakeScreen(clsWebBrowser.objDriver);
-
-        private const string ssnMask = "XXX-XX-";
 
         public bool fnSelectClientPopup(string pstrClientNumber, string pstrClientName)
         {
@@ -125,7 +121,7 @@ namespace AutomationFrame_GlobalIntake.POM
         {
             bool blResult = true;
             clsReportResult.fnLog("Duplicate Claim Function", "<<<<<<<<<< The Duplicate Claim Functions Starts. >>>>>>>>>>", "Info", false);
-            if (Utils.clsConstants.blTrainingMode)
+            if (clsConstants.blTrainingMode)
             {
                 Thread.Sleep(TimeSpan.FromSeconds(5));
                 clsMG.fnSwitchToWindow("Intake");
@@ -200,7 +196,7 @@ namespace AutomationFrame_GlobalIntake.POM
         {
             bool blResult = true;
             clsReportResult.fnLog("Duplicate Claim Function", "<<<<<<<<<< The Duplicate Claim Functions Starts. >>>>>>>>>>", "Info", false);
-            if (Utils.clsConstants.blTrainingMode)
+            if (clsConstants.blTrainingMode)
             {
                 Thread.Sleep(TimeSpan.FromSeconds(5));
                 clsMG.fnSwitchToWindow("Intake");
@@ -273,7 +269,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         string[] arrCustomDates = pobjData.fnGetValue("ActionValues", "").Split('|');
                         string[] arrDates;
                         string newDate;
-                        foreach (var date in arrCustomDates)
+                        foreach (var date in arrCustomDates) 
                         {
                             arrDates = date.Split(';');
                             newDate = clsUtils.fnGetCustomDate(arrDates[0]);
@@ -283,12 +279,12 @@ namespace AutomationFrame_GlobalIntake.POM
                             clsMG.fnCleanAndEnterText("Loss Date", "//div[@class='row' and div[span[text()='Loss Date']]]//input[@class='form-control']", newDate.ToString(), false, false, "", true);
                             clsWE.fnClick(clsWE.fnGetWe("//button[text()='Next']"), "Next Button", false);
                             Thread.Sleep(TimeSpan.FromSeconds(3));
-                            switch (arrDates[1].ToUpper())
+                            switch (arrDates[1].ToUpper()) 
                             {
                                 case "VALID":
                                     if (!clsMG.IsElementPresent("//*[text()='Date must be in the past']"))
                                     {
-                                        clsReportResult.fnLog("Verify DOL Restrictions", "The date: " + newDate + " was introduced successfully.", "Pass", true, false);
+                                        clsReportResult.fnLog("Verify DOL Restrictions", "The date: "+ newDate + " was introduced successfully.", "Pass", true, false);
                                     }
                                     else
                                     {
@@ -416,9 +412,10 @@ namespace AutomationFrame_GlobalIntake.POM
                                     clsMG.fnCleanAndEnterText("Account Name", "//input[@id='search-accountName']", objData.fnGetValue("AccountName", ""), false, false, "", false);
                                     clsMG.fnCleanAndEnterText("Account Number", "//input[@id='search-accountNumber']", objData.fnGetValue("AccountNumber", ""), false, false, "", false);
                                     clsMG.fnCleanAndEnterText("Unit Name", "//input[@id='search-unitName']", objData.fnGetValue("UnitName", ""), false, false, "", false);
-                                    clsMG.fnCleanAndEnterText("Unit Number", "//input[@id='search-unitNumber']", objData.fnGetValue("UnitNumber", ""), false, false, "", false);
+                                    clsWE.fnClick(clsWE.fnGetWe("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP']//input[@id='search-unitNumber']"), "Location Lookup Modal", false);
+                                    clsMG.fnCleanAndEnterText("Unit Number", "//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP']//input[@id='search-unitNumber']", objData.fnGetValue("UnitNumber", ""), false, false, "", false);
                                     clsMG.fnCleanAndEnterText("Address", "//input[@id='search-address']", objData.fnGetValue("Address", ""), false, false, "", false);
-                                    clsMG.fnCleanAndEnterText("City", "//input[@id='search-city']", objData.fnGetValue("City", ""), false, false, "", false);
+                                    clsMG.fnCleanAndEnterText("City", "//div[select[contains(@data-bind, 'SearchParameters.State')]]//span[@class='select2-selection__rendered']", objData.fnGetValue("City", ""), false, false, "", false);
                                     clsMG.fnSelectDropDownWElm("State", "//select[contains(@data-bind, 'SearchParameters.State')]", objData.fnGetValue("State", ""), false, false);
                                     clsMG.fnCleanAndEnterText("City", "//input[@id='search-zipcode']", objData.fnGetValue("ZipCode", ""), true, false, "", false);
                                     clsWE.fnClick(clsWE.fnGetWe("//button[text()='Search']"), "Search Button", false);
@@ -1218,7 +1215,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             //Save Confirmation Number
                                             clsData objSaveData = new clsData();
                                             objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "EventInfo", "ClaimNumber", intRow, strClaimNo);
-                                            Utils.clsConstants.strSubmitClaimTrainingMode = strClaimNo;
+                                            clsConstants.strSubmitClaimTrainingMode = strClaimNo;
                                             clsReportResult.fnLog("Create Claim", "The claim: " + strClaimNo + " was created successfully.", "Pass", false, false);
                                             //Verify Preview Mode
                                             if (objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "TRUE" || objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "YES")
@@ -1248,7 +1245,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                                 }
                                             }
                                             //Switch to Defaul Tab
-                                            if (Utils.clsConstants.blTrainingMode)
+                                            if (clsConstants.blTrainingMode)
                                             {
                                                 clsMG.fnSwitchToWindowAndClose(1);
                                                 clsWebBrowser.objDriver.SwitchTo().Window(clsWebBrowser.objDriver.WindowHandles[0]);
@@ -1267,7 +1264,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                         //Save Confirmation Number
                                         clsData objSaveData = new clsData();
                                         objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "EventInfo", "ClaimNumber", intRow, strClaimNo);
-                                        Utils.clsConstants.strResumeClaimTrainingMode = strClaimNo;
+                                        clsConstants.strResumeClaimTrainingMode = strClaimNo;
                                         clsReportResult.fnLog("Create Claim", "The resume claim: " + strClaimNo + " was created but not submited.", "Pass", false, false);
                                         //Verify Preview Mode
                                         if (objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "TRUE" || objData.fnGetValue("VerifyPreviewMode", "").ToUpper() == "YES")
@@ -1297,7 +1294,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             }
                                         }
                                         //Switch to Defaul Tab
-                                        if (Utils.clsConstants.blTrainingMode)
+                                        if (clsConstants.blTrainingMode)
                                         {
                                             clsMG.fnSwitchToWindowAndClose(1);
                                             clsWebBrowser.objDriver.SwitchTo().Window(clsWebBrowser.objDriver.WindowHandles[0]);
@@ -1333,6 +1330,7 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
+
         public bool fnIntakeScreen(string pstrSetNo)
         {
             bool blResult = true;
@@ -1366,10 +1364,10 @@ namespace AutomationFrame_GlobalIntake.POM
                                     Thread.Sleep(TimeSpan.FromSeconds(10));
                                 }
                                 clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='page-container']"), "Intake FLow Page", false, false);
-
+                              
                                 var actionDriver = objData.fnGetValue("Action");
                                 var actions = actionDriver.Split(';').ToList();
-                                actions.ForEach(action =>
+                                actions.ForEach(action =>         
                                 {
                                     switch (action.ToUpper())
                                     {
@@ -1406,13 +1404,13 @@ namespace AutomationFrame_GlobalIntake.POM
                                                         blResult = false;
                                                     }
                                                 }
-                                                else
+                                                else 
                                                 {
                                                     clsReportResult.fnLog("Resume Intake Verification", "The Home Dashboard is not displayed after save a claim.", "Fail", true, false);
                                                     blResult = false;
                                                 }
                                             }
-                                            else
+                                            else 
                                             {
                                                 clsReportResult.fnLog("Resume Intake Verification", "The Resume Intake Popup was not displayed after click on Save Button.", "Fail", true, false);
                                                 blResult = false;
@@ -1443,7 +1441,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                                         clsReportResult.fnLog("Cancel Intake Verification", "The Home Dashboard is not displayed after cancel a claim.", "False", true, false);
 
                                                         //Verify Details Status
-                                                        if (clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strDetailsStatus), "Detail Status", "innerText", true) != valueList.ElementAt(2))
+                                                        if (clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strDetailsStatus), "Detail Status", "innerText", true) != valueList.ElementAt(2)) 
                                                         {
                                                             clsReportResult.fnLog("Cancel Intake Verification", "The Home Dashboard is not displayed after cancel a claim.", "False", true, false);
                                                             blResult = false;
@@ -1466,19 +1464,19 @@ namespace AutomationFrame_GlobalIntake.POM
                                                         clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strDeletePopup), TimeSpan.FromSeconds(1), 5);
                                                         clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strConfirmDelete), "Confirm Delete", true, false);
                                                     }
-                                                    else
+                                                    else 
                                                     {
-                                                        clsReportResult.fnLog("Cancel Intake Verification", "The Intake Details page for (" + valueList.ElementAt(0) + " Claim) was not opened after click on Edit Button.", "False", true, false);
+                                                        clsReportResult.fnLog("Cancel Intake Verification", "The Intake Details page for ("+ valueList.ElementAt(0) + " Claim) was not opened after click on Edit Button.", "False", true, false);
                                                         blResult = false;
                                                     }
                                                 }
-                                                else
+                                                else 
                                                 {
                                                     clsReportResult.fnLog("Cancel Intake Verification", "The Home Dashboard is not displayed after cancel a claim.", "Fail", true, false);
                                                     blResult = false;
                                                 }
                                             }
-                                            else
+                                            else 
                                             {
                                                 clsReportResult.fnLog("Cancel Intake Verification", "The Cancel Intake Popup was not displayed after click on Cancel Button.", "Fail", true, false);
                                                 blResult = false;
@@ -1697,6 +1695,8 @@ namespace AutomationFrame_GlobalIntake.POM
                                                 clsReportResult.fnLog("Create Claim", "The Loss Location City and State has the following initial values. City: " + strCity + " ,State: " + strState + ".", "Fail", true, false);
                                                 blResult = false;
                                             }
+                                            clsWE.fnClick(clsWE.fnGetWe("//a[@id='NavOption_LOSS_LOCATION']"), "", true, false);
+                                            Thread.Sleep(TimeSpan.FromSeconds(3));
                                             //Enter ZipCode
                                             string[] arrValues = objData.fnGetValue("ActionValues", "").Split(';');
                                             IWebElement objWebEdit = clsWebBrowser.objDriver.FindElement(By.XPath("//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[contains(@data-bind, 'ZipCode')]"));
@@ -1736,11 +1736,11 @@ namespace AutomationFrame_GlobalIntake.POM
                                                     var activeElementLabel = fnGetActiveElementLabel();
                                                     if (field.Equals(activeElementLabel))
                                                     {
-                                                        clsReportResult.fnLog("Verify Edit on Review Screen", "The Edit button on field: " + field + " move the focus as expected on intake flow to field (" + activeElementLabel + ").", "Pass", true, false);
+                                                        clsReportResult.fnLog("Verify Edit on Review Screen", "The Edit button on field: "+ field +" move the focus as expected on intake flow to field ("+ activeElementLabel + ").", "Pass", true, false);
                                                     }
                                                     else
                                                     {
-                                                        clsReportResult.fnLog("Verify Edit on Review Screen", "The Edit button on field: " + field + " does not move the focus to another field (" + activeElementLabel + ").", "Fail", true, false);
+                                                        clsReportResult.fnLog("Verify Edit on Review Screen", "The Edit button on field: "+ field +" does not move the focus to another field ("+ activeElementLabel + ").", "Fail", true, false);
                                                         blResult = false;
                                                     }
                                                     clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Next')]"), "Next Button", false, false);
@@ -1764,7 +1764,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             searchEELocation.SendKeys("1 A");
                                             clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strSearchableAddress), TimeSpan.FromSeconds(2), 10);
                                             var searchableField = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeScreen.strSearchableAddress));
-                                            if (searchableField.Displayed)
+                                            if (searchableField.Displayed) 
                                             {
                                                 clsReportResult.fnLog("Verify No Override Location", "Employee Address Information.", "Info", true, false);
                                                 searchableField.Click();
@@ -1782,13 +1782,13 @@ namespace AutomationFrame_GlobalIntake.POM
                                                 {
                                                     clsReportResult.fnLog("Verify No Override Location", "The Loss Location Address was not overrided with EE Location as expected.", "Pass", true, false);
                                                 }
-                                                else
+                                                else 
                                                 {
-                                                    clsReportResult.fnLog("Verify No Override Location", "One value EE Address is equal to Loss Location Address, EE Address1 = " + EEAddress1 + " vs Loss Address = " + LLAddress1 + " | EE City = " + EECity + " vs Loss City = " + LLCity + " | EE ZipCode = " + EEZipCode + " vs Loss ZipCode = " + LLZipCode + ".", "Fail", true, false);
+                                                    clsReportResult.fnLog("Verify No Override Location", "One value EE Address is equal to Loss Location Address, EE Address1 = "+ EEAddress1 +" vs Loss Address = "+ LLAddress1 +" | EE City = "+ EECity +" vs Loss City = "+ LLCity +" | EE ZipCode = "+ EEZipCode +" vs Loss ZipCode = "+ LLZipCode +".", "Fail", true, false);
                                                     blResult = false;
                                                 }
                                             }
-                                            else
+                                            else 
                                             {
                                                 clsReportResult.fnLog("Verify No Override Location", "The search EE field does not return data and override can not be validated.", "Fail", true, false);
                                                 blResult = false;
@@ -1841,20 +1841,20 @@ namespace AutomationFrame_GlobalIntake.POM
                                             clsMG.fnCleanAndEnterText("SSN", "//div[contains(@question-key, 'EMPLOYEE_INFORMATION')]//div[@class='row' and div[span[text()='SSN']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("SSN", ""), false, false, "", true);
                                             //Do You Expect The Team Member To Lose Time From Work?
                                             clsMG.fnSelectDropDownWElm("Do You Expect The Team Member To Lose Time From Work?", "//div[@class='row' and div[span[contains(text(), 'Do You Expect The Team Member To Lose Time From Work?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("TeamMemberLossTime", ""), false, false);
-
+                                            
                                             //<<<<Employment Information>>>>
                                             //Did Employee Miss Work Beyond Their Normal Shift?
                                             clsMG.fnSelectDropDownWElm("Did Employee Miss Work Beyond Their Normal Shift?", "//div[@class='row' and div[span[contains(text(), 'Did Employee Miss Work Beyond Their Normal Shift?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("DidEmployeeMissWorkBeyond", ""), false, false);
                                             //Do you expect the team member to lose time from work
                                             clsMG.fnCleanAndEnterText("Do You Expect The Team Member To Lose Time From Work?", CreateIntakeScreen.strClaimEmployeeMissWorkBeyondShifFlag, "No");
-
+                                            
                                             //Employer Notified Date
                                             clsMG.fnCleanAndEnterText("Employer Notified Date", "//div[contains(@question-key, 'INCIDENT_INFORMATION')]//div[@class='row' and div[span[text()='Employer Notified Date']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployerNotifiedDate", ""), false, false, "", false);
                                             //Loss Description 
                                             clsMG.fnCleanAndEnterText("Loss Description", "//div[contains(@question-key, 'INCIDENT_INFORMATION')]//div[@class='row' and div[span[text()='Loss Description']]]//textarea", objData.fnGetValue("LossDescription", ""), false, false, "", false);
                                             //Escalation Criteria
                                             clsMG.fnSelectDropDownWElm("Escalation Criteria", "//div[contains(@question-key, 'INJURY_INFORMATION.CLAIM_EMPLOYEE_INJURY_SEVERITY')]//div[@class='row' and div[span[contains(text(), 'Escalation Criteria')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("EscalationCriteria", ""), false, false);
-
+                                            
                                             //<<<<Contact Information>>>>
                                             //Is Contact Same As Caller?
                                             clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[contains(@question-key, 'CONTACT_INFORMATION')]//div[@class='row' and div[span[contains(text(), 'Is Contact Same As Caller?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IsSameAsCaller", ""), false, false);
@@ -1918,13 +1918,13 @@ namespace AutomationFrame_GlobalIntake.POM
                                                             clsWE.fnScrollTo(clsWE.fnGetWe(CreateIntakeScreen.strReviewLabel), "Review State", false);
                                                             clsReportResult.fnLog("Verify Branch Office", "The Branch Office matches as expected, the DB return(" + strDBOffice + ") and UI has(" + strActualBO + ")", "Pass", true, false);
                                                         }
-                                                        else
+                                                        else 
                                                         {
-                                                            clsReportResult.fnLog("Verify Branch Office", "The Branch Office does not match, the DB return(" + strDBOffice + ") but UI has(" + strActualBO.Replace("(", "").Replace(")", "") + ")", "Fail", true, false);
+                                                            clsReportResult.fnLog("Verify Branch Office", "The Branch Office does not match, the DB return("+ strDBOffice + ") but UI has("+ strActualBO.Replace("(", "").Replace(")", "") + ")", "Fail", true, false);
                                                             blResult = false;
                                                         }
                                                     }
-                                                    else
+                                                    else 
                                                     {
                                                         clsReportResult.fnLog("Verify Branch Office", "The Branch Office Number is not displayed on UI.", "Fail", false, false);
                                                         blResult = false;
@@ -1935,7 +1935,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                                     break;
                                             }
                                         });
-
+                                        
                                         clsReportResult.fnLog("Submit Claim", "Submiting Claim Created.", "Info", true, false);
                                         clsMG.fnGoTopPage();
                                         clsWE.fnClick(clsWE.fnGetWe("//button[@id='top-submit']"), "Submit Button", false, false);
@@ -1947,10 +1947,10 @@ namespace AutomationFrame_GlobalIntake.POM
                                             //Save Confirmation Number
                                             clsData objSaveData = new clsData();
                                             objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "EventInfo", "ClaimNumber", intRow, strClaimNo);
-                                            Utils.clsConstants.strSubmitClaimTrainingMode = strClaimNo;
+                                            clsConstants.strSubmitClaimTrainingMode = strClaimNo;
                                             clsReportResult.fnLog("Create Claim", "The claim: " + strClaimNo + " was created successfully.", "Pass", false, false);
 
-
+                                            
                                             actionDriver = objData.fnGetValue("Action");
                                             actions = actionDriver.Split(';').ToList();
                                             actions.ForEach(action => {
@@ -1982,7 +1982,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                                         }
                                                         break;
                                                     case "SAVETEMPCLAIM":
-                                                        Utils.clsConstants.strTempClaimNo = strClaimNo;
+                                                        clsConstants.strTempClaimNo = strClaimNo;
                                                         break;
                                                 }
                                             });
@@ -2007,7 +2007,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                     strClaimNo = fnGetConfirmationNumber();
                                     clsData objSaveData = new clsData();
                                     objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "EventInfo", "ClaimNumber", intRow, strClaimNo);
-                                    Utils.clsConstants.strResumeClaimTrainingMode = strClaimNo;
+                                    clsConstants.strResumeClaimTrainingMode = strClaimNo;
                                     clsReportResult.fnLog("Create Claim", "The resume claim: " + strClaimNo + " was created.", "Pass", true, false);
                                 }
                             }
@@ -2058,7 +2058,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 {
                     getCurrentLabel = tempElement.FindElement(byXPath);
                 }
-                catch (NoSuchElementException)
+                catch(NoSuchElementException)
                 {
                     getCurrentLabel = tempElement.fnGetParentNode().fnGetParentNode().FindElements(byXPath).First(x => !string.IsNullOrEmpty(x.Text));
                 }
@@ -2515,7 +2515,7 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
 
         }
-
+        
         public string fnGetConfirmationNumber()
         {
             string strConfNumber = "";
@@ -2581,11 +2581,11 @@ namespace AutomationFrame_GlobalIntake.POM
             }
             while ((!equalsExpectedValue) && count < 10);
 
-            if (equalsExpectedValue)
+            if (equalsExpectedValue) 
             {
                 clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", "Pass", false);
             }
-            else
+            else 
             {
                 clsReportResult.fnLog("Date Of Loss Check", $"The DOL was found as expected. Expected Value <{expectedLossData}> vs Actual Value <{dolElement}>", equalsExpectedValue ? "Pass" : "Fail", false);
             }
@@ -2629,8 +2629,11 @@ namespace AutomationFrame_GlobalIntake.POM
                 case "AUTOLIABILITY":
                     //Go to First Party Vehicle
                     clsWE.fnClick(clsWE.fnGetWe("//a[span[text()='First Party Vehicle']]"), "First Party Vehicle", true, false);
+                    Thread.Sleep(TimeSpan.FromSeconds(4));
                     clsMG.fnSelectDropDownWElm("Was Vehicle Damaged?", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_DAMAGE_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", true);
                     clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                    clsWE.fnClick(clsWE.fnGetWe("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_INFORMATION.CLAIM_INSURED_VEHICLE_DAMAGE_DESCRIPTION')]//textarea"), "Damage Desc", true, false);
+                    Thread.Sleep(TimeSpan.FromSeconds(4));
                     if (!clsMG.fnDropDownGetElements("First Party Vehicle - Cause Code", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']", false, false)) { blResult = false; }
                     if (!clsMG.fnDropDownGetElements("First Party Vehicle - Nature Code", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_NATURE_CODE')]//span[@class='select2-selection select2-selection--single']", false, false)) { blResult = false; }
                     if (!clsMG.fnDropDownGetElements("First Party Vehicle - Target Code", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_TARGET_CODE')]//span[@class='select2-selection select2-selection--single']", false, false)) { blResult = false; }
@@ -2713,45 +2716,6 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
-        /// <summary>
-        /// Function to get the label of the current active element
-        /// </summary>
-        /// <returns></returns>
-        /*
-        private string fnGetActiveElementLabel()
-        {
-            string strLabelElement = "";
-            try
-            {
-                Thread.Sleep(TimeSpan.FromSeconds(2));
-                var activeElement = clsWebBrowser.objDriver.SwitchTo().ActiveElement();
-                IWebElement tempElement = null;
-                do
-                {
-                    IWebElement getParentElement;
-                    if (tempElement == null)
-                    { getParentElement = (IWebElement)((IJavaScriptExecutor)clsWebBrowser.objDriver).ExecuteScript("return arguments[0].parentNode;", activeElement); }
-                    else
-                    { getParentElement = (IWebElement)((IJavaScriptExecutor)clsWebBrowser.objDriver).ExecuteScript("return arguments[0].parentNode;", tempElement); }
-                    tempElement = getParentElement;
-                }
-                while (tempElement.GetAttribute("class") != "row");
-                //Get Current Label
-                if (tempElement != null)
-                {
-                    IWebElement getCurrentLabel = tempElement.FindElement(By.XPath(".//div[1]//span"));
-                    strLabelElement = getCurrentLabel.Text;
-                }
-            }
-            catch (Exception objException) 
-            {
-                clsReportResult.fnLog("ActiveLabel", "The active element cannot be determinated, Error: " + objException.Message, "Fail", true, false, "");
-            }
-
-            return strLabelElement;
-        }
-        */
-
         public void fnVerifySsnMaskedInCreateIntakeScreen()
         {
             var driver = clsWebBrowser.objDriver;
@@ -2759,27 +2723,27 @@ namespace AutomationFrame_GlobalIntake.POM
 
             var question = clsWebBrowser.objDriver.FindElement(CreateIntakeScreen.objQuestionXPathByQuestionKey("EMPLOYEE_INFORMATION.CLAIM_EMPLOYEE_SSN"));
             driver.fnScrollToElement(question);
-
+            
             var input = question.FindElement(By.TagName("input"));
             driver.fnScrollToElement(input);
             clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Move Focus to Header", false);
 
             var maskedSsn = jsExecutor.ExecuteScript("return arguments[0].inputmask.undoValue", input).ToString();
-            clsReportResult.fnLog("SSN Masked", $"SSN should be masked. Expected: XXX-XX-{maskedSsn.Substring(7)}", maskedSsn.Contains(ssnMask) ? "Pass" : "Fail", true);
+            clsReportResult.fnLog("SSN Masked", $"SSN should be masked. Expected: XXX-XX-{maskedSsn.Substring(7)}", maskedSsn.Contains("XXX-XX-") ? "Pass" : "Fail", true);
             clsMG.fnGenericWait(
                 () => { try { input.Click(); return true; } catch (ElementNotInteractableException) { return false; } },
                 TimeSpan.Zero,
                 5
             );
-
+            
             var notMaskedSsn = jsExecutor.ExecuteScript("return arguments[0].inputmask.undoValue", input).ToString();
-            clsReportResult.fnLog("SSN Not Masked", $"SSN should not be masked. Expected: {notMaskedSsn}", !notMaskedSsn.Contains(ssnMask) ? "Pass" : "Fail", true);
+            clsReportResult.fnLog("SSN Not Masked", $"SSN should not be masked. Expected: {notMaskedSsn}", !notMaskedSsn.Contains("XXX-XX-") ? "Pass" : "Fail", true);
         }
 
         public void fnVerifySsnMaskedInReviewIntakeScreen()
         {
             var maskedSsn = this.reviewIntakeScreen.GetFieldValue("SSN");
-            clsReportResult.fnLog("SSN Masked", $"SSN should be masked. Expected: XXX-XX-{maskedSsn.Substring(7)}", maskedSsn.Contains(ssnMask) ? "Pass" : "Fail", true);
+            clsReportResult.fnLog("SSN Masked", $"SSN should be masked. Expected: XXX-XX-{maskedSsn.Substring(7)}", maskedSsn.Contains("XXX-XX-") ? "Pass" : "Fail", true);
         }
 
         public bool fnUsersHomeRestrictions(string pstrSetNo)

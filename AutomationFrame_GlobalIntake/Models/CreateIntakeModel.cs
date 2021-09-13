@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutomationFrame_GlobalIntake.POM;
 using OpenQA.Selenium;
 
 namespace AutomationFrame_GlobalIntake.Models
 {
-    public class CreateIntakeScreen : clsBasePageModel
+    public class CreateIntakeModel : BasePageModel
     {
-        public CreateIntakeScreen(IWebDriver driver) : base(driver)
+        public CreateIntakeModel(IWebDriver driver, clsMegaIntake clsMG) : base(driver, clsMG)
         {
 
         }

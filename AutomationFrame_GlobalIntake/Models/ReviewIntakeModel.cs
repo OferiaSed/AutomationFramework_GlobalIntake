@@ -1,4 +1,5 @@
-﻿using AutomationFrame_GlobalIntake.Utils;
+﻿using AutomationFrame_GlobalIntake.POM;
+using AutomationFrame_GlobalIntake.Utils;
 using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace AutomationFrame_GlobalIntake.Models
 {
-    public class ReviewIntakeScreen : clsBasePageModel
+    public class ReviewIntakeModel : BasePageModel
     {
-        public ReviewIntakeScreen(IWebDriver driver) : base(driver) { }
+        public ReviewIntakeModel(IWebDriver driver, clsMegaIntake clsMG) : base(driver, clsMG) { }
 
         private static string objRowSelector(string field) => $"//div[div[span[text()='{field}']]]";
         public string GetFieldValue(string field)

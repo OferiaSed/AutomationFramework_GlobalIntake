@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using AutomationFramework;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using System;
@@ -150,6 +151,30 @@ namespace AutomationFrame_GlobalIntake.Utils
             Regex rgx = new Regex("[^a-zA-Z0-9 -]");
             str = rgx.Replace(str, "");
             return str;
+        }
+
+        /// <summary>
+        /// Function to return true if no exception is throwed when executing
+        /// </summary>
+        /// <param name="action">Function to execute</param>
+        /// <returns>True if no exceptions thrown</returns>
+        public static bool TryExecute(this Action action)
+        {
+            try
+            {
+                action.Invoke();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                clsReportResult.fnLog(
+                    "Exception was throwed",
+                    $"Exception Message: '{ex.Message}'. Stack Trace: {ex.StackTrace}",
+                    "Warn",
+                    true
+                );
+                return false;
+            }
         }
     }
 }

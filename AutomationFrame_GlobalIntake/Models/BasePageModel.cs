@@ -9,12 +9,24 @@ using System.Threading.Tasks;
 
 namespace AutomationFrame_GlobalIntake.Models
 {
-    public class clsBasePageModel
+    public class BasePageModel
     {
         protected IWebDriver driver;
-        protected clsBasePageModel(IWebDriver driver)
+        protected clsMegaIntake clsMG;
+        protected BasePageModel(IWebDriver driver, clsMegaIntake clsMG)
         {
             this.driver = driver;
+            this.clsMG = clsMG;
+        }
+
+        /// <summary>
+        /// NAvigates to Search Calls Module
+        /// </summary>
+        /// <returns>True if success</returns>
+        public bool NavigateToSearchCalls()
+        {
+            this.clsMG.fnHamburgerMenu("Search Intakes");
+            return this.fnUntilSpinnerHidden();
         }
 
         /// <summary>
@@ -31,9 +43,9 @@ namespace AutomationFrame_GlobalIntake.Models
         /// True once spinner gets hidden.
         /// False if spinner is visible even after 2 attempts.
         /// </returns>
-        public static bool fnUntilSpinnerHidden(clsMegaIntake clsMG, IWebDriver driver)
+        public bool fnUntilSpinnerHidden()
         {
-            var spinnerHidden = clsMG.fnGenericWait(() => clsUtils.fnIsElementHidden(objLoadSpinnerSelector, driver), TimeSpan.Zero, 2);
+            var spinnerHidden = this.clsMG.fnGenericWait(() => clsUtils.fnIsElementHidden(objLoadSpinnerSelector, this.driver), TimeSpan.Zero, 2);
             return spinnerHidden;
         }
 
@@ -46,9 +58,9 @@ namespace AutomationFrame_GlobalIntake.Models
         /// True once spinner gets visible.
         /// False if spinner is not visible even after 2 attempts.
         /// </returns>
-        public static bool fnUntilSpinnerVisible(clsMegaIntake clsMG, IWebDriver driver)
+        public bool fnUntilSpinnerVisible()
         {
-            var spinnerVisible = clsMG.fnGenericWait(() => clsUtils.fnIsElementVisible(objLoadSpinnerSelector, driver), TimeSpan.Zero, 2);
+            var spinnerVisible = clsMG.fnGenericWait(() => clsUtils.fnIsElementVisible(objLoadSpinnerSelector, this.driver), TimeSpan.Zero, 2);
             return spinnerVisible;
         }
     }

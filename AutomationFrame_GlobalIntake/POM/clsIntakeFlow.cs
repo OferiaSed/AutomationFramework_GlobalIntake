@@ -1956,6 +1956,15 @@ namespace AutomationFrame_GlobalIntake.POM
                                             actions.ForEach(action => {
                                                 switch (action.ToUpper())
                                                 {
+                                                    case "CHECKFROIATTACHMENTWCONLY":
+                                                        this.fnCheckFroiAttachmentWcOnly(objData, strClaimNo);
+                                                        break;
+                                                    case "VERIFYFROIINTHEEMAILSFORWC":
+                                                        this.fnVerifyFroiInTheEmailsForWc();
+                                                        break;
+                                                    case "VERIFYSSNMASKINGININTAKEREVIEWEMAILDISSEMINATIONANDFROIPDF":
+                                                        this.fnTcVerifySsnMaskingInIntakeReviewEmailDisseminationAndFroiPdf(objData, strClaimNo);
+                                                        break;
                                                     case "VERIFYPREVIEWMODE":
                                                         clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label verification starts on Submit Screen.", "Info", false, false);
                                                         if (objData.fnGetValue("ActionValues", "").ToUpper() == "TRUE" || objData.fnGetValue("ActionValues", "").ToUpper() == "YES")

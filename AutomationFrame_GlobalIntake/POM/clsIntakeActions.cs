@@ -79,7 +79,7 @@ namespace AutomationFrame_GlobalIntake.POM
 
             clsReportResult.fnLog(
                 "Check SSN in email", $"SSN in email must be masked: {ssnInEmail}",
-                ssnInEmail.Contains(ssnMask) ? "Pass" : "Fail",
+                ssnInEmail.Contains(clsConstants.ssnMask) ? "Pass" : "Fail",
                 false
             );
 
@@ -94,7 +94,7 @@ namespace AutomationFrame_GlobalIntake.POM
 
             clsReportResult.fnLog(
                 "Check SSN in pdf", $"SSN in pdf must be masked: {(blSsnFound ? strSsnInPdf : "SSN not found in pdf")}",
-                (ssnInEmail != null ? ssnInEmail.Contains(ssnMask) : false) ? "Pass" : "Fail",
+                (ssnInEmail != null ? ssnInEmail.Contains(clsConstants.ssnMask) : false) ? "Pass" : "Fail",
                 false
             );
         }

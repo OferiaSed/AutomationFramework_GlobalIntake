@@ -16,7 +16,7 @@ using SpreadsheetLight;
 
 namespace AutomationFrame_GlobalIntake.POM
 {
-    class clsIntakeFlow
+    public partial class clsIntakeFlow
     {
         private readonly clsMegaIntake clsMG = new clsMegaIntake();
         private readonly clsWebElements clsWE = new clsWebElements();
@@ -412,9 +412,10 @@ namespace AutomationFrame_GlobalIntake.POM
                                     clsMG.fnCleanAndEnterText("Account Name", "//input[@id='search-accountName']", objData.fnGetValue("AccountName", ""), false, false, "", false);
                                     clsMG.fnCleanAndEnterText("Account Number", "//input[@id='search-accountNumber']", objData.fnGetValue("AccountNumber", ""), false, false, "", false);
                                     clsMG.fnCleanAndEnterText("Unit Name", "//input[@id='search-unitName']", objData.fnGetValue("UnitName", ""), false, false, "", false);
-                                    clsMG.fnCleanAndEnterText("Unit Number", "//input[@id='search-unitNumber']", objData.fnGetValue("UnitNumber", ""), false, false, "", false);
+                                    clsWE.fnClick(clsWE.fnGetWe("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP']//input[@id='search-unitNumber']"), "Location Lookup Modal", false);
+                                    clsMG.fnCleanAndEnterText("Unit Number", "//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP']//input[@id='search-unitNumber']", objData.fnGetValue("UnitNumber", ""), false, false, "", false);
                                     clsMG.fnCleanAndEnterText("Address", "//input[@id='search-address']", objData.fnGetValue("Address", ""), false, false, "", false);
-                                    clsMG.fnCleanAndEnterText("City", "//input[@id='search-city']", objData.fnGetValue("City", ""), false, false, "", false);
+                                    clsMG.fnCleanAndEnterText("City", "//div[select[contains(@data-bind, 'SearchParameters.State')]]//span[@class='select2-selection__rendered']", objData.fnGetValue("City", ""), false, false, "", false);
                                     clsMG.fnSelectDropDownWElm("State", "//select[contains(@data-bind, 'SearchParameters.State')]", objData.fnGetValue("State", ""), false, false);
                                     clsMG.fnCleanAndEnterText("City", "//input[@id='search-zipcode']", objData.fnGetValue("ZipCode", ""), true, false, "", false);
                                     clsWE.fnClick(clsWE.fnGetWe("//button[text()='Search']"), "Search Button", false);
@@ -1694,6 +1695,8 @@ namespace AutomationFrame_GlobalIntake.POM
                                                 clsReportResult.fnLog("Create Claim", "The Loss Location City and State has the following initial values. City: " + strCity + " ,State: " + strState + ".", "Fail", true, false);
                                                 blResult = false;
                                             }
+                                            clsWE.fnClick(clsWE.fnGetWe("//a[@id='NavOption_LOSS_LOCATION']"), "", true, false);
+                                            Thread.Sleep(TimeSpan.FromSeconds(3));
                                             //Enter ZipCode
                                             string[] arrValues = objData.fnGetValue("ActionValues", "").Split(';');
                                             IWebElement objWebEdit = clsWebBrowser.objDriver.FindElement(By.XPath("//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[contains(@data-bind, 'ZipCode')]"));
@@ -1953,6 +1956,15 @@ namespace AutomationFrame_GlobalIntake.POM
                                             actions.ForEach(action => {
                                                 switch (action.ToUpper())
                                                 {
+                                                    case "CHECKFROIATTACHMENTWCONLY":
+                                                        this.fnCheckFroiAttachmentWcOnly(objData, strClaimNo);
+                                                        break;
+                                                    case "VERIFYFROIINTHEEMAILSFORWC":
+                                                        this.fnVerifyFroiInTheEmailsForWc();
+                                                        break;
+                                                    case "VERIFYSSNMASKINGININTAKEREVIEWEMAILDISSEMINATIONANDFROIPDF":
+                                                        this.fnTcVerifySsnMaskingInIntakeReviewEmailDisseminationAndFroiPdf(objData, strClaimNo);
+                                                        break;
                                                     case "VERIFYPREVIEWMODE":
                                                         clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label verification starts on Submit Screen.", "Info", false, false);
                                                         if (objData.fnGetValue("ActionValues", "").ToUpper() == "TRUE" || objData.fnGetValue("ActionValues", "").ToUpper() == "YES")
@@ -2617,8 +2629,11 @@ namespace AutomationFrame_GlobalIntake.POM
                 case "AUTOLIABILITY":
                     //Go to First Party Vehicle
                     clsWE.fnClick(clsWE.fnGetWe("//a[span[text()='First Party Vehicle']]"), "First Party Vehicle", true, false);
+                    Thread.Sleep(TimeSpan.FromSeconds(4));
                     clsMG.fnSelectDropDownWElm("Was Vehicle Damaged?", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_DAMAGE_FLG')]//span[@class='select2-selection select2-selection--single']", "Yes", false, false, "", true);
                     clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                    clsWE.fnClick(clsWE.fnGetWe("//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_INFORMATION.CLAIM_INSURED_VEHICLE_DAMAGE_DESCRIPTION')]//textarea"), "Damage Desc", true, false);
+                    Thread.Sleep(TimeSpan.FromSeconds(4));
                     if (!clsMG.fnDropDownGetElements("First Party Vehicle - Cause Code", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_CAUSE_CODE')]//span[@class='select2-selection select2-selection--single']", false, false)) { blResult = false; }
                     if (!clsMG.fnDropDownGetElements("First Party Vehicle - Nature Code", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_NATURE_CODE')]//span[@class='select2-selection select2-selection--single']", false, false)) { blResult = false; }
                     if (!clsMG.fnDropDownGetElements("First Party Vehicle - Target Code", "//div[contains(@question-key, 'CLAIM_INSURED_VEHICLE_TARGET_CODE')]//span[@class='select2-selection select2-selection--single']", false, false)) { blResult = false; }
@@ -2700,45 +2715,6 @@ namespace AutomationFrame_GlobalIntake.POM
             }
             return blResult;
         }
-
-        /// <summary>
-        /// Function to get the label of the current active element
-        /// </summary>
-        /// <returns></returns>
-        /*
-        private string fnGetActiveElementLabel()
-        {
-            string strLabelElement = "";
-            try
-            {
-                Thread.Sleep(TimeSpan.FromSeconds(2));
-                var activeElement = clsWebBrowser.objDriver.SwitchTo().ActiveElement();
-                IWebElement tempElement = null;
-                do
-                {
-                    IWebElement getParentElement;
-                    if (tempElement == null)
-                    { getParentElement = (IWebElement)((IJavaScriptExecutor)clsWebBrowser.objDriver).ExecuteScript("return arguments[0].parentNode;", activeElement); }
-                    else
-                    { getParentElement = (IWebElement)((IJavaScriptExecutor)clsWebBrowser.objDriver).ExecuteScript("return arguments[0].parentNode;", tempElement); }
-                    tempElement = getParentElement;
-                }
-                while (tempElement.GetAttribute("class") != "row");
-                //Get Current Label
-                if (tempElement != null)
-                {
-                    IWebElement getCurrentLabel = tempElement.FindElement(By.XPath(".//div[1]//span"));
-                    strLabelElement = getCurrentLabel.Text;
-                }
-            }
-            catch (Exception objException) 
-            {
-                clsReportResult.fnLog("ActiveLabel", "The active element cannot be determinated, Error: " + objException.Message, "Fail", true, false, "");
-            }
-
-            return strLabelElement;
-        }
-        */
 
         public void fnVerifySsnMaskedInCreateIntakeScreen()
         {
@@ -2999,88 +2975,5 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
-        /// <summary>
-        /// Verifies that each Force Refresh-Enabled field actually refreshes the page after its value is updated
-        /// </summary>
-        /// <param name="spreadsheetFileName"></param>
-        private void VerifyTabbingOrderInForceRefreshFields(string spreadsheetFileName)
-        {
-            // Create list of questions required for validation
-            var forceRefreshQuestionKeys = new List<string>();
-            using (var questionsSheet = new SLDocument(spreadsheetFileName, "Questions"))
-            {
-                var stats = questionsSheet.GetWorksheetStatistics();
-                for (var rowIndex = 2; rowIndex <= stats.EndRowIndex; rowIndex++)
-                {
-                    // Verify the question is enabled to forcefully refresh on value change
-                    if (questionsSheet.GetCellValueAsBoolean(rowIndex, 9))
-                    {
-                        var section = questionsSheet.GetCellValueAsString(rowIndex, 1);
-                        var question = questionsSheet.GetCellValueAsString(rowIndex, 2);
-                        forceRefreshQuestionKeys.Add($"{section}.{question}");
-                    }
-                }
-            }
-
-            forceRefreshQuestionKeys.ForEach(
-                questionKey =>
-                {
-                    var selector = CreateIntakeScreen.objQuestionXPathByQuestionKey(questionKey);
-                    IWebElement question;
-                    try
-                    {
-                        question = clsWebBrowser.objDriver.FindElement(selector);
-                    }
-                    catch (NoSuchElementException)
-                    {
-                        // Element is not present in this page
-                        return;
-                    }
-
-                    clsWebBrowser.objDriver.fnScrollToElement(question);
-                    var fields = question.FindElements(By.XPath(".//button | .//select | .//input")).Where(y => y.Enabled && y.Displayed).ToList();
-
-                    // Skip Question if it contains any button
-                    if (fields.Exists(x => x.TagName.ToUpper() == "BUTTON"))
-                    {
-                        return;
-                    }
-
-                    // Test
-                    foreach (var field in fields)
-                    {
-                        switch (field.TagName.ToUpper())
-                        {
-                            case "INPUT":
-                                var text = field.GetAttribute("inputmode") == "numeric" ? "1" : "TEST TEXT";
-                                field.SendKeys(text);
-                                clsWebBrowser.objDriver.FindElement(By.TagName("body")).SendKeys(Keys.Tab);
-                                break;
-                            case "SELECT":
-                                field.fnGetParentNode().FindElement(By.XPath(".//span[@role='combobox']")).Click();
-                                var optionValues = field.FindElements(By.TagName("option"));
-                                var valueToSelect = optionValues.First(x => !string.IsNullOrWhiteSpace(x.Text)).Text;
-                                var optionElement = clsWebBrowser.objDriver.FindElement(By.XPath($"//ul[@role='tree']/li[contains(text(), '{valueToSelect}')]"));
-                                clsWebBrowser.objDriver.fnScrollToElement(optionElement);
-                                optionElement.Click();
-                                break;
-                        }
-                        var visible = CreateIntakeScreen.fnUntilSpinnerVisible(clsMG, clsWebBrowser.objDriver);
-                        var hidden = CreateIntakeScreen.fnUntilSpinnerHidden(clsMG, clsWebBrowser.objDriver);
-                        var result = visible && hidden ? "Pass" : "Fail";
-                        clsReportResult.fnLog("Force Refresh", $"Force Refresh: Page is refreshed after changing value of '{questionKey}'.", result, true);
-                    }
-                }
-            );
-        }
-
-        private string fnGetBranchOffice(string strClientNo, string strState)
-        {
-            clsDB objDBOR = new clsDB();
-            objDBOR.fnOpenConnection(objDBOR.GetConnectionString("lltcsed1dvq-scan", "1521", "viaonei", "oferia", "P@ssw0rd#02"));
-            string strQuery = "select ex_office from viaone.cont_st_off where cont_num = '{CLIENTNO}' and data_set = 'WC' and state = '{STATE}' fetch first 1 row only";
-            var strValue = objDBOR.fnGetSingleValue(strQuery.Replace("{CLIENTNO}", strClientNo).Replace("{STATE}", strState));
-            return strValue;
-        }
     }
 }

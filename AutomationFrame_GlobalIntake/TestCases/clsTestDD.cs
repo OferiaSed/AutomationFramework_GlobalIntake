@@ -38,6 +38,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
 
         public void SetupTest(string pstrTestCase)
         {
+            clsReportResult.TC_Status = true;
             clsReportResult.objTest = clsReportResult.objExtent.CreateTest(pstrTestCase);
             fnOpenBrowser(clsDataDriven.strBrowser);
             this.clsIntake = new clsIntakeFlow();
@@ -154,12 +155,11 @@ namespace AutomationFrame_GlobalIntake.TestCases
                     }
                     catch(Exception ex)
                     {
-                        //Log Exception, then continue and properly close browser;
                         clsReportResult.fnLog("Unhandled Error", $"{ex.Message} => {ex.StackTrace}", "Fail", true);
                     }
 
                     //Check Status
-                    if (blStatus)
+                    if (clsReportResult.TC_Status)
                     { objData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "TestCases", "Status", intRow, "Pass"); }
                     else
                     { objData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "TestCases", "Status", intRow, "Fail"); }

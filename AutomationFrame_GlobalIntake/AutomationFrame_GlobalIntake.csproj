@@ -182,6 +182,7 @@
     <Compile Include="Models\ReviewIntakeScreen.cs" />
     <Compile Include="POM\clsAPI.cs" />
     <Compile Include="POM\clsDissemination.cs" />
+    <Compile Include="POM\clsIntakeActions.cs" />
     <Compile Include="POM\clsIntakeFlow.cs" />
     <Compile Include="POM\clsLogin.cs" />
     <Compile Include="POM\clsMegaIntake.cs" />

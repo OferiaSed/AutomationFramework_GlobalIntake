@@ -153,7 +153,7 @@ namespace AutomationFrame_GlobalIntake.Utils
                         {
                             string[] arrSeparators = { pstrStartWithPlainText, pstrEndwithPlainText };
                             string[] arrToken = strTemp.Split(arrSeparators, System.StringSplitOptions.RemoveEmptyEntries);
-                            strEmailText = arrToken[1].Replace("\n", "").Replace("\r", "");
+                            strEmailText = arrToken[1].fnToSingleLineText();
                             break;
                         }
                     }
@@ -168,7 +168,7 @@ namespace AutomationFrame_GlobalIntake.Utils
                             {
                                 string[] arrSeparators = { pstrStartWithHtml, pstrEndwithHtml };
                                 string[] arrToken = strTemp.Split(arrSeparators, System.StringSplitOptions.RemoveEmptyEntries);
-                                strEmailText = arrToken[1].Replace("\n", "").Replace("\r", "");
+                                strEmailText = arrToken[1].fnToSingleLineText();
                                 break;
                             }
                         }

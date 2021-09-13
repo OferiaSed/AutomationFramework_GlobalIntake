@@ -16,7 +16,7 @@ using SpreadsheetLight;
 
 namespace AutomationFrame_GlobalIntake.POM
 {
-    class clsIntakeFlow
+    public partial class clsIntakeFlow
     {
         private readonly clsMegaIntake clsMG = new clsMegaIntake();
         private readonly clsWebElements clsWE = new clsWebElements();
@@ -1956,6 +1956,15 @@ namespace AutomationFrame_GlobalIntake.POM
                                             actions.ForEach(action => {
                                                 switch (action.ToUpper())
                                                 {
+                                                    case "CHECKFROIATTACHMENTWCONLY":
+                                                        this.fnCheckFroiAttachmentWcOnly(objData, strClaimNo);
+                                                        break;
+                                                    case "VERIFYFROIINTHEEMAILSFORWC":
+                                                        this.fnVerifyFroiInTheEmailsForWc();
+                                                        break;
+                                                    case "VERIFYSSNMASKINGININTAKEREVIEWEMAILDISSEMINATIONANDFROIPDF":
+                                                        this.fnTcVerifySsnMaskingInIntakeReviewEmailDisseminationAndFroiPdf(objData, strClaimNo);
+                                                        break;
                                                     case "VERIFYPREVIEWMODE":
                                                         clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label verification starts on Submit Screen.", "Info", false, false);
                                                         if (objData.fnGetValue("ActionValues", "").ToUpper() == "TRUE" || objData.fnGetValue("ActionValues", "").ToUpper() == "YES")
@@ -2964,90 +2973,6 @@ namespace AutomationFrame_GlobalIntake.POM
             { clsReportResult.fnLog("Users Home Restriction", "The Users Home Restriction Function was not executed successfully.", "Fail", false); }
 
             return blResult;
-        }
-
-        /// <summary>
-        /// Verifies that each Force Refresh-Enabled field actually refreshes the page after its value is updated
-        /// </summary>
-        /// <param name="spreadsheetFileName"></param>
-        private void VerifyTabbingOrderInForceRefreshFields(string spreadsheetFileName)
-        {
-            // Create list of questions required for validation
-            var forceRefreshQuestionKeys = new List<string>();
-            using (var questionsSheet = new SLDocument(spreadsheetFileName, "Questions"))
-            {
-                var stats = questionsSheet.GetWorksheetStatistics();
-                for (var rowIndex = 2; rowIndex <= stats.EndRowIndex; rowIndex++)
-                {
-                    // Verify the question is enabled to forcefully refresh on value change
-                    if (questionsSheet.GetCellValueAsBoolean(rowIndex, 9))
-                    {
-                        var section = questionsSheet.GetCellValueAsString(rowIndex, 1);
-                        var question = questionsSheet.GetCellValueAsString(rowIndex, 2);
-                        forceRefreshQuestionKeys.Add($"{section}.{question}");
-                    }
-                }
-            }
-
-            forceRefreshQuestionKeys.ForEach(
-                questionKey =>
-                {
-                    var selector = CreateIntakeScreen.objQuestionXPathByQuestionKey(questionKey);
-                    IWebElement question;
-                    try
-                    {
-                        question = clsWebBrowser.objDriver.FindElement(selector);
-                    }
-                    catch (NoSuchElementException)
-                    {
-                        // Element is not present in this page
-                        return;
-                    }
-
-                    clsWebBrowser.objDriver.fnScrollToElement(question);
-                    var fields = question.FindElements(By.XPath(".//button | .//select | .//input")).Where(y => y.Enabled && y.Displayed).ToList();
-
-                    // Skip Question if it contains any button
-                    if (fields.Exists(x => x.TagName.ToUpper() == "BUTTON"))
-                    {
-                        return;
-                    }
-
-                    // Test
-                    foreach (var field in fields)
-                    {
-                        switch (field.TagName.ToUpper())
-                        {
-                            case "INPUT":
-                                var text = field.GetAttribute("inputmode") == "numeric" ? "1" : "TEST TEXT";
-                                field.SendKeys(text);
-                                clsWebBrowser.objDriver.FindElement(By.TagName("body")).SendKeys(Keys.Tab);
-                                break;
-                            case "SELECT":
-                                field.fnGetParentNode().FindElement(By.XPath(".//span[@role='combobox']")).Click();
-                                var optionValues = field.FindElements(By.TagName("option"));
-                                var valueToSelect = optionValues.First(x => !string.IsNullOrWhiteSpace(x.Text)).Text;
-                                var optionElement = clsWebBrowser.objDriver.FindElement(By.XPath($"//ul[@role='tree']/li[contains(text(), '{valueToSelect}')]"));
-                                clsWebBrowser.objDriver.fnScrollToElement(optionElement);
-                                optionElement.Click();
-                                break;
-                        }
-                        var visible = CreateIntakeScreen.fnUntilSpinnerVisible(clsMG, clsWebBrowser.objDriver);
-                        var hidden = CreateIntakeScreen.fnUntilSpinnerHidden(clsMG, clsWebBrowser.objDriver);
-                        var result = visible && hidden ? "Pass" : "Fail";
-                        clsReportResult.fnLog("Force Refresh", $"Force Refresh: Page is refreshed after changing value of '{questionKey}'.", result, true);
-                    }
-                }
-            );
-        }
-
-        private string fnGetBranchOffice(string strClientNo, string strState)
-        {
-            clsDB objDBOR = new clsDB();
-            objDBOR.fnOpenConnection(objDBOR.GetConnectionString("lltcsed1dvq-scan", "1521", "viaonei", "oferia", "P@ssw0rd#03"));
-            string strQuery = "select ex_office from viaone.cont_st_off where cont_num = '{CLIENTNO}' and data_set = 'WC' and state = '{STATE}' fetch first 1 row only";
-            var strValue = objDBOR.fnGetSingleValue(strQuery.Replace("{CLIENTNO}", strClientNo).Replace("{STATE}", strState));
-            return strValue;
         }
     }
 }

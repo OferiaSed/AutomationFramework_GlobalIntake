@@ -51,6 +51,23 @@ namespace AutomationFrame_GlobalIntake.POM
         }
 
         /// <summary>
+        /// Verify Email PDF copy was attached to email
+        /// </summary>
+        private void fnVerifyEmailPdfCopyAttachmentForWcIsReceived(clsData objData, string strClaimNo)
+        {
+            var email = fnFindWcDisseminationEmailByClaimNumber(objData, strClaimNo);
+            var success = email.Attachments.Any(
+                attachmentPath =>
+                {
+                    var froiKeywords = $"CONFIDENTIALINCIDENT{strClaimNo}";
+                    var ocrText = clsOCR.fnGetOCRText(attachmentPath).fnToSingleLineText().fnOnlyAlphanumericChars().Replace(" ", "").Replace("-", "").ToUpper();
+                    return ocrText.Contains(froiKeywords);
+                }
+            );
+            clsReportResult.fnLog("Verify Email Copy in PDF Attachment was disseminated", $"Email Copy in PDF Attachment was disseminated. Claim #{strClaimNo}.", success ? "Pass" : "Fail", false);
+        }
+
+        /// <summary>
         /// Verify Froi in the attachment of dissemination email only in the Event info
         /// </summary>
         private void fnVerifyFroiLogInDisseminationEvent(string strClaimNo)

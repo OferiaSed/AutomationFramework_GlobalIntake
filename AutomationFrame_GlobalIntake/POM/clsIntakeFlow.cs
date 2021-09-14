@@ -1962,6 +1962,9 @@ namespace AutomationFrame_GlobalIntake.POM
                                                     case "VERIFYFROIINTHEEMAILSFORWC":
                                                         this.fnVerifyFroiLogInDisseminationEvent(strClaimNo);
                                                         break;
+                                                    case "CREATEGENERATEPDFDISSEMINATION":
+                                                        this.fnVerifyEmailPdfCopyAttachmentForWcIsReceived(objData, strClaimNo);
+                                                        break;
                                                     case "VERIFYSSNMASKINGININTAKEREVIEWEMAILDISSEMINATIONANDFROIPDF":
                                                         this.fnTcVerifySsnMaskingInIntakeReviewEmailDisseminationAndFroiPdf(objData, strClaimNo);
                                                         break;

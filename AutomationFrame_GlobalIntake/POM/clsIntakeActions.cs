@@ -140,18 +140,29 @@ namespace AutomationFrame_GlobalIntake.POM
 
             // Verify SSN Mask in Attached PDF
             clsReportResult.fnLog("Info PDF SSN OCR", "Verifying PDF SSN OCR", "Info", false);
-            var ocrText = clsOCR.fnGetOCRText(email.Attachments.Single());
-            var strSsnInPdf = ocrText.fnTextBetween(
-                "NAME (LAST, FIRST, MIDDLE) DATE OF BIRTH SOCIAL SECURITY NUMBER | DATE HIRED STATE OF HIRE",
-                "ADDRESS (INCL ZIP) SEX MARITAL STATUS OCCUPATION/JOB TITLE"
-            ).Split(' ').SingleOrDefault(x => x.Contains("-") && x.Length == 11);
-            var blSsnFound = !string.IsNullOrEmpty(ssnInEmail);
+            if (email.Attachments.Count > 0)
+            {
+                /*var ocrText = clsOCR.fnGetOCRText(email.Attachments.Single());
+                var strSsnInPdf = ocrText.fnTextBetween(
+                    "SOCIAL SECURITY NUMBER",
+                    "ADDRESS (INCL ZIP)"
+                ).Split(' ').SingleOrDefault(x => x.Contains("-") && x.Length == 11);*/
 
-            clsReportResult.fnLog(
-                "Check SSN in pdf", $"SSN in pdf must be masked: {(blSsnFound ? strSsnInPdf : "SSN not found in pdf")}",
-                (ssnInEmail != null ? ssnInEmail.Contains(clsConstants.ssnMask) : false) ? "Pass" : "Fail",
-                false
-            );
+                var ocrText = clsOCR.fnGetOCRText(email.Attachments.Single());
+                var strSsnInPdf = ocrText.fnTextBetween("SOCIAL SECURITY NUMBER","ADDRESS (INCL ZIP)");
+                var blSsnFound = strSsnInPdf.Contains(clsConstants.ssnMask);
+
+                clsReportResult.fnLog(
+                    "Check SSN in pdf", $"SSN in pdf must be masked: {(blSsnFound ? strSsnInPdf.Substring(strSsnInPdf.IndexOf("XXX-"), 11) : "SSN not found in pdf")}",
+                    (ssnInEmail != null ? ssnInEmail.Contains(clsConstants.ssnMask) : false) ? "Pass" : "Fail",
+                    false
+                );
+            }
+            else 
+            {
+                clsReportResult.fnLog("Info Email SSN", "The email does not have attachments to review.", "Fail", false);
+            }
+            
         }
 
         /// <summary>
@@ -237,5 +248,38 @@ namespace AutomationFrame_GlobalIntake.POM
             var strValue = objDBOR.fnGetSingleValue(strQuery.Replace("{CLIENTNO}", strClientNo).Replace("{STATE}", strState));
             return strValue;
         }
+
+        private void fnVerifyOneTeamIntakeFlow(clsData pobjData) 
+        {
+            var oneTeamDisplayed = clsMG.fnGenericWait(() => clsMG.IsElementPresent("//a[@id='NavOption_ONETEAM_MANDATORY_CHECK']"), TimeSpan.FromSeconds(1), 5);
+            if (oneTeamDisplayed)
+            {
+                clsWE.fnClick(clsWE.fnGetWe("//a[@id='NavOption_ONETEAM_MANDATORY_CHECK']"), "One Team Menu", false);
+                clsMG.fnCleanAndEnterText("One Tea, Callback Number", "//div[span[text()='Callback Phone Number']]//input", pobjData.fnGetValue("OneTeamCallback", ""), false, false, "", false);
+                clsWE.fnClick(clsWE.fnGetWe("//button[span[text()='Send']]"), "Send One Team", false);
+                var oneTeamSubmitted = clsMG.fnGenericWait(() => clsMG.IsElementPresent("//span[text()='Demographic data successfully sent to OneTeam']"), TimeSpan.FromSeconds(1), 5);
+                if (oneTeamSubmitted)
+                {
+                    clsReportResult.fnLog("Verify OneTeam Submition", "The OneTeam Submit was done successfully.", "Pass", true);
+                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strWorkPhoneNumber), TimeSpan.FromSeconds(1), 5);
+                    clsMG.fnCleanAndEnterText("Contact Work Phone", CreateIntakeScreen.strWorkPhoneNumber, pobjData.fnGetValue("ContactWorkPhone", ""), false, false, "", true);
+                    clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false, false);
+                    clsMG.fnCleanAndEnterText("Employee Best Contact Number", CreateIntakeScreen.strEmployeeBestContactNumber, pobjData.fnGetValue("EmployeeBestContactNumber", ""), false, false, "", true);
+                    clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false, false);
+                }
+                else
+                {
+                    clsReportResult.fnLog("Verify OneTeam Submition", "The OneTeam was not submitted on intake screen.", "Fail", true);
+                }
+            }
+            else 
+            {
+                clsReportResult.fnLog("Verify OneTeam flow", "The OneTeam menu should be displayed but was not found", "Fail", true);
+            }
+        }
+
+
+
+
     }
 }

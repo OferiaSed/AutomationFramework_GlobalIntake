@@ -1797,12 +1797,22 @@ namespace AutomationFrame_GlobalIntake.POM
                                         case "VERIFYSSNMASKINGININTAKEREVIEWEMAILDISSEMINATIONANDFROIPDF":
                                             this.fnVerifySsnMaskedInCreateIntakeScreen();
                                             break;
+                                        case "VERIFYONETEAMFORM":
+                                            this.fnVerifyOneTeamIntakeFlow(objData);
+                                            break;
                                         case "FILLDATA":
                                             clsWebBrowser.objDriver.FindElement(By.TagName("body")).SendKeys(Keys.Escape);
                                             //Reporter First Name
                                             clsMG.fnCleanAndEnterText("First Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterFN", ""), false, false, "", false);
                                             //Reporter Last Name
                                             clsMG.fnCleanAndEnterText("Last Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='Last Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterLN", ""), false, false, "", false);
+                                            //Was The Call Transferred From A Nurse?
+                                            clsMG.fnSelectDropDownWElm("Was The Call Transferred From A Nurse?", "//div[@class='row' and div[span[contains(text(), 'Was The Call Transferred From A Nurse?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("WasTheCallTransferredFromANurse", ""), false, false);
+                                            //Is The Employee Present?
+                                            clsMG.fnSelectDropDownWElm("Is The Employee Present?", "//div[@class='row' and div[span[contains(text(), 'Is The Employee Present?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IsTheEmployeePresent", ""), false, false);
+                                            //Has The Employee Been Treated?
+                                            clsMG.fnSelectDropDownWElm("Has The Employee Been Treated?", "//div[@class='row' and div[span[contains(text(), 'Has The Employee Been Treated?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("HasTheEmployeeBeenTreated", ""), false, false);
+
                                             //Is This The Loss Location? 
                                             clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[@class='row' and div[span[contains(text(), 'Is This The Loss Location?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IsTheSameLoc", ""), false, false);
 
@@ -1837,6 +1847,26 @@ namespace AutomationFrame_GlobalIntake.POM
                                             clsMG.fnCleanAndEnterText("Employee First Name", "//div[contains(@question-key, 'EMPLOYEE_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployeeFN", ""), false, false, "", true);
                                             //Employee Last Name
                                             clsMG.fnCleanAndEnterText("Employee Last Name", "//div[contains(@question-key, 'EMPLOYEE_INFORMATION')]//div[@class='row' and div[span[text()='Last Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployeeLN", ""), false, false, "", true);
+
+                                            //Non Standard Address Checkbox
+                                            if (objData.fnGetValue("EmpoloyeeLocationNonStandardAddress", "").ToUpper() == "TRUE" || objData.fnGetValue("EmpoloyeeLocationNonStandardAddress", "").ToUpper() == "YES")
+                                            {
+                                                var EEnonStandardAddressCheckbox = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeScreen.strEmployeeLocNonStandardAddress));
+                                                clsWebBrowser.objDriver.fnScrollToElement(EEnonStandardAddressCheckbox);
+                                                EEnonStandardAddressCheckbox.Click();
+                                            }
+                                            //Address Line 1
+                                            clsMG.fnCleanAndEnterText("Empoloyee Location Address Line 1", CreateIntakeScreen.strEmployeeLocddress1, objData.fnGetValue("EmpoloyeeLocAddress1", ""));
+                                            //Zip Code
+                                            clsMG.fnCleanAndEnterText("Empoloyee Location Zip Code", CreateIntakeScreen.strEmployeeLocZipCode, objData.fnGetValue("EmpoloyeeLocZipCode", ""));
+                                            //City
+                                            clsMG.fnCleanAndEnterText("Empoloyee Location City", CreateIntakeScreen.strEmployeeLocCity, objData.fnGetValue("EmpoloyeeLocCity", ""));
+                                            //Country
+                                            clsMG.fnSelectDropDownWElm("Empoloyee Location Country", CreateIntakeScreen.strEmployeeLocCountrySelector, objData.fnGetValue("EmpoloyeeLocCountry", ""), false, false);
+                                            //State
+                                            clsMG.fnSelectDropDownWElm("Empoloyee Location State", CreateIntakeScreen.strEmployeeLocStateSelector, objData.fnGetValue("EmpoloyeeLocState", ""), false, false);
+
+
                                             //SSN
                                             clsMG.fnCleanAndEnterText("SSN", "//div[contains(@question-key, 'EMPLOYEE_INFORMATION')]//div[@class='row' and div[span[text()='SSN']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("SSN", ""), false, false, "", true);
                                             //Do You Expect The Team Member To Lose Time From Work?

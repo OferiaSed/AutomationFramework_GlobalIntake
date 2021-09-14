@@ -46,7 +46,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             switch (action.ToUpper())
                             {
                                 case "VERIFYRESENDBUTTON":
-                                    if (!fnVerifyDissemination("Details", objData.fnGetValue("FilterResults", ""), "Failure for DisseminationInstance Id")) { blResult = false; }
+                                    if (!fnVerifyDissemination("Details", objData.fnGetValue("FilterResults", ""), objData.fnGetValue("ActionValue", ""))) { blResult = false; }
                                     clsConstants.strTempClaimNo = "";
                                     //Verify Resend Button
                                     clsWE.fnClick(clsWE.fnGetWe(DisseminationModel.strRowCheckbox), "Checkbox Button", false, false);
@@ -77,17 +77,21 @@ namespace AutomationFrame_GlobalIntake.POM
                                     }
                                     break;
                                 case "VERIFYJURISDISSEMINATION":
-                                    if (!fnVerifyDissemination("Details", objData.fnGetValue("FilterResults", ""), "Success for DisseminationInstance")) { blResult = false; }
+                                    if (!fnVerifyDissemination("Details", objData.fnGetValue("FilterResults", ""), objData.fnGetValue("ActionValue", ""))) { blResult = false; }
                                     clsConstants.strTempClaimNo = "";
                                     break;
                                 case "VERIFYESCALATIONEMAIL":
-                                    if (!fnVerifyDissemination("Content", objData.fnGetValue("FilterResults", ""), "Subject: Escalated")) { blResult = false; }
+                                    if (!fnVerifyDissemination("Content", objData.fnGetValue("FilterResults", ""), objData.fnGetValue("ActionValue", ""))) { blResult = false; }
                                     clsConstants.strTempClaimNo = "";
                                     break;
                                 case "VERIFYEMAILOFFICENUMBER":
                                     if (!fnVerifyDissemination("Details", objData.fnGetValue("FilterResults", ""), clsConstants.strOfficeEmail)) { blResult = false; }
                                     clsConstants.strTempClaimNo = "";
                                     clsConstants.strOfficeEmail = "";
+                                    break;
+                                case "VERIFYONETEAMDISSEMINATION":
+                                    if (!fnVerifyDissemination("Details", objData.fnGetValue("FilterResults", ""), objData.fnGetValue("ActionValue", ""))) { blResult = false; }
+                                    clsConstants.strTempClaimNo = "";
                                     break;
                                 case "SEARCH":
                                     clsWE.fnClick(clsWE.fnGetWe(DisseminationModel.strSearchButton), "Search Button", false, false);

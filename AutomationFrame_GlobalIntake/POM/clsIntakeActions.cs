@@ -261,10 +261,10 @@ namespace AutomationFrame_GlobalIntake.POM
                 if (oneTeamSubmitted)
                 {
                     clsReportResult.fnLog("Verify OneTeam Submition", "The OneTeam Submit was done successfully.", "Pass", true);
-                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strWorkPhoneNumber), TimeSpan.FromSeconds(1), 5);
-                    clsMG.fnCleanAndEnterText("Contact Work Phone", CreateIntakeScreen.strWorkPhoneNumber, pobjData.fnGetValue("ContactWorkPhone", ""), false, false, "", true);
+                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeModel.strWorkPhoneNumber), TimeSpan.FromSeconds(1), 5);
+                    clsMG.fnCleanAndEnterText("Contact Work Phone", CreateIntakeModel.strWorkPhoneNumber, pobjData.fnGetValue("ContactWorkPhone", ""), false, false, "", true);
                     clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false, false);
-                    clsMG.fnCleanAndEnterText("Employee Best Contact Number", CreateIntakeScreen.strEmployeeBestContactNumber, pobjData.fnGetValue("EmployeeBestContactNumber", ""), false, false, "", true);
+                    clsMG.fnCleanAndEnterText("Employee Best Contact Number", CreateIntakeModel.strEmployeeBestContactNumber, pobjData.fnGetValue("EmployeeBestContactNumber", ""), false, false, "", true);
                     clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false, false);
                 }
                 else

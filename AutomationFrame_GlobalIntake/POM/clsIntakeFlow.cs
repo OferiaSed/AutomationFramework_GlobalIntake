@@ -1776,7 +1776,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                                 clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[@class='row' and div[span[contains(text(), 'Is This The Loss Location?')]]]//span[@class='select2-selection select2-selection--single']", "No", false, false);
                                                 Thread.Sleep(TimeSpan.FromSeconds(2));
                                                 var LLAddress1 = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strLossLocddress1), "Loss Location Address 1", "value", false);
-                                                var LLZipCode = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.stsLossLocZipCode), "Loss Location Zip Code", "value", false);
+                                                var LLZipCode = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strLossLocZipCode), "Loss Location Zip Code", "value", false);
                                                 var LLCity = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strLossLocCity), "Loss Location City", "value", false);
                                                 if (EEAddress1 != LLAddress1 && EECity != LLCity && EEZipCode != LLZipCode)
                                                 {
@@ -1795,7 +1795,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             }
                                             break;
                                         case "VERIFYSSNMASKINGININTAKEREVIEWEMAILDISSEMINATIONANDFROIPDF":
-                                            this.fnVerifySsnMaskedInCreateIntakeScreen();
+                                            this.fnVerifySsnMaskedInCreateIntakeModel();
                                             break;
                                         case "VERIFYONETEAMFORM":
                                             this.fnVerifyOneTeamIntakeFlow(objData);
@@ -1829,7 +1829,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             //Address Line 1
                                             clsMG.fnCleanAndEnterText("Loss Location Address Line 1", CreateIntakeModel.strLossLocddress1, objData.fnGetValue("LossLocAddress1", ""));
                                             //Zip Code
-                                            clsMG.fnCleanAndEnterText("Loss Location Zip Code", CreateIntakeModel.stsLossLocZipCode, objData.fnGetValue("LossLocZipCode", ""));
+                                            clsMG.fnCleanAndEnterText("Loss Location Zip Code", CreateIntakeModel.strLossLocZipCode, objData.fnGetValue("LossLocZipCode", ""));
                                             //City
                                             clsMG.fnCleanAndEnterText("Loss Location City", CreateIntakeModel.strLossLocCity, objData.fnGetValue("LossLocCity", ""));
                                             //Country
@@ -1851,20 +1851,20 @@ namespace AutomationFrame_GlobalIntake.POM
                                             //Non Standard Address Checkbox
                                             if (objData.fnGetValue("EmpoloyeeLocationNonStandardAddress", "").ToUpper() == "TRUE" || objData.fnGetValue("EmpoloyeeLocationNonStandardAddress", "").ToUpper() == "YES")
                                             {
-                                                var EEnonStandardAddressCheckbox = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeScreen.strEmployeeLocNonStandardAddress));
+                                                var EEnonStandardAddressCheckbox = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeModel.strEmployeeLocNonStandardAddress));
                                                 clsWebBrowser.objDriver.fnScrollToElement(EEnonStandardAddressCheckbox);
                                                 EEnonStandardAddressCheckbox.Click();
                                             }
                                             //Address Line 1
-                                            clsMG.fnCleanAndEnterText("Empoloyee Location Address Line 1", CreateIntakeScreen.strEmployeeLocddress1, objData.fnGetValue("EmpoloyeeLocAddress1", ""));
+                                            clsMG.fnCleanAndEnterText("Empoloyee Location Address Line 1", CreateIntakeModel.strEmployeeLocddress1, objData.fnGetValue("EmpoloyeeLocAddress1", ""));
                                             //Zip Code
-                                            clsMG.fnCleanAndEnterText("Empoloyee Location Zip Code", CreateIntakeScreen.strEmployeeLocZipCode, objData.fnGetValue("EmpoloyeeLocZipCode", ""));
+                                            clsMG.fnCleanAndEnterText("Empoloyee Location Zip Code", CreateIntakeModel.strEmployeeLocZipCode, objData.fnGetValue("EmpoloyeeLocZipCode", ""));
                                             //City
-                                            clsMG.fnCleanAndEnterText("Empoloyee Location City", CreateIntakeScreen.strEmployeeLocCity, objData.fnGetValue("EmpoloyeeLocCity", ""));
+                                            clsMG.fnCleanAndEnterText("Empoloyee Location City", CreateIntakeModel.strEmployeeLocCity, objData.fnGetValue("EmpoloyeeLocCity", ""));
                                             //Country
-                                            clsMG.fnSelectDropDownWElm("Empoloyee Location Country", CreateIntakeScreen.strEmployeeLocCountrySelector, objData.fnGetValue("EmpoloyeeLocCountry", ""), false, false);
+                                            clsMG.fnSelectDropDownWElm("Empoloyee Location Country", CreateIntakeModel.strEmployeeLocCountrySelector, objData.fnGetValue("EmpoloyeeLocCountry", ""), false, false);
                                             //State
-                                            clsMG.fnSelectDropDownWElm("Empoloyee Location State", CreateIntakeScreen.strEmployeeLocStateSelector, objData.fnGetValue("EmpoloyeeLocState", ""), false, false);
+                                            clsMG.fnSelectDropDownWElm("Empoloyee Location State", CreateIntakeModel.strEmployeeLocStateSelector, objData.fnGetValue("EmpoloyeeLocState", ""), false, false);
 
 
                                             //SSN
@@ -1913,7 +1913,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                                 case "VERIFYSSNMASKINGININTAKEREVIEWEMAILDISSEMINATIONANDFROIPDF":
                                                     this.fnVerifySsnMaskedInReviewIntakeScreen();
                                                     this.reviewIntakeScreen.ClickEditFieldValue("SSN");
-                                                    this.fnVerifySsnMaskedInCreateIntakeScreen();
+                                                    this.fnVerifySsnMaskedInCreateIntakeModel();
                                                     clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Next')]"), "Next Button", false, false);
                                                     clsMG.IsElementPresent("//*[@class='col-md-8 secondary-red']");
                                                     break;
@@ -2749,7 +2749,7 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
-        public void fnVerifySsnMaskedInCreateIntakeScreen()
+        public void fnVerifySsnMaskedInCreateIntakeModel()
         {
             var driver = clsWebBrowser.objDriver;
             var jsExecutor = (IJavaScriptExecutor)driver;

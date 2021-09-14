@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutomationFrame_GlobalIntake.POM;
 using OpenQA.Selenium;
 
 namespace AutomationFrame_GlobalIntake.Models
 {
-    public class CreateIntakeScreen : clsBasePageModel
+    public class CreateIntakeModel : BasePageModel
     {
-        public CreateIntakeScreen(IWebDriver driver) : base(driver)
+        public CreateIntakeModel(IWebDriver driver, clsMegaIntake clsMG) : base(driver, clsMG)
         {
 
         }
@@ -97,16 +98,26 @@ namespace AutomationFrame_GlobalIntake.Models
         public static string strLossLocName = $"{strQuestionXPathByQuestionKey("LOSS_LOCATION.CLAIM_LOSS_LOCATION_NAME")}//input";
         public static string strLossLocNonStandardAddress = $"{strQuestionXPathByQuestionKey("LOSS_LOCATION.CLAIM_LOSS_LOCATION_ADDRESS")}//input[@type='checkbox']";
         public static string strLossLocddress1 = "//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[@placeholder='Address Line 1']";
-        public static string stsLossLocZipCode = "//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[@placeholder='Zip Code']";
+        public static string strLossLocZipCode = "//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[@placeholder='Zip Code']";
         public static string strLossLocCity = "//div[@id='address_CLAIM_LOSS_LOCATION_ADDRESS']//input[@placeholder='City']";
         public static string strLossLocCountrySelector = "(//div[contains(@class, 'question-row') and @question-key='LOSS_LOCATION.CLAIM_LOSS_LOCATION_ADDRESS']//span[@class='select2-selection__rendered'])[1]";
         public static string strLossLocStateSelector = "(//div[contains(@class, 'question-row') and @question-key='LOSS_LOCATION.CLAIM_LOSS_LOCATION_ADDRESS']//span[@class='select2-selection__rendered'])[1]";
+
+        //Employee Location Information
+        public static string strEmployeeLocNonStandardAddress = $"{strQuestionXPathByQuestionKey("EMPLOYEE_INFORMATION.CLAIM_EMPLOYEE_ADDRESS")}//input[@type='checkbox']";
+        public static string strEmployeeLocddress1 = $"{strQuestionXPathByQuestionKey("EMPLOYEE_INFORMATION.CLAIM_EMPLOYEE_ADDRESS")}//input[@placeholder='Address Line 1']";
+        public static string strEmployeeLocZipCode = $"{strQuestionXPathByQuestionKey("EMPLOYEE_INFORMATION.CLAIM_EMPLOYEE_ADDRESS")}//input[@placeholder='Zip Code']";
+        public static string strEmployeeLocCity = $"{strQuestionXPathByQuestionKey("EMPLOYEE_INFORMATION.CLAIM_EMPLOYEE_ADDRESS")}//input[@placeholder='City']";
+        public static string strEmployeeLocCountrySelector = $"({strQuestionXPathByQuestionKey("EMPLOYEE_INFORMATION.CLAIM_EMPLOYEE_ADDRESS")}//span[@class='select2-selection__rendered'])[1]";
+        public static string strEmployeeLocStateSelector = $"({strQuestionXPathByQuestionKey("EMPLOYEE_INFORMATION.CLAIM_EMPLOYEE_ADDRESS")}//span[@class='select2-selection__rendered'])[1]";
+
 
         //Employement Information
         public static string strClaimEmployeeMissWorkBeyondShifFlag = $"{strQuestionXPathByQuestionKey("EMPLOYMENT_INFORMATION.CLAIM_EMPLOYEE_MISS_WORK_BEYOND_SHIFT_FLG")}//span[@class='select2-selection select2-selection--single']";
 
         //Contact Information
         public static string strWorkPhoneNumber = $"{strQuestionXPathByQuestionKey("CONTACT_INFORMATION.CONTACT_PHONE_WORK")}//input";
+        public static string strEmployeeBestContactNumber = $"{strQuestionXPathByQuestionKey("CONTACT_INFORMATION.CLAIM_CC_BEST_CONTACT_PHONE")}//input";
 
         //Lost Time Information
         public static string strEmployeeReturnedToWork = $"{strQuestionXPathByQuestionKey("LOST_TIME_INFORMATION.CLAIM_EMPLOYEE_RTW_FLG")}//span[@class='select2-selection select2-selection--single']";

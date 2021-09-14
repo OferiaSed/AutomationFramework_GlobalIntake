@@ -36,7 +36,7 @@ namespace AutomationFrame_GlobalIntake.POM
         /// <summary>
         /// Verify Froi in the attachment of dissemination email 
         /// </summary>
-        private void fnCheckFroiAttachmentWcOnly(clsData objData, string strClaimNo)
+        private void fnVerifyFroiAttachmentForWcIsReceived(clsData objData, string strClaimNo)
         {
             var email = fnFindWcDisseminationEmailByClaimNumber(objData, strClaimNo);
             var success = email.Attachments.Any(
@@ -51,11 +51,66 @@ namespace AutomationFrame_GlobalIntake.POM
         }
 
         /// <summary>
+        /// Verify Email PDF copy was attached to email
+        /// </summary>
+        private void fnVerifyEmailPdfCopyAttachmentForWcIsReceived(clsData objData, string strClaimNo)
+        {
+            var email = fnFindWcDisseminationEmailByClaimNumber(objData, strClaimNo);
+            var success = email.Attachments.Any(
+                attachmentPath =>
+                {
+                    var keywords = $"CONFIDENTIALINCIDENT{strClaimNo}";
+                    var thanksNote = "THANKYOUFORREPORTINGTHISCLAIMTOSEDGWICKBELOWPLEASEFINDAREPORTOFTHEWORKERSCOMPENSATIONCLAIMTHATWASRECENTLYREPORTEDIFTHEINJURYRESULTSINANABSENCEFROMWORKYOUMUSTADVISETHEEMPLOYEETOALSOIMMEDIATELYCONTACTYOURBRANDSLEAVEADMINISTRATORTOSUBMITAFAMILYANDMEDICALLEAVEACTFMLACLAIM";
+                    var ocrText = clsOCR.fnGetOCRText(attachmentPath).fnToSingleLineText().fnOnlyAlphanumericChars().Replace(" ", "").Replace("-", "").ToUpper();
+                    return ocrText.Contains(keywords) && ocrText.Contains(thanksNote);
+                }
+            );
+            clsReportResult.fnLog("Verify Email Copy in PDF Attachment was disseminated", $"Email Copy in PDF Attachment was disseminated. Claim #{strClaimNo}.", success ? "Pass" : "Fail", false);
+        }
+
+        /// <summary>
         /// Verify Froi in the attachment of dissemination email only in the Event info
         /// </summary>
-        private void fnVerifyFroiInTheEmailsForWc()
+        private void fnVerifyFroiLogInDisseminationEvent(string strClaimNo)
         {
+            clsReportResult.fnLog(
+                "Step - Verify Dissemination Event logs",
+                $"Step - Verify Dissemination Event logs for Claim No. {strClaimNo}",
+                "Info",
+                false
+            );
 
+            var searchIntakePage = new SearchIntakeModel(clsWebBrowser.objDriver, clsMG);
+
+            //Search and open intake
+            reviewIntakeScreen.NavigateToSearchCalls();
+            searchIntakePage.SearchIntakeByClaimNumber(strClaimNo);
+            searchIntakePage.OpenIntakeDetailsByClaimNumber(strClaimNo);
+
+            //Go to Event Section
+            clsMG.fnGenericWait(() => clsUtils.fnIsElementVisible(SearchIntakeModel.objEventSectionSelector, clsWebBrowser.objDriver), TimeSpan.Zero, 5);
+            var eventSection = clsWebBrowser.objDriver.FindElement(SearchIntakeModel.objEventSectionSelector);
+            clsWebBrowser.objDriver.fnScrollToElement(eventSection);
+
+            //Find Attachment Dissemination Logs
+            var expandDetailsButtons = eventSection.FindElements(By.XPath(".//i"));
+            expandDetailsButtons.Take(2).ToList().ForEach(
+                details =>
+                {
+                    clsWebBrowser.objDriver.fnScrollToElement(details);
+                    details.Click();
+                }
+            );
+            var attachmentDisseminationMessageSelector = By.XPath($".//div[contains(text(), '.pdf was successfully sent to the TDS.') and contains(text(),'{strClaimNo}')]");
+            var count = eventSection.FindElements(attachmentDisseminationMessageSelector).Count;
+
+            // Assert two logs were found
+            clsReportResult.fnLog(
+                "Attachment Dissemination Showed in Post-Submission Event info",
+                $"Attachment Dissemination Done for Claim No. '{strClaimNo}'",
+                count == 2 ? "Pass" : "Fail",
+                true
+            );
         }
 
 
@@ -73,8 +128,8 @@ namespace AutomationFrame_GlobalIntake.POM
             var ssnInEmail = email.fnGetContentAsString(
                 "",
                 "",
-                CreateIntakeScreen.strHTMLEmailSSNDelimiterStart,
-                CreateIntakeScreen.strHTMLEmailSSNDelimiterEnd
+                CreateIntakeModel.strHTMLEmailSSNDelimiterStart,
+                CreateIntakeModel.strHTMLEmailSSNDelimiterEnd
             );
 
             clsReportResult.fnLog(
@@ -136,7 +191,7 @@ namespace AutomationFrame_GlobalIntake.POM
             forceRefreshQuestionKeys.ForEach(
                 questionKey =>
                 {
-                    var selector = CreateIntakeScreen.objQuestionXPathByQuestionKey(questionKey);
+                    var selector = CreateIntakeModel.objQuestionXPathByQuestionKey(questionKey);
                     IWebElement question;
                     try
                     {
@@ -176,8 +231,8 @@ namespace AutomationFrame_GlobalIntake.POM
                                 optionElement.Click();
                                 break;
                         }
-                        var visible = CreateIntakeScreen.fnUntilSpinnerVisible(clsMG, clsWebBrowser.objDriver);
-                        var hidden = CreateIntakeScreen.fnUntilSpinnerHidden(clsMG, clsWebBrowser.objDriver);
+                        var visible = reviewIntakeScreen.fnUntilSpinnerVisible();
+                        var hidden = reviewIntakeScreen.fnUntilSpinnerHidden();
                         var result = visible && hidden ? "Pass" : "Fail";
                         clsReportResult.fnLog("Force Refresh", $"Force Refresh: Page is refreshed after changing value of '{questionKey}'.", result, true);
                     }
@@ -206,10 +261,10 @@ namespace AutomationFrame_GlobalIntake.POM
                 if (oneTeamSubmitted)
                 {
                     clsReportResult.fnLog("Verify OneTeam Submition", "The OneTeam Submit was done successfully.", "Pass", true);
-                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strWorkPhoneNumber), TimeSpan.FromSeconds(1), 5);
-                    clsMG.fnCleanAndEnterText("Contact Work Phone", CreateIntakeScreen.strWorkPhoneNumber, pobjData.fnGetValue("ContactWorkPhone", ""), false, false, "", true);
+                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeModel.strWorkPhoneNumber), TimeSpan.FromSeconds(1), 5);
+                    clsMG.fnCleanAndEnterText("Contact Work Phone", CreateIntakeModel.strWorkPhoneNumber, pobjData.fnGetValue("ContactWorkPhone", ""), false, false, "", true);
                     clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false, false);
-                    clsMG.fnCleanAndEnterText("Employee Best Contact Number", CreateIntakeScreen.strEmployeeBestContactNumber, pobjData.fnGetValue("EmployeeBestContactNumber", ""), false, false, "", true);
+                    clsMG.fnCleanAndEnterText("Employee Best Contact Number", CreateIntakeModel.strEmployeeBestContactNumber, pobjData.fnGetValue("EmployeeBestContactNumber", ""), false, false, "", true);
                     clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false, false);
                 }
                 else

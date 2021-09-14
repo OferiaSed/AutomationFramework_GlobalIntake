@@ -18,9 +18,9 @@ namespace AutomationFrame_GlobalIntake.POM
 {
     public partial class clsIntakeFlow
     {
-        private readonly clsMegaIntake clsMG = new clsMegaIntake();
+        private static clsMegaIntake clsMG = new clsMegaIntake();
         private readonly clsWebElements clsWE = new clsWebElements();
-        private ReviewIntakeScreen reviewIntakeScreen = new ReviewIntakeScreen(clsWebBrowser.objDriver);
+        private ReviewIntakeModel reviewIntakeScreen = new ReviewIntakeModel(clsWebBrowser.objDriver, clsMG);
 
         public bool fnSelectClientPopup(string pstrClientNumber, string pstrClientName)
         {
@@ -1373,30 +1373,30 @@ namespace AutomationFrame_GlobalIntake.POM
                                     {
                                         case "VERIFYRESUMEINTAKE":
                                             clsReportResult.fnLog("Verify Resume Intake", "The Resume Intake Verification starts.", "Info", false, false);
-                                            clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strResumeIntakeButton), "Resume Button", false, false);
-                                            var OpenResumePopup = clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strCancelPopup), TimeSpan.FromSeconds(1), 10);
+                                            clsWE.fnClick(clsWE.fnGetWe(CreateIntakeModel.strResumeIntakeButton), "Resume Button", false, false);
+                                            var OpenResumePopup = clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeModel.strCancelPopup), TimeSpan.FromSeconds(1), 10);
                                             if (OpenResumePopup)
                                             {
                                                 //Resume Intake
                                                 var valueList = objData.fnGetValue("ActionValues").Split(';').ToList();
-                                                clsMG.fnSelectDropDownWElm("Resume Reson", CreateIntakeScreen.strResumeReasonDropdown, valueList.ElementAt(0), false, false, "", false);
-                                                clsMG.fnCleanAndEnterText("Resume Description", CreateIntakeScreen.strCancelDescriptionInput, valueList.ElementAt(1), false, false, "", false);
-                                                clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strConfirmCancelButton), "Confirm Button", true, false);
-                                                var OpenDashboard = clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strDashboard), TimeSpan.FromSeconds(1), 10);
+                                                clsMG.fnSelectDropDownWElm("Resume Reson", CreateIntakeModel.strResumeReasonDropdown, valueList.ElementAt(0), false, false, "", false);
+                                                clsMG.fnCleanAndEnterText("Resume Description", CreateIntakeModel.strCancelDescriptionInput, valueList.ElementAt(1), false, false, "", false);
+                                                clsWE.fnClick(clsWE.fnGetWe(CreateIntakeModel.strConfirmCancelButton), "Confirm Button", true, false);
+                                                var OpenDashboard = clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeModel.strDashboard), TimeSpan.FromSeconds(1), 10);
                                                 if (OpenDashboard)
                                                 {
                                                     var strCurrentDate = DateTime.Today.ToString("MM/dd/yyyy");
-                                                    var strRowSelected = CreateIntakeScreen.strResumeRow.Replace("{CLIENT}", objData.fnGetValue("ClientName", "")).Replace("{REASON}", valueList.ElementAt(0)).Replace("{DATE}", strCurrentDate);
-                                                    clsMG.fnCleanAndEnterText("Filter Results", CreateIntakeScreen.strFilterResults, valueList.ElementAt(0), true, false, "", false);
+                                                    var strRowSelected = CreateIntakeModel.strResumeRow.Replace("{CLIENT}", objData.fnGetValue("ClientName", "")).Replace("{REASON}", valueList.ElementAt(0)).Replace("{DATE}", strCurrentDate);
+                                                    clsMG.fnCleanAndEnterText("Filter Results", CreateIntakeModel.strFilterResults, valueList.ElementAt(0), true, false, "", false);
                                                     clsMG.fnGenericWait(() => clsMG.IsElementPresent(strRowSelected), TimeSpan.FromSeconds(1), 5);
                                                     if (clsMG.IsElementPresent(strRowSelected))
                                                     {
                                                         clsReportResult.fnLog("Resume Intake Verification", "The Resume claim was found in the home grid as expected.", "Pass", true, false);
                                                         clsWE.fnClick(clsWE.fnGetWe(strRowSelected), "Open Cancelled Row", false, false);
                                                         //Mark as deleted the claim
-                                                        clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strDeleteClaimLink), "Delete Claim", true, false);
-                                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strDeletePopup), TimeSpan.FromSeconds(1), 5);
-                                                        clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strConfirmDelete), "Confirm Delete", true, false);
+                                                        clsWE.fnClick(clsWE.fnGetWe(CreateIntakeModel.strDeleteClaimLink), "Delete Claim", true, false);
+                                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeModel.strDeletePopup), TimeSpan.FromSeconds(1), 5);
+                                                        clsWE.fnClick(clsWE.fnGetWe(CreateIntakeModel.strConfirmDelete), "Confirm Delete", true, false);
                                                     }
                                                     else
                                                     {
@@ -1418,51 +1418,51 @@ namespace AutomationFrame_GlobalIntake.POM
                                             break;
                                         case "VERIFYCANCELINTAKE":
                                             clsReportResult.fnLog("Verify Cancel Action", "The Cancel Intake Verification starts.", "Info", false, false);
-                                            clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strCancelButtonIntake), "Cancel Button", false, false);
-                                            var OpenCancelPopup = clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strCancelPopup), TimeSpan.FromSeconds(1), 10);
+                                            clsWE.fnClick(clsWE.fnGetWe(CreateIntakeModel.strCancelButtonIntake), "Cancel Button", false, false);
+                                            var OpenCancelPopup = clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeModel.strCancelPopup), TimeSpan.FromSeconds(1), 10);
                                             if (OpenCancelPopup)
                                             {
                                                 //Cancel Intake
                                                 var valueList = objData.fnGetValue("ActionValues").Split(';').ToList();
-                                                clsMG.fnSelectDropDownWElm("Cancel Reson", CreateIntakeScreen.strCancelReasonDropdown, valueList.ElementAt(0), false, false, "", false);
-                                                clsMG.fnCleanAndEnterText("Cancel Description", CreateIntakeScreen.strCancelDescriptionInput, valueList.ElementAt(1), false, false, "", false);
-                                                clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strConfirmCancelButton), "Confirm Button", true, false);
+                                                clsMG.fnSelectDropDownWElm("Cancel Reson", CreateIntakeModel.strCancelReasonDropdown, valueList.ElementAt(0), false, false, "", false);
+                                                clsMG.fnCleanAndEnterText("Cancel Description", CreateIntakeModel.strCancelDescriptionInput, valueList.ElementAt(1), false, false, "", false);
+                                                clsWE.fnClick(clsWE.fnGetWe(CreateIntakeModel.strConfirmCancelButton), "Confirm Button", true, false);
                                                 //Verify if Dashboard is loaded
-                                                var OpenDashboard = clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strDashboard), TimeSpan.FromSeconds(1), 10);
+                                                var OpenDashboard = clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeModel.strDashboard), TimeSpan.FromSeconds(1), 10);
                                                 if (OpenDashboard)
                                                 {
-                                                    var strRowSelected = CreateIntakeScreen.strCanceledRow.Replace("{CLIENT}", objData.fnGetValue("ClientName", "")).Replace("{REASON}", valueList.ElementAt(0));
-                                                    clsMG.fnCleanAndEnterText("Filter Results", CreateIntakeScreen.strFilterResults, valueList.ElementAt(0), true, false, "", false);
+                                                    var strRowSelected = CreateIntakeModel.strCanceledRow.Replace("{CLIENT}", objData.fnGetValue("ClientName", "")).Replace("{REASON}", valueList.ElementAt(0));
+                                                    clsMG.fnCleanAndEnterText("Filter Results", CreateIntakeModel.strFilterResults, valueList.ElementAt(0), true, false, "", false);
                                                     clsMG.fnGenericWait(() => clsMG.IsElementPresent(strRowSelected), TimeSpan.FromSeconds(1), 5);
                                                     clsWE.fnClick(clsWE.fnGetWe(strRowSelected), "Open Cancelled Row", false, false);
-                                                    var OpenIntakeDetails = clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strIntakeDetails), TimeSpan.FromSeconds(1), 10);
+                                                    var OpenIntakeDetails = clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeModel.strIntakeDetails), TimeSpan.FromSeconds(1), 10);
                                                     if (OpenIntakeDetails)
                                                     {
                                                         clsReportResult.fnLog("Cancel Intake Verification", "The Home Dashboard is not displayed after cancel a claim.", "False", true, false);
 
                                                         //Verify Details Status
-                                                        if (clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strDetailsStatus), "Detail Status", "innerText", true) != valueList.ElementAt(2)) 
+                                                        if (clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strDetailsStatus), "Detail Status", "innerText", true) != valueList.ElementAt(2)) 
                                                         {
                                                             clsReportResult.fnLog("Cancel Intake Verification", "The Home Dashboard is not displayed after cancel a claim.", "False", true, false);
                                                             blResult = false;
                                                         }
                                                         //Verify Details Reason
-                                                        if (clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strDetailsReason), "Detail Status", "innerText", false) != valueList.ElementAt(0))
+                                                        if (clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strDetailsReason), "Detail Status", "innerText", false) != valueList.ElementAt(0))
                                                         {
                                                             clsReportResult.fnLog("Cancel Intake Verification", "The Home Dashboard is not displayed after cancel a claim.", "False", true, false);
                                                             blResult = false;
                                                         }
                                                         //Verify Details Description
-                                                        if (clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strDetailsDescription), "Detail Status", "innerText", false) != valueList.ElementAt(1))
+                                                        if (clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strDetailsDescription), "Detail Status", "innerText", false) != valueList.ElementAt(1))
                                                         {
                                                             clsReportResult.fnLog("Cancel Intake Verification", "The Home Dashboard is not displayed after cancel a claim.", "False", true, false);
                                                             blResult = false;
                                                         }
 
                                                         //Mark as deleted the claim
-                                                        clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strDeleteClaimLink), "Delete Claim", true, false);
-                                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strDeletePopup), TimeSpan.FromSeconds(1), 5);
-                                                        clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strConfirmDelete), "Confirm Delete", true, false);
+                                                        clsWE.fnClick(clsWE.fnGetWe(CreateIntakeModel.strDeleteClaimLink), "Delete Claim", true, false);
+                                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeModel.strDeletePopup), TimeSpan.FromSeconds(1), 5);
+                                                        clsWE.fnClick(clsWE.fnGetWe(CreateIntakeModel.strConfirmDelete), "Confirm Delete", true, false);
                                                     }
                                                     else 
                                                     {
@@ -1506,7 +1506,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             this.VerifyTabbingOrderInForceRefreshFields(objData.fnGetValue("ActionValues", ""));
                                             break;
                                         case "VERIFYTABBINGORDER":
-                                            var labels = clsWebBrowser.objDriver.FindElements(CreateIntakeScreen.objAllLabels)
+                                            var labels = clsWebBrowser.objDriver.FindElements(CreateIntakeModel.objAllLabels)
                                                 .Take(int.Parse(objData.fnGetValue("ActionValues", "3"))) //After 13th element it will fail, client 9066
                                                 .ToList();
                                             var firstLabel = labels.First();
@@ -1537,7 +1537,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             );
                                             break;
                                         case "VERIFYFLOATINGMENUBAR":
-                                            IList<IWebElement> lsitemsInMenuBar = clsWebBrowser.objDriver.FindElements(CreateIntakeScreen.objFloatingListSelector);
+                                            IList<IWebElement> lsitemsInMenuBar = clsWebBrowser.objDriver.FindElements(CreateIntakeModel.objFloatingListSelector);
                                             clsUtils.fnExecuteIf(lsitemsInMenuBar.Count > 0,
                                                 () =>
                                                 {
@@ -1727,12 +1727,12 @@ namespace AutomationFrame_GlobalIntake.POM
                                             clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Next')]"), "Next Button", false, false);
                                             if (!clsMG.IsElementPresent("//*[@class='col-md-8 secondary-red']"))
                                             {
-                                                clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strReviewScreen), TimeSpan.FromSeconds(1), 10);
+                                                clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeModel.strReviewScreen), TimeSpan.FromSeconds(1), 10);
                                                 var lsFields = objData.fnGetValue("ActionValues", "").Split(';');
                                                 foreach (var field in lsFields)
                                                 {
-                                                    clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strReviewEditField.Replace("{NAMEFIELD}", field)), "Edit " + field + " Button", false, false);
-                                                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strIntakeFlowPage), TimeSpan.FromSeconds(1), 10);
+                                                    clsWE.fnClick(clsWE.fnGetWe(CreateIntakeModel.strReviewEditField.Replace("{NAMEFIELD}", field)), "Edit " + field + " Button", false, false);
+                                                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeModel.strIntakeFlowPage), TimeSpan.FromSeconds(1), 10);
                                                     var activeElementLabel = fnGetActiveElementLabel();
                                                     if (field.Equals(activeElementLabel))
                                                     {
@@ -1744,7 +1744,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                                         blResult = false;
                                                     }
                                                     clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Next')]"), "Next Button", false, false);
-                                                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strReviewScreen), TimeSpan.FromSeconds(1), 10);
+                                                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeModel.strReviewScreen), TimeSpan.FromSeconds(1), 10);
                                                 }
                                             }
                                             else
@@ -1756,28 +1756,28 @@ namespace AutomationFrame_GlobalIntake.POM
 
                                         case "VERIFYNOOVERRIDELOCATION":
                                             //Go to EE Information
-                                            clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strMenuEmployeeInformation), "Employee Information Floating Menu", false, false);
-                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strSearchEEAddress), TimeSpan.FromSeconds(1), 10);
-                                            var searchEELocation = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeScreen.strSearchEEAddress));
+                                            clsWE.fnClick(clsWE.fnGetWe(CreateIntakeModel.strMenuEmployeeInformation), "Employee Information Floating Menu", false, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeModel.strSearchEEAddress), TimeSpan.FromSeconds(1), 10);
+                                            var searchEELocation = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeModel.strSearchEEAddress));
                                             searchEELocation.Click();
                                             Thread.Sleep(TimeSpan.FromSeconds(2));
                                             searchEELocation.SendKeys("1 A");
-                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeScreen.strSearchableAddress), TimeSpan.FromSeconds(2), 10);
-                                            var searchableField = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeScreen.strSearchableAddress));
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent(CreateIntakeModel.strSearchableAddress), TimeSpan.FromSeconds(2), 10);
+                                            var searchableField = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeModel.strSearchableAddress));
                                             if (searchableField.Displayed) 
                                             {
                                                 clsReportResult.fnLog("Verify No Override Location", "Employee Address Information.", "Info", true, false);
                                                 searchableField.Click();
-                                                var EEAddress1 = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strEEAddress1), "EE Address 1", "value", false);
-                                                var EEZipCode = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strEEZipCode), "EE Zip Code", "value", false);
-                                                var EECity = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strEECity), "EE City", "value", false);
-                                                clsWE.fnClick(clsWE.fnGetWe(CreateIntakeScreen.strMenuClientLocationInformation), "Client Information Floating Menu", false, false);
+                                                var EEAddress1 = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strEEAddress1), "EE Address 1", "value", false);
+                                                var EEZipCode = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strEEZipCode), "EE Zip Code", "value", false);
+                                                var EECity = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strEECity), "EE City", "value", false);
+                                                clsWE.fnClick(clsWE.fnGetWe(CreateIntakeModel.strMenuClientLocationInformation), "Client Information Floating Menu", false, false);
                                                 Thread.Sleep(TimeSpan.FromSeconds(3));
                                                 clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[@class='row' and div[span[contains(text(), 'Is This The Loss Location?')]]]//span[@class='select2-selection select2-selection--single']", "No", false, false);
                                                 Thread.Sleep(TimeSpan.FromSeconds(2));
-                                                var LLAddress1 = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strLossLocddress1), "Loss Location Address 1", "value", false);
-                                                var LLZipCode = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strLossLocZipCode), "Loss Location Zip Code", "value", false);
-                                                var LLCity = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strLossLocCity), "Loss Location City", "value", false);
+                                                var LLAddress1 = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strLossLocddress1), "Loss Location Address 1", "value", false);
+                                                var LLZipCode = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strLossLocZipCode), "Loss Location Zip Code", "value", false);
+                                                var LLCity = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strLossLocCity), "Loss Location City", "value", false);
                                                 if (EEAddress1 != LLAddress1 && EECity != LLCity && EEZipCode != LLZipCode)
                                                 {
                                                     clsReportResult.fnLog("Verify No Override Location", "The Loss Location Address was not overrided with EE Location as expected.", "Pass", true, false);
@@ -1795,7 +1795,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             }
                                             break;
                                         case "VERIFYSSNMASKINGININTAKEREVIEWEMAILDISSEMINATIONANDFROIPDF":
-                                            this.fnVerifySsnMaskedInCreateIntakeScreen();
+                                            this.fnVerifySsnMaskedInCreateIntakeModel();
                                             break;
                                         case "VERIFYONETEAMFORM":
                                             this.fnVerifyOneTeamIntakeFlow(objData);
@@ -1818,24 +1818,24 @@ namespace AutomationFrame_GlobalIntake.POM
 
                                             //<<<<Loss Location Information>>>>
                                             //Loss Location name
-                                            clsMG.fnCleanAndEnterText("Loss Location Name", CreateIntakeScreen.strLossLocName, objData.fnGetValue("LossLocationName", ""));
+                                            clsMG.fnCleanAndEnterText("Loss Location Name", CreateIntakeModel.strLossLocName, objData.fnGetValue("LossLocationName", ""));
                                             //Non Standard Address Checkbox
                                             if (objData.fnGetValue("LossLocationNonStandardAddress", "").ToUpper() == "TRUE" || objData.fnGetValue("LossLocationNonStandardAddress", "").ToUpper() == "YES") 
                                             {
-                                                var nonStandardAddressCheckbox = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeScreen.strLossLocNonStandardAddress));
+                                                var nonStandardAddressCheckbox = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeModel.strLossLocNonStandardAddress));
                                                 clsWebBrowser.objDriver.fnScrollToElement(nonStandardAddressCheckbox);
                                                 nonStandardAddressCheckbox.Click();
                                             }
                                             //Address Line 1
-                                            clsMG.fnCleanAndEnterText("Loss Location Address Line 1", CreateIntakeScreen.strLossLocddress1, objData.fnGetValue("LossLocAddress1", ""));
+                                            clsMG.fnCleanAndEnterText("Loss Location Address Line 1", CreateIntakeModel.strLossLocddress1, objData.fnGetValue("LossLocAddress1", ""));
                                             //Zip Code
-                                            clsMG.fnCleanAndEnterText("Loss Location Zip Code", CreateIntakeScreen.strLossLocZipCode, objData.fnGetValue("LossLocZipCode", ""));
+                                            clsMG.fnCleanAndEnterText("Loss Location Zip Code", CreateIntakeModel.strLossLocZipCode, objData.fnGetValue("LossLocZipCode", ""));
                                             //City
-                                            clsMG.fnCleanAndEnterText("Loss Location City", CreateIntakeScreen.strLossLocCity, objData.fnGetValue("LossLocCity", ""));
+                                            clsMG.fnCleanAndEnterText("Loss Location City", CreateIntakeModel.strLossLocCity, objData.fnGetValue("LossLocCity", ""));
                                             //Country
-                                            clsMG.fnSelectDropDownWElm("Loss Location Country", CreateIntakeScreen.strLossLocCountrySelector, objData.fnGetValue("LossLocCountry", ""), false, false);
+                                            clsMG.fnSelectDropDownWElm("Loss Location Country", CreateIntakeModel.strLossLocCountrySelector, objData.fnGetValue("LossLocCountry", ""), false, false);
                                             //State
-                                            clsMG.fnSelectDropDownWElm("Loss Location State", CreateIntakeScreen.strLossLocStateSelector, objData.fnGetValue("LossLocState", ""), false, false);
+                                            clsMG.fnSelectDropDownWElm("Loss Location State", CreateIntakeModel.strLossLocStateSelector, objData.fnGetValue("LossLocState", ""), false, false);
 
                                             //Loss Location Phone Number
                                             clsMG.fnCleanAndEnterText("Loss Location Phone", "//div[contains(@question-key, 'LOSS_LOCATION')]//div[@class='row' and div[span[text()='Phone Number']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("LossLocPhone", ""), false, false, "", false);
@@ -1851,20 +1851,20 @@ namespace AutomationFrame_GlobalIntake.POM
                                             //Non Standard Address Checkbox
                                             if (objData.fnGetValue("EmpoloyeeLocationNonStandardAddress", "").ToUpper() == "TRUE" || objData.fnGetValue("EmpoloyeeLocationNonStandardAddress", "").ToUpper() == "YES")
                                             {
-                                                var EEnonStandardAddressCheckbox = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeScreen.strEmployeeLocNonStandardAddress));
+                                                var EEnonStandardAddressCheckbox = clsWebBrowser.objDriver.FindElement(By.XPath(CreateIntakeModel.strEmployeeLocNonStandardAddress));
                                                 clsWebBrowser.objDriver.fnScrollToElement(EEnonStandardAddressCheckbox);
                                                 EEnonStandardAddressCheckbox.Click();
                                             }
                                             //Address Line 1
-                                            clsMG.fnCleanAndEnterText("Empoloyee Location Address Line 1", CreateIntakeScreen.strEmployeeLocddress1, objData.fnGetValue("EmpoloyeeLocAddress1", ""));
+                                            clsMG.fnCleanAndEnterText("Empoloyee Location Address Line 1", CreateIntakeModel.strEmployeeLocddress1, objData.fnGetValue("EmpoloyeeLocAddress1", ""));
                                             //Zip Code
-                                            clsMG.fnCleanAndEnterText("Empoloyee Location Zip Code", CreateIntakeScreen.strEmployeeLocZipCode, objData.fnGetValue("EmpoloyeeLocZipCode", ""));
+                                            clsMG.fnCleanAndEnterText("Empoloyee Location Zip Code", CreateIntakeModel.strEmployeeLocZipCode, objData.fnGetValue("EmpoloyeeLocZipCode", ""));
                                             //City
-                                            clsMG.fnCleanAndEnterText("Empoloyee Location City", CreateIntakeScreen.strEmployeeLocCity, objData.fnGetValue("EmpoloyeeLocCity", ""));
+                                            clsMG.fnCleanAndEnterText("Empoloyee Location City", CreateIntakeModel.strEmployeeLocCity, objData.fnGetValue("EmpoloyeeLocCity", ""));
                                             //Country
-                                            clsMG.fnSelectDropDownWElm("Empoloyee Location Country", CreateIntakeScreen.strEmployeeLocCountrySelector, objData.fnGetValue("EmpoloyeeLocCountry", ""), false, false);
+                                            clsMG.fnSelectDropDownWElm("Empoloyee Location Country", CreateIntakeModel.strEmployeeLocCountrySelector, objData.fnGetValue("EmpoloyeeLocCountry", ""), false, false);
                                             //State
-                                            clsMG.fnSelectDropDownWElm("Empoloyee Location State", CreateIntakeScreen.strEmployeeLocStateSelector, objData.fnGetValue("EmpoloyeeLocState", ""), false, false);
+                                            clsMG.fnSelectDropDownWElm("Empoloyee Location State", CreateIntakeModel.strEmployeeLocStateSelector, objData.fnGetValue("EmpoloyeeLocState", ""), false, false);
 
 
                                             //SSN
@@ -1876,7 +1876,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             //Did Employee Miss Work Beyond Their Normal Shift?
                                             clsMG.fnSelectDropDownWElm("Did Employee Miss Work Beyond Their Normal Shift?", "//div[@class='row' and div[span[contains(text(), 'Did Employee Miss Work Beyond Their Normal Shift?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("DidEmployeeMissWorkBeyond", ""), false, false);
                                             //Do you expect the team member to lose time from work
-                                            clsMG.fnCleanAndEnterText("Do You Expect The Team Member To Lose Time From Work?", CreateIntakeScreen.strClaimEmployeeMissWorkBeyondShifFlag, "No");
+                                            clsMG.fnCleanAndEnterText("Do You Expect The Team Member To Lose Time From Work?", CreateIntakeModel.strClaimEmployeeMissWorkBeyondShifFlag, "No");
                                             
                                             //Employer Notified Date
                                             clsMG.fnCleanAndEnterText("Employer Notified Date", "//div[contains(@question-key, 'INCIDENT_INFORMATION')]//div[@class='row' and div[span[text()='Employer Notified Date']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("EmployerNotifiedDate", ""), false, false, "", false);
@@ -1889,11 +1889,11 @@ namespace AutomationFrame_GlobalIntake.POM
                                             //Is Contact Same As Caller?
                                             clsMG.fnSelectDropDownWElm("Is This The Loss Location", "//div[contains(@question-key, 'CONTACT_INFORMATION')]//div[@class='row' and div[span[contains(text(), 'Is Contact Same As Caller?')]]]//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IsSameAsCaller", ""), false, false);
                                             //Work Phone Number
-                                            clsMG.fnCleanAndEnterText("Contact Work Phone", CreateIntakeScreen.strWorkPhoneNumber, objData.fnGetValue("ContactWorkPhone", ""), false, false, "", false);
+                                            clsMG.fnCleanAndEnterText("Contact Work Phone", CreateIntakeModel.strWorkPhoneNumber, objData.fnGetValue("ContactWorkPhone", ""), false, false, "", false);
 
                                             //<<<<Lost Time Information>>>>
                                             //Employee Returned To Work?
-                                            clsMG.fnCleanAndEnterText("Employee Returned To Work", CreateIntakeScreen.strEmployeeReturnedToWork, objData.fnGetValue("EmployeeReturnedToWork", ""));
+                                            clsMG.fnCleanAndEnterText("Employee Returned To Work", CreateIntakeModel.strEmployeeReturnedToWork, objData.fnGetValue("EmployeeReturnedToWork", ""));
                                             break;
                                     }
                                 });
@@ -1913,7 +1913,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                                 case "VERIFYSSNMASKINGININTAKEREVIEWEMAILDISSEMINATIONANDFROIPDF":
                                                     this.fnVerifySsnMaskedInReviewIntakeScreen();
                                                     this.reviewIntakeScreen.ClickEditFieldValue("SSN");
-                                                    this.fnVerifySsnMaskedInCreateIntakeScreen();
+                                                    this.fnVerifySsnMaskedInCreateIntakeModel();
                                                     clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Next')]"), "Next Button", false, false);
                                                     clsMG.IsElementPresent("//*[@class='col-md-8 secondary-red']");
                                                     break;
@@ -1935,17 +1935,17 @@ namespace AutomationFrame_GlobalIntake.POM
                                                     break;
                                                 case "VERIFYOFFICENUMBER":
                                                     clsReportResult.fnLog("Verify Branch Office", "The Branch Office Verification Starts.", "Info", false, false);
-                                                    if (clsMG.IsElementPresent(CreateIntakeScreen.strBONumber))
+                                                    if (clsMG.IsElementPresent(CreateIntakeModel.strBONumber))
                                                     {
                                                         //Get BO Provided
-                                                        clsWE.fnScrollTo(clsWE.fnGetWe(CreateIntakeScreen.strBenefitLabel), "Benefit State", false);
-                                                        var strActualBO = (clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strBONumber), "Get Current BO", "innerText", false)).Replace("(", "").Replace(")", "");
-                                                        var strDefaultState = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strDefaultBenefitState), "Get Default State", "innerText", false);
+                                                        clsWE.fnScrollTo(clsWE.fnGetWe(CreateIntakeModel.strBenefitLabel), "Benefit State", false);
+                                                        var strActualBO = (clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strBONumber), "Get Current BO", "innerText", false)).Replace("(", "").Replace(")", "");
+                                                        var strDefaultState = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strDefaultBenefitState), "Get Default State", "innerText", false);
                                                         var strDBOffice = fnGetBranchOffice(objData.fnGetValue("ClientNo", ""), strDefaultState);
                                                         clsMG.fnGoTopPage();
                                                         if (strActualBO.Replace("(", "").Replace(")", "") == strDBOffice)
                                                         {
-                                                            clsWE.fnScrollTo(clsWE.fnGetWe(CreateIntakeScreen.strReviewLabel), "Review State", false);
+                                                            clsWE.fnScrollTo(clsWE.fnGetWe(CreateIntakeModel.strReviewLabel), "Review State", false);
                                                             clsReportResult.fnLog("Verify Branch Office", "The Branch Office matches as expected, the DB return(" + strDBOffice + ") and UI has(" + strActualBO + ")", "Pass", true, false);
                                                         }
                                                         else 
@@ -1961,7 +1961,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                                     }
                                                     break;
                                                 case "SAVEEMAILOFFICE":
-                                                    clsConstants.strOfficeEmail = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeScreen.strOfficeEmail), "Get Email Office", "innerText", false);
+                                                    clsConstants.strOfficeEmail = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strOfficeEmail), "Get Email Office", "innerText", false);
                                                     break;
                                             }
                                         });
@@ -1987,10 +1987,13 @@ namespace AutomationFrame_GlobalIntake.POM
                                                 switch (action.ToUpper())
                                                 {
                                                     case "CHECKFROIATTACHMENTWCONLY":
-                                                        this.fnCheckFroiAttachmentWcOnly(objData, strClaimNo);
+                                                        this.fnVerifyFroiAttachmentForWcIsReceived(objData, strClaimNo);
                                                         break;
                                                     case "VERIFYFROIINTHEEMAILSFORWC":
-                                                        this.fnVerifyFroiInTheEmailsForWc();
+                                                        this.fnVerifyFroiLogInDisseminationEvent(strClaimNo);
+                                                        break;
+                                                    case "CREATEGENERATEPDFDISSEMINATION":
+                                                        this.fnVerifyEmailPdfCopyAttachmentForWcIsReceived(objData, strClaimNo);
                                                         break;
                                                     case "VERIFYSSNMASKINGININTAKEREVIEWEMAILDISSEMINATIONANDFROIPDF":
                                                         this.fnTcVerifySsnMaskingInIntakeReviewEmailDisseminationAndFroiPdf(objData, strClaimNo);
@@ -2746,12 +2749,12 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
-        public void fnVerifySsnMaskedInCreateIntakeScreen()
+        public void fnVerifySsnMaskedInCreateIntakeModel()
         {
             var driver = clsWebBrowser.objDriver;
             var jsExecutor = (IJavaScriptExecutor)driver;
 
-            var question = clsWebBrowser.objDriver.FindElement(CreateIntakeScreen.objQuestionXPathByQuestionKey("EMPLOYEE_INFORMATION.CLAIM_EMPLOYEE_SSN"));
+            var question = clsWebBrowser.objDriver.FindElement(CreateIntakeModel.objQuestionXPathByQuestionKey("EMPLOYEE_INFORMATION.CLAIM_EMPLOYEE_SSN"));
             driver.fnScrollToElement(question);
             
             var input = question.FindElement(By.TagName("input"));

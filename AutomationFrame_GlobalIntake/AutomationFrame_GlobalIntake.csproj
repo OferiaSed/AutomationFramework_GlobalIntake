@@ -174,12 +174,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\clsBasePageModel.cs" />
-    <Compile Include="Models\CreateIntakeScreen.cs" />
+    <Compile Include="Models\BasePageModel.cs" />
+    <Compile Include="Models\CreateIntakeModel.cs" />
     <Compile Include="Models\DisseminationModel.cs" />
     <Compile Include="Models\DuplicateCCModel.cs" />
     <Compile Include="Models\LoginModel.cs" />
-    <Compile Include="Models\ReviewIntakeScreen.cs" />
+    <Compile Include="Models\ReviewIntakeModel.cs" />
+    <Compile Include="Models\SearchIntakeModel.cs" />
     <Compile Include="POM\clsAPI.cs" />
     <Compile Include="POM\clsDissemination.cs" />
     <Compile Include="POM\clsIntakeActions.cs" />

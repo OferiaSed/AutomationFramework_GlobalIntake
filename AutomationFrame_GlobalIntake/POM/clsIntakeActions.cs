@@ -59,9 +59,10 @@ namespace AutomationFrame_GlobalIntake.POM
             var success = email.Attachments.Any(
                 attachmentPath =>
                 {
-                    var froiKeywords = $"CONFIDENTIALINCIDENT{strClaimNo}";
+                    var keywords = $"CONFIDENTIALINCIDENT{strClaimNo}";
+                    var thanksNote = "THANKYOUFORREPORTINGTHISCLAIMTOSEDGWICKBELOWPLEASEFINDAREPORTOFTHEWORKERSCOMPENSATIONCLAIMTHATWASRECENTLYREPORTEDIFTHEINJURYRESULTSINANABSENCEFROMWORKYOUMUSTADVISETHEEMPLOYEETOALSOIMMEDIATELYCONTACTYOURBRANDSLEAVEADMINISTRATORTOSUBMITAFAMILYANDMEDICALLEAVEACTFMLACLAIM";
                     var ocrText = clsOCR.fnGetOCRText(attachmentPath).fnToSingleLineText().fnOnlyAlphanumericChars().Replace(" ", "").Replace("-", "").ToUpper();
-                    return ocrText.Contains(froiKeywords);
+                    return ocrText.Contains(keywords) && ocrText.Contains(thanksNote);
                 }
             );
             clsReportResult.fnLog("Verify Email Copy in PDF Attachment was disseminated", $"Email Copy in PDF Attachment was disseminated. Claim #{strClaimNo}.", success ? "Pass" : "Fail", false);

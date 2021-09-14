@@ -60,7 +60,7 @@ namespace AutomationFrame_GlobalIntake.Models
         /// </returns>
         public bool fnUntilSpinnerVisible()
         {
-            var spinnerVisible = clsMG.fnGenericWait(() => clsUtils.fnIsElementVisible(objLoadSpinnerSelector, this.driver), TimeSpan.Zero, 2);
+            var spinnerVisible = clsMG.fnGenericWait(() => this.driver.fnIsElementVisible(objLoadSpinnerSelector), TimeSpan.Zero, 2);
             return spinnerVisible;
         }
     }

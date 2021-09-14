@@ -80,6 +80,10 @@ namespace AutomationFrame_GlobalIntake.POM
                                     if (!fnVerifyDissemination("Details", objData.fnGetValue("FilterResults", ""), "Success for DisseminationInstance")) { blResult = false; }
                                     clsConstants.strTempClaimNo = "";
                                     break;
+                                case "VERIFYRISKCONNECTION":
+                                    if (!fnVerifyDissemination("Details", objData.fnGetValue("FilterResults", ""), "Success for DisseminationInstance")) { blResult = false; }
+                                    clsConstants.strTempConfirmationNo = "";
+                                    break;
                                 case "VERIFYESCALATIONEMAIL":
                                     if (!fnVerifyDissemination("Content", objData.fnGetValue("FilterResults", ""), "Subject: Escalated")) { blResult = false; }
                                     clsConstants.strTempClaimNo = "";
@@ -115,7 +119,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                     //Instance Id
                                     clsMG.fnCleanAndEnterText("Instance Id", DisseminationModel.strInstanceId, objData.fnGetValue("InstanceId", ""), false, false, "", false);
                                     //Confirmation Number
-                                    clsMG.fnCleanAndEnterText("Confirmation Number", DisseminationModel.strConfirmationNumber, objData.fnGetValue("ConfirmationNumber", ""), false, false, "", false);
+                                    clsMG.fnCleanAndEnterText("Confirmation Number", DisseminationModel.strConfirmationNumber, objData.fnGetValue("ConfirmationNumber", clsConstants.strTempConfirmationNo), false, false, "", false);
                                     //Claim Number
                                     clsMG.fnCleanAndEnterText("Claim Number", DisseminationModel.strClaimNumber, objData.fnGetValue("ClaimNumber", clsConstants.strTempClaimNo), false, false, "", false);
                                     //Group by
@@ -181,6 +185,14 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
+        public string GetExcelValue(int intRow, string strDataSheet, string strColumn)
+        {
+            clsData objGetConfNumber = new clsData();
+            objGetConfNumber.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], strDataSheet);
+            objGetConfNumber.CurrentRow = intRow;
+            var strValue = objGetConfNumber.fnGetValue(strColumn, "");
+            return strValue;
+        }
 
     }
 }

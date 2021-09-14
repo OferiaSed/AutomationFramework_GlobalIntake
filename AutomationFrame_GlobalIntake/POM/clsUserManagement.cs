@@ -1,4 +1,5 @@
-﻿using AutomationFrame_GlobalIntake.Utils;
+﻿using AutomationFrame_GlobalIntake.Models;
+using AutomationFrame_GlobalIntake.Utils;
 using AutomationFramework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
@@ -245,7 +246,17 @@ namespace AutomationFrame_GlobalIntake.POM
                 clsMG.fnCleanAndEnterText("Phone", "//input[contains(@data-bind,'PhoneNumber')]", objData.fnGetValue("PhoneNumber", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Role", "//span[@data-select2-id=5]", objData.fnGetValue("Role", ""), true, false, "", false);
                 //clsMG.fnSelectDropDownWElm("Clients", "//span[contains(@data-select2-id,'69')]", objData.fnGetValue("Clients", ""), false, false, "", false);
-                clsMG.fnSelectDropDownWElm("Clients", "//div[select[contains(@data-bind, 'ClientSecurityTypes')]]//span[@class='select2-selection__rendered']", objData.fnGetValue("Clients", ""), false, false, "", false);
+                
+                //Client Restriction Section
+                var clients = objData.fnGetValue("Clients", "");
+                clsMG.fnSelectDropDownWElm("Clients", "//div[select[contains(@data-bind, 'ClientSecurityTypes')]]//span[@class='select2-selection__rendered']", clients, false, false, "", false);
+                var clientIds = objData.fnGetValue("ClientIds", "");
+                if (clients.Equals("Client") && !string.IsNullOrEmpty(clientIds))
+                {
+                    var newUserPage = new UserManagementModel(clsWebBrowser.objDriver, clsMG);
+                    newUserPage.fnSelectClients(clientIds.Split(',').ToList());
+                }
+
                 clsWE.fnScrollTo(clsWE.fnGetWe("//input[contains(@data-bind,'PhoneNumber')]"), "Scrolling to checkbox two factor authentication", true, false);
                 //MultiFactor Authentication
                 if (objData.fnGetValue("2FA", "False").ToUpper() == "YES" || objData.fnGetValue("2FA", "False").ToUpper() == "TRUE") 

@@ -13,8 +13,8 @@ namespace AutomationFrame_GlobalIntake.Models
         public static string strDuplicateCheckPage = "//span[contains(text(), 'Duplicate Claim')]";
         public static string strDuplicatePageLabel = "//span[@data-bind='text:Value.Label']";
         
-        public static string strLossDate = "//div[@class='row' and div[span[text()='Loss Date']]]//input[@class='form-control']";
-        public static string strLossTime = "//div[@class='row' and div[span[text()='Loss Time']]]//input[@class='form-control']";
+        public static string strLossIncidentDate = "//div[@class='row' and div[span[text()='Incident Date'] or span[text()='Loss Date']]]//input[@class='form-control']";
+        public static string strLossIncidentTime = "//div[@class='row' and div[span[text()='Loss Time'] or span[text()='Incident Time']]]//input[@class='form-control']";
         public static string strReportedBy = "//div[@class='row' and div[span[text()='Reported By']]]//span[@class='select2-selection select2-selection--single']";
         public static string strReporterType = "//div[@class='row' and div[span[text()='Reporter Type']]]//span[@class='select2-selection select2-selection--single']";
 

@@ -81,7 +81,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                     clsConstants.strTempClaimNo = "";
                                     break;
                                 case "VERIFYRISKCONNECTION":
-                                    if (!fnVerifyDissemination("Details", objData.fnGetValue("FilterResults", ""), "Success for DisseminationInstance")) { blResult = false; }
+                                    if (!fnVerifyDissemination("Details", objData.fnGetValue("FilterResults", ""), objData.fnGetValue("ActionValue", ""))) { blResult = false; }
                                     clsConstants.strTempConfirmationNo = "";
                                     break;
                                 case "VERIFYESCALATIONEMAIL":

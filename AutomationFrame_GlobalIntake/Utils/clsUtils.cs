@@ -21,26 +21,6 @@ namespace AutomationFrame_GlobalIntake.Utils
                 action.Invoke();
             }
         }
-      
-        /// <summary>
-        /// Verifies if element is visible, if not returns false.
-        /// </summary>
-        /// <param name="By">Provide Locator like xpath, css, id, ect.</param>
-        /// <param name="By">Provide webdriver object.</param>
-        /// <returns></returns>
-        public static bool fnIsElementVisible(By by, IWebDriver driver)
-        {
-            try
-            {
-                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
-                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(by));
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
 
         /// <summary>
         /// Generates a Future/Old/Current Date and return as string with format MM/dd/yyyy
@@ -87,7 +67,7 @@ namespace AutomationFrame_GlobalIntake.Utils
             }
         }
 
-        //TODO Delete if it is not necessary
+        #region WebDriver Extensions
         /// <summary>
         /// Created to scroll in pages as needed and make a specific element visible
         /// </summary>
@@ -106,7 +86,28 @@ namespace AutomationFrame_GlobalIntake.Utils
         /// <param name="element">The element to find the parent of</param>
         /// <returns>The parent element</returns>
         public static IWebElement fnGetParentNodeFromJavascript(this IWebDriver driver, IWebElement element) => (IWebElement)((IJavaScriptExecutor)driver).ExecuteScript("return arguments[0].parentNode;", element);
-        
+
+        /// <summary>
+        /// Verifies if element is visible, if not returns false.
+        /// </summary>
+        /// <param name="by">Provide Locator like xpath, css, id, ect.</param>
+        /// <param name="driver">Provide webdriver object.</param>
+        /// <returns></returns>
+        public static bool fnIsElementVisible(this IWebDriver driver, By by)
+        {
+            try
+            {
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(by));
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+        #endregion
+
         /// <summary>
         /// Get the parent of a Web Element by using XPath
         /// </summary>

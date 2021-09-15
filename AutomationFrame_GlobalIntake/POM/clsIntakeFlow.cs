@@ -156,18 +156,29 @@ namespace AutomationFrame_GlobalIntake.POM
                         blResult = false;
                     }
                 }
-                clsWE.fnPageLoad(clsWE.fnGetWe("//span[@data-bind='text:Value.Label']"), "Header Intake", false, false);
-                clsMG.fnCleanAndEnterText("Loss Time", "//div[@class='row' and div[span[text()='Loss Time']]]//input[@class='form-control']", pobjData.fnGetValue("LossTime", ""), false, false, "", false);
+                clsWE.fnPageLoad(clsWE.fnGetWe(DuplicateCCModel.strDuplicatePageLabel), "Wait Duplicate CC Header", false, false);
+                clsMG.fnCleanAndEnterText("Loss Time", DuplicateCCModel.strLossTime, pobjData.fnGetValue("LossTime", ""), false, false, "", false);
+                clsWE.fnClick(clsWE.fnGetWe(DuplicateCCModel.strDuplicatePageLabel), "Duplicate CC Header", false);
+                clsMG.fnCleanAndEnterText("Loss Date", DuplicateCCModel.strLossDate, pobjData.fnGetValue("LossDate", ""), false, false, "", false);
+                //RK Claim to Submit
+                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@class='row' and div[span[text()='Incident Time']]]//input[@class='form-control']"), TimeSpan.FromSeconds(1), 10);
+                clsMG.fnCleanAndEnterText("Incident Time", "//div[@class='row' and div[span[text()='Incident Time']]]//input[@class='form-control']", pobjData.fnGetValue("IncidentTime", ""), false, false, "", false);
                 clsWE.fnClick(clsWE.fnGetWe("//span[@data-bind='text:Value.Label']"), "Header Intake", false);
-                clsMG.fnCleanAndEnterText("Loss Date", "//div[@class='row' and div[span[text()='Loss Date']]]//input[@class='form-control']", pobjData.fnGetValue("LossDate", ""), false, false, "", false);
-                clsMG.fnSelectDropDownWElm("Reporter Type", "//div[@class='row' and div[span[text()='Reporter Type']]]//span[@class='select2-selection select2-selection--single']", pobjData.fnGetValue("ReporterType", ""), false, false, "", false);
-                clsMG.fnSelectDropDownWElm("Reported By", "//div[@class='row' and div[span[text()='Reported By']]]//span[@class='select2-selection select2-selection--single']", pobjData.fnGetValue("ReportedBy", ""), false, false, "", false);
-                clsWE.fnPageLoad(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false, false);
-                clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Move Focus to Header", false);
+                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@class='row' and div[span[text()='Incident Date']]]//input[@class='form-control']"), TimeSpan.FromSeconds(1), 10);
+                clsMG.fnCleanAndEnterText("Incident Date", "//div[@class='row' and div[span[text()='Incident Date']]]//input[@class='form-control']", pobjData.fnGetValue("IncidentDate", ""), false, false, "", false);
+                //
+                clsMG.fnSelectDropDownWElm("Reporter Type", DuplicateCCModel.strReporterType, pobjData.fnGetValue("ReporterType", ""), false, false, "", false);
+                clsMG.fnSelectDropDownWElm("Reported By", DuplicateCCModel.strReportedBy, pobjData.fnGetValue("ReportedBy", ""), false, false, "", false);
+                clsWE.fnPageLoad(clsWE.fnGetWe(DuplicateCCModel.strEnvironmentBar), "Environment Bar", false, false);
+                clsMG.fnGenericWait(() => clsMG.IsElementPresent(DuplicateCCModel.strEnvironmentBar), TimeSpan.FromSeconds(1), 10);
+                clsWE.fnClick(clsWE.fnGetWe(DuplicateCCModel.strEnvironmentBar), "Move Focus to Environment Bar", false);
+
                 //Fill EE Lookup
                 if (pobjData.fnGetValue("FillEELookup", "").ToUpper() == "TRUE") { blResult = fnEmployeeLocationLookup(pobjData.fnGetValue("EELookupSet", "")); }
                 //FIll Location Lookup
                 if (pobjData.fnGetValue("FillLocLookup", "").ToUpper() == "TRUE") { blResult = fnLocationLookup(pobjData.fnGetValue("LocLookupSet", "")); }
+                //Store Lookup
+                if (pobjData.fnGetValue("FillSTLookup", "").ToUpper() == "TRUE") { blResult = fnStoreLookup(pobjData.fnGetValue("STLookupSet", "")); }
                 //Verify if error messages exist
                 if (blNext)
                 {
@@ -233,6 +244,13 @@ namespace AutomationFrame_GlobalIntake.POM
                 clsMG.fnCleanAndEnterText("Loss Time", DuplicateCCModel.strLossTime, pobjData.fnGetValue("LossTime", ""), false, false, "", false);
                 clsWE.fnClick(clsWE.fnGetWe(DuplicateCCModel.strDuplicatePageLabel), "Duplicate CC Header", false);
                 clsMG.fnCleanAndEnterText("Loss Date", DuplicateCCModel.strLossDate, pobjData.fnGetValue("LossDate", ""), false, false, "", false);
+                //RK Claim to Submit
+                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@class='row' and div[span[text()='Incident Time']]]//input[@class='form-control']"), TimeSpan.FromSeconds(1), 10);
+                clsMG.fnCleanAndEnterText("Incident Time", "//div[@class='row' and div[span[text()='Incident Time']]]//input[@class='form-control']", pobjData.fnGetValue("IncidentTime", ""), false, false, "", false);
+                clsWE.fnClick(clsWE.fnGetWe("//span[@data-bind='text:Value.Label']"), "Header Intake", false);
+                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@class='row' and div[span[text()='Incident Date']]]//input[@class='form-control']"), TimeSpan.FromSeconds(1), 10);
+                clsMG.fnCleanAndEnterText("Incident Date", "//div[@class='row' and div[span[text()='Incident Date']]]//input[@class='form-control']", pobjData.fnGetValue("IncidentDate", ""), false, false, "", false);
+                //
                 clsMG.fnSelectDropDownWElm("Reporter Type", DuplicateCCModel.strReporterType, pobjData.fnGetValue("ReporterType", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Reported By", DuplicateCCModel.strReportedBy, pobjData.fnGetValue("ReportedBy", ""), false, false, "", false);
                 clsWE.fnPageLoad(clsWE.fnGetWe(DuplicateCCModel.strEnvironmentBar), "Environment Bar", false, false);
@@ -243,6 +261,8 @@ namespace AutomationFrame_GlobalIntake.POM
                 if (pobjData.fnGetValue("FillEELookup", "").ToUpper() == "TRUE") { blResult = fnEmployeeLocationLookup(pobjData.fnGetValue("EELookupSet", "")); }
                 //FIll Location Lookup
                 if (pobjData.fnGetValue("FillLocLookup", "").ToUpper() == "TRUE") { blResult = fnLocationLookup(pobjData.fnGetValue("LocLookupSet", "")); }
+                //Fill Store Lookup
+                if (pobjData.fnGetValue("FillSTLookup", "").ToUpper() == "TRUE") { blResult = fnStoreLookup(pobjData.fnGetValue("STLookupSet", "")); }
                 //Verify if error messages exist
                 if (blNext.ToUpper() == "TRUE" || blNext.ToUpper() == "YES")
                 {
@@ -269,7 +289,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         string[] arrCustomDates = pobjData.fnGetValue("ActionValues", "").Split('|');
                         string[] arrDates;
                         string newDate;
-                        foreach (var date in arrCustomDates) 
+                        foreach (var date in arrCustomDates)
                         {
                             arrDates = date.Split(';');
                             newDate = clsUtils.fnGetCustomDate(arrDates[0]);
@@ -279,12 +299,12 @@ namespace AutomationFrame_GlobalIntake.POM
                             clsMG.fnCleanAndEnterText("Loss Date", "//div[@class='row' and div[span[text()='Loss Date']]]//input[@class='form-control']", newDate.ToString(), false, false, "", true);
                             clsWE.fnClick(clsWE.fnGetWe("//button[text()='Next']"), "Next Button", false);
                             Thread.Sleep(TimeSpan.FromSeconds(3));
-                            switch (arrDates[1].ToUpper()) 
+                            switch (arrDates[1].ToUpper())
                             {
                                 case "VALID":
                                     if (!clsMG.IsElementPresent("//*[text()='Date must be in the past']"))
                                     {
-                                        clsReportResult.fnLog("Verify DOL Restrictions", "The date: "+ newDate + " was introduced successfully.", "Pass", true, false);
+                                        clsReportResult.fnLog("Verify DOL Restrictions", "The date: " + newDate + " was introduced successfully.", "Pass", true, false);
                                     }
                                     else
                                     {
@@ -1800,6 +1820,73 @@ namespace AutomationFrame_GlobalIntake.POM
                                         case "VERIFYONETEAMFORM":
                                             this.fnVerifyOneTeamIntakeFlow(objData);
                                             break;
+                                        case "FILLRKCLAIM":
+                                            //Reporter First Name
+                                            clsMG.fnCleanAndEnterText("First Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterFN", ""), false, false, "", false);
+                                            //Reporter Last Name
+                                            clsMG.fnCleanAndEnterText("Last Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='Last Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterLN", ""), false, false, "", false);
+
+
+                                            //LINE OF BUSSINES VERIFICATION
+                                            clsWE.fnClick(clsWE.fnGetWe("//div[@id='sticky']//a[contains(@id,'NavOption_LOB_VERIFICATION')]"), "LOB Verification Floating Menu", false, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'LOB_VERIFICATION.ASI_LOWES_DAMAGE_BY_LOWES_VEH')]//div[@class='row']//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            clsMG.fnSelectDropDownWElm("Does This Incident Involve Damage?", "//div[contains(@question-key, 'LOB_VERIFICATION.ASI_LOWES_DAMAGE_BY_LOWES_VEH')]//div[@class='row']//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("InvolveDamage", ""), false, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'LOB_VERIFICATION.ASI_LOWES_DAMAGE_BY_LOWES_PR')]//div[@class='row']//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            clsMG.fnSelectDropDownWElm("Associate Illness/Injury?", "//div[contains(@question-key, 'LOB_VERIFICATION.ASI_LOWES_DAMAGE_BY_LOWES_PR')]//div[@class='row']//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("AssociateInjury", ""), false, false);
+
+                                            //REPORTER INFORMATION
+                                            clsWE.fnClick(clsWE.fnGetWe("//div[@id='sticky']//a[contains(@id,'NavOption_CALLER_INFORMATION')]"), "Reporter information Floating Menu", false, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]"), TimeSpan.FromSeconds(1), 10);
+                                            //Reporter First Name
+                                            clsMG.fnCleanAndEnterText("First Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterFN", ""), false, false, "", false);
+                                            //Reporter Last Name
+                                            clsMG.fnCleanAndEnterText("Last Name", "//div[contains(@question-key, 'CALLER_INFORMATION')]//div[@class='row' and div[span[text()='Last Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterLN", ""), false, false, "", false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CALLER_INFORMATION.CLAIM_EMPLOYEE_EMPLOYER_NOTIFIED_DT')]//div[@class='row']//input[@class='form-control']"), TimeSpan.FromSeconds(1), 10);
+                                            //Date Notified Of The Incident
+                                            clsMG.fnCleanAndEnterText("Date Notified Of The Incident", "//div[contains(@question-key, 'CALLER_INFORMATION.CLAIM_EMPLOYEE_EMPLOYER_NOTIFIED_DT')]//div[@class='row']//input[@class='form-control']", objData.fnGetValue("EmployerNotifiedDate", ""), false, false, "", false);
+
+                                            //CLIENT LOCATION INFORMATION
+                                            clsWE.fnClick(clsWE.fnGetWe("//div[@id='sticky']//a[contains(@id,'NavOption_LOCAL_BUSINESS_EMPLOYER_INFORMATION')]"), "Client location information Floating Menu", false, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'LOCAL_BUSINESS_EMPLOYER_INFORMATION.CLAIM_RISK_LOCATION_SAME_AS_LOSS_LOCATION_FLG')]//div[@class='row']//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            //Did the incident occur at your reporting location?
+                                            clsMG.fnSelectDropDownWElm("Did The Incident Occur At Your Reporting Location?", "//div[contains(@question-key, 'LOCAL_BUSINESS_EMPLOYER_INFORMATION.CLAIM_RISK_LOCATION_SAME_AS_LOSS_LOCATION_FLG')]//div[@class='row']//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IncidenInLocation", ""), false, false);
+
+                                            //INCIDENT LOCATION INFORMATION
+                                            clsWE.fnClick(clsWE.fnGetWe("//div[@id='sticky']//a[contains(@id,'NavOption_LOSS_LOCATION')]"), "Incident location information Floating Menu", false, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'LOSS_LOCATION.CLAIM_LOSS_DESCRIPTION')]//div[@class='row']//textarea[contains(@data-bind,'Answer')]"), TimeSpan.FromSeconds(1), 10);
+                                            //Incident description
+                                            clsMG.fnCleanAndEnterText("Incident Description", "//div[contains(@question-key, 'LOSS_LOCATION.CLAIM_LOSS_DESCRIPTION')]//div[@class='row']//textarea[contains(@data-bind,'Answer')]", objData.fnGetValue("IncidentDescription", ""), false, false, "", false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'LOSS_LOCATION.ASI_LOWES_EE_INJ_DEPT')]//div[@class='row']//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            //Department Where Incident Occurred
+                                            clsMG.fnSelectDropDownWElm("Department Where Incident Occurred", "//div[contains(@question-key, 'LOSS_LOCATION.ASI_LOWES_EE_INJ_DEPT')]//div[@class='row']//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IncidentDepartment", ""), false, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'LOSS_LOCATION.ASI_LOWES_PRODUCT_INVOLVED')]//div[@class='row']//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            //Was A Product Involved?
+                                            clsMG.fnSelectDropDownWElm("Was A Product Involved?", "//div[contains(@question-key, 'LOSS_LOCATION.ASI_LOWES_PRODUCT_INVOLVED')]//div[@class='row']//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("ProductInvolved", ""), false, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'LOSS_LOCATION.ASI_LOWES_BODILY_INJURY')]//div[@class='row']//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            //Does This Claim Involve Bodily Injury?
+                                            clsMG.fnSelectDropDownWElm("Does This Claim Involve Bodily Injury?", "//div[contains(@question-key, 'LOSS_LOCATION.ASI_LOWES_BODILY_INJURY')]//div[@class='row']//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("BodyInjury", ""), false, false);
+
+                                            //PROPERTY DAMAGED
+                                            clsWE.fnClick(clsWE.fnGetWe("//div[@id='sticky']//a[contains(@id,'NavOption_CLAIM_PROPERTY_DETAIL')]"), "Property Damaged Floating Menu", false, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_PROPERTY_DETAIL.CLAIM_PROPERTY_OWNER_INFO_FLG')]//div[@class='row']//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            clsMG.fnSelectDropDownWElm("Owner Information Known?", "//div[contains(@question-key, 'CLAIM_PROPERTY_DETAIL.CLAIM_PROPERTY_OWNER_INFO_FLG')]//div[@class='row']//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("OwnerKnows", ""), false, false, "", false);
+                                            //clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_PROPERTY_DETAIL.CLAIM_PROPERTY_OWNER_NAME_FIRST')]//div[@class='row' and div[span[text()='Owner First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]"), TimeSpan.FromSeconds(1), 10);
+                                            //clsWE.fnClick(clsWE.fnGetWe("//div[contains(@question-key, 'CLAIM_PROPERTY_DETAIL.CLAIM_PROPERTY_OWNER_NAME_FIRST')]//div[@class='row' and div[span[text()='Owner First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]"), "Click owner first name", false, false);
+                                            //clsMG.fnCleanAndEnterText("Owner First Name", "//div[contains(@question-key, 'CLAIM_PROPERTY_DETAIL.CLAIM_PROPERTY_OWNER_NAME_FIRST')]//div[@class='row' and div[span[text()='Owner First Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterFN", ""), false, false, "", false);
+                                            //clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_PROPERTY_DETAIL.CLAIM_PROPERTY_OWNER_NAME_LAST')]//div[@class='row' and div[span[text()='Owner Last Name']]]//following-sibling::input[starts-with(@class, 'form-control')]"), TimeSpan.FromSeconds(1), 10);
+                                            //clsMG.fnCleanAndEnterText("Owner Last Name", "//div[contains(@question-key, 'CLAIM_PROPERTY_DETAIL.CLAIM_PROPERTY_OWNER_NAME_LAST')]//div[@class='row' and div[span[text()='Owner Last Name']]]//following-sibling::input[starts-with(@class, 'form-control')]", objData.fnGetValue("ReporterLN", ""), false, false, "", false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_PROPERTY_DETAIL.ASI_2807_LOSS_CAUSE')]//div[@class='row']//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            clsMG.fnSelectDropDownWElm("Cause Of The Loss", "//div[contains(@question-key, 'CLAIM_PROPERTY_DETAIL.ASI_2807_LOSS_CAUSE')]//div[@class='row']//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("CauseOfLoss", ""), false, false);
+                                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@question-key, 'CLAIM_PROPERTY_DETAIL.ASI_2807_INJURY_TYPE')]//div[@class='row']//span[@class='select2-selection select2-selection--single']"), TimeSpan.FromSeconds(1), 10);
+                                            clsMG.fnSelectDropDownWElm("Type Of Damage", "//div[contains(@question-key, 'CLAIM_PROPERTY_DETAIL.ASI_2807_INJURY_TYPE')]//div[@class='row']//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("TypeOfDamage", ""), false, false);
+                                            //Contact information
+                                            clsMG.fnSelectDropDownWElm("Is Contact Same As Reporter?", "//div[contains(@question-key, 'CONTACT_INFORMATION.CONTACT_SAME_AS_CALLER_FLG')]//div[@class='row']//span[@class='select2-selection select2-selection--single']", objData.fnGetValue("IsSameAsCaller", ""), false, false);
+                                            clsMG.fnCleanAndEnterText("First Name", "//div[contains(@question-key, 'CONTACT_INFORMATION.CONTACT_NAME_FIRST')]//div[@class='row']//input[@class='form-control']", objData.fnGetValue("EmployeeFN", ""), false, false, "", true);
+                                            clsMG.fnCleanAndEnterText("Last Name", "//div[contains(@question-key, 'CONTACT_INFORMATION.CONTACT_NAME_LAST')]//div[@class='row']//input[@class='form-control']", objData.fnGetValue("EmployeeLN", ""), false, false, "", true);
+                                            clsMG.fnCleanAndEnterText("Email", "//div[contains(@question-key, 'CONTACT_INFORMATION.CONTACT_EMAIL_ADDRESS')]//div[@class='row']//input[@class='form-control']", objData.fnGetValue("Email", ""), false, false, "", true);
+
+
+                                            break;
                                         case "FILLDATA":
                                             clsWebBrowser.objDriver.FindElement(By.TagName("body")).SendKeys(Keys.Escape);
                                             //Reporter First Name
@@ -2016,6 +2103,9 @@ namespace AutomationFrame_GlobalIntake.POM
                                                         break;
                                                     case "SAVETEMPCLAIM":
                                                         clsConstants.strTempClaimNo = strClaimNo;
+                                                        break;
+                                                    case "SAVECONFNUMBERRISKCON":
+                                                        clsConstants.strTempConfirmationNo = strClaimNo;
                                                         break;
                                                 }
                                             });
@@ -3005,6 +3095,98 @@ namespace AutomationFrame_GlobalIntake.POM
             else
             { clsReportResult.fnLog("Users Home Restriction", "The Users Home Restriction Function was not executed successfully.", "Fail", false); }
 
+            return blResult;
+        }
+
+        public bool fnStoreLookup(string pstrSetNo)
+        {
+            bool blResult = true;
+            clsData objData = new clsData();
+            clsReportResult.fnLog("Store Lookup", "Store Lookup Function Starts.", "Info", false);
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LocLookup");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == pstrSetNo)
+                {
+                    //Verify if Store Lookup button exist
+                    clsReportResult.fnLog("Store Lookup Function", "<<<<<<<<<< The Store Lookup Functions Starts. >>>>>>>>>>", "Info", false);
+                    clsMG.WaitWEUntilAppears("Waiting Store Lookup button", "//button[span[text()='Store Lookup']]", 10);
+                    if (clsMG.IsElementPresent("//button[span[text()='Store Lookup']]"))
+                    {
+                        //Verify Store Lookup Popup is displayed
+                        clsWE.fnClick(clsWE.fnGetWe("//button[span[text()='Store Lookup']]"), "Store Lookup Button", false);
+                        if (clsMG.IsElementPresent("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]"))
+                        {
+                            //Wait to Load Store Lookup
+                            Thread.Sleep(TimeSpan.FromSeconds(5));
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]"), "Store Lookup Popup", false, false);
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']"), "Store Table", true, false);
+                            //Verify is table is empty
+                            IList<IWebElement> lsRows = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr"));
+                            if (lsRows.Count() > 2)
+                            {
+                                //Select especific Store
+                                if (objData.fnGetValue("Set", "") != "0")
+                                {
+                                    clsMG.fnCleanAndEnterText("Account Name", "//input[@id='search-accountName']", objData.fnGetValue("AccountName", ""), false, false, "", false);
+                                    clsMG.fnCleanAndEnterText("Account Number", "//input[@id='search-accountNumber']", objData.fnGetValue("AccountNumber", ""), false, false, "", false);
+                                    clsMG.fnCleanAndEnterText("Unit Name", "//input[@id='search-unitName']", objData.fnGetValue("UnitName", ""), false, false, "", false);
+                                    clsMG.fnCleanAndEnterText("Unit Number", "//input[@id='search-unitNumber']", objData.fnGetValue("UnitNumber", ""), false, false, "", false);
+                                    clsMG.fnCleanAndEnterText("Address", "//input[@id='search-address']", objData.fnGetValue("Address", ""), false, false, "", false);
+                                    clsMG.fnCleanAndEnterText("City", "//input[@id='search-city']", objData.fnGetValue("City", ""), false, false, "", false);
+                                    clsMG.fnSelectDropDownWElm("State", "//select[contains(@data-bind, 'SearchParameters.State')]", objData.fnGetValue("State", ""), false, false);
+                                    clsMG.fnCleanAndEnterText("City", "//input[@id='search-zipcode']", objData.fnGetValue("ZipCode", ""), true, false, "", false);
+                                    clsWE.fnClick(clsWE.fnGetWe("//button[text()='Search']"), "Search Button", false);
+                                    //Select Location
+                                    if (clsMG.IsElementPresent("(//table[@id='jurisLocationResults_LOCATION_LOOKUP']//button)[1]"))
+                                    {
+                                        clsReportResult.fnLog("Store Lookup", "The Store Record was found as expected.", "Pass", true, false);
+                                        clsWE.fnClick(clsWE.fnGetWe("(//table[@id='jurisLocationResults_LOCATION_LOOKUP']//button)[1]"), "Select Store Record", false);
+                                    }
+                                    else
+                                    {
+                                        clsReportResult.fnLog("Store Lookup", "The Store Record was not found.", "Fail", true, false);
+                                        blResult = false;
+                                    }
+                                }
+                                else
+                                {
+                                    //Select first existing store
+                                    if (clsMG.IsElementPresent("(//table[@id='jurisLocationResults_LOCATION_LOOKUP']//button)[1]"))
+                                    {
+                                        clsReportResult.fnLog("Store Lookup", "The Store Record was found as expected.", "Pass", true, false);
+                                        clsWE.fnClick(clsWE.fnGetWe("(//table[@id='jurisLocationResults_LOCATION_LOOKUP']//button)[1]"), "Select Store Record", false);
+                                    }
+                                    else
+                                    {
+                                        clsReportResult.fnLog("Store Lookup", "The Store Record was not found.", "Fail", true, false);
+                                        blResult = false;
+                                    }
+                                }
+                                if (clsMG.IsElementPresent("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]"))
+                                { clsWE.fnClick(clsWE.fnGetWe("//button[@id='btn_close_juris']"), "Close Store Lookup", false); }
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Store Lookup", "The Store Lookup Table does not have records.", "Fail", true, false);
+                                blResult = false;
+                            }
+                        }
+                        else
+                        {
+                            clsReportResult.fnLog("Store Lookup", "The Store Lookup Page was not loaded successfully.", "Fail", true, false);
+                            blResult = false;
+                        }
+                    }
+                    else
+                    {
+                        clsReportResult.fnLog("Store Lookup", "The Store Lookup button was not found and cannot be filled.", "Fail", true, false);
+                        blResult = false;
+                    }
+                }
+            }
+            clsWE.fnPageLoad(clsWE.fnGetWe("//*[@data-bind='text: IntakeName']"), "Wait to load previous screen.", false, false);
             return blResult;
         }
 

@@ -1,11 +1,9 @@
-﻿using OpenQA.Selenium;
+﻿using AutomationFramework;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace AutomationFrame_GlobalIntake.Utils
 {
@@ -108,6 +106,7 @@ namespace AutomationFrame_GlobalIntake.Utils
         /// <param name="element">The element to find the parent of</param>
         /// <returns>The parent element</returns>
         public static IWebElement fnGetParentNodeFromJavascript(this IWebDriver driver, IWebElement element) => (IWebElement)((IJavaScriptExecutor)driver).ExecuteScript("return arguments[0].parentNode;", element);
+        
         /// <summary>
         /// Get the parent of a Web Element by using XPath
         /// </summary>
@@ -115,5 +114,67 @@ namespace AutomationFrame_GlobalIntake.Utils
         /// <param name="element">The element to find the parent of</param>
         /// <returns>The parent element</returns>
         public static IWebElement fnGetParentNode(this IWebElement element) => element.FindElement(By.XPath("./.."));
+
+        /// <summary>
+        /// Find text between two sections of text
+        /// </summary>
+        /// <param name="str">string to extract text from</param>
+        /// <param name="start">left limit string</param>
+        /// <param name="end">right limit string</param>
+        /// <returns></returns>
+        public static string fnTextBetween(this string str, string start, string end)
+        {
+            var index = str.IndexOf(start) + start.Length;
+            var result = str.Substring(index);
+            var lenght = result.IndexOf(end);
+            result = result.Substring(0, lenght);
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string fnToSingleLineText(this string str)
+        {
+            return str.Replace("\n", "").Replace("\r", "");
+        }
+
+        /// <summary>
+        /// Returns the string without any non-alphanumeric character
+        /// </summary>
+        /// <param name="str">string to clean</param>
+        /// <returns></returns>
+        public static string fnOnlyAlphanumericChars(this string str)
+        {
+            Regex rgx = new Regex("[^a-zA-Z0-9 -]");
+            str = rgx.Replace(str, "");
+            return str;
+        }
+
+        /// <summary>
+        /// Function to return true if no exception is throwed when executing
+        /// </summary>
+        /// <param name="action">Function to execute</param>
+        /// <returns>True if no exceptions thrown</returns>
+        public static bool TryExecute(this Action action)
+        {
+            try
+            {
+                action.Invoke();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                clsReportResult.fnLog(
+                    "Exception was throwed",
+                    $"Exception Message: '{ex.Message}'. Stack Trace: {ex.StackTrace}",
+                    "Warn",
+                    true
+                );
+                return false;
+            }
+        }
     }
 }

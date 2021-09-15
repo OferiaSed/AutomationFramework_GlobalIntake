@@ -12,10 +12,13 @@ namespace AutomationFrame_GlobalIntake.Models
 
         // Add User Screen
         public static By objSelectClientsButton = By.XPath("//button[@data-target='#clientSelectorModal_User']");
-        public static string strSelectClientsModal = "//div[@id='clientSelectorModal_User']/div";
         public static By objSelectClientsModal = By.XPath(strSelectClientsModal);
         public static By objSelectClientsSaveButton = By.XPath(".//a[@id='btn_close_client']");
         public static By objSelectClientsCheckboxByClientId(string clientId) => By.XPath($".//td[text()='{clientId}']/../td//input/../label");
+
+        public static string strRestrictionTypeDropdown = "//*[@id=select2-restriction-type-select-container']";
+        public static string strSelectClientsModal = "//div[@id='clientSelectorModal_User']/div";
+        public static string strClientSecurityTypes = "//div[select[contains(@data-bind, 'ClientSecurityTypes')]]//span[@class='select2-selection__rendered']";
 
         public bool fnSelectClients(List<string> clientIds)
         {
@@ -44,7 +47,9 @@ namespace AutomationFrame_GlobalIntake.Models
                         {
                             filterByClientId.Clear();
                             filterByClientId.SendKeys(clientId);
-                            modal.FindElement(objSelectClientsCheckboxByClientId(clientId)).Click();
+                            var clientCheckbox = objSelectClientsCheckboxByClientId(clientId);
+                            clsMG.fnWaitUntilElementVisible(clientCheckbox);
+                            modal.FindElement(clientCheckbox).Click();
                         }    
                     );
                     modal.FindElement(objSelectClientsSaveButton).Click();

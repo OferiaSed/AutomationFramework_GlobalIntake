@@ -176,6 +176,11 @@ namespace AutomationFrame_GlobalIntake.POM
             while (!clsWE.fnElementExistNoReport(pstrStepName, pstrLocator, false) && intCount <= pintTime);
         }
 
+        public bool fnWaitUntilElementVisible(By by)
+        {
+            return this.fnGenericWait(() => clsWebBrowser.objDriver.fnIsElementVisible(by), TimeSpan.Zero, 20);
+        }
+
         /// <summary>
         /// Wait for condition to be true
         /// </summary>

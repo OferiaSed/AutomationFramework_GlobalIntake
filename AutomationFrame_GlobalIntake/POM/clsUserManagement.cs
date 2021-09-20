@@ -294,6 +294,27 @@ namespace AutomationFrame_GlobalIntake.POM
                 var restrictionType = objData.fnGetValue("RestrictionType", "");
                 clsMG.fnSelectDropDownWElm("Restriction Type Dropdown", UserManagementModel.strRestrictionTypeDropdown, restrictionType, true);
 
+                clsReportResult.fnLog("Restriction Type", "Step - Choosing Restriction Type", "Info", false);
+                var restrictionAccountNumber = objData.fnGetValue("AccountNumber", "");
+                clsMG.fnCleanAndEnterText("Search Account Number", UserManagementModel.strSearchAccountNumberInput, restrictionAccountNumber, true);
+                clsWebBrowser.objDriver.FindElement(UserManagementModel.objSeachAccountUnitButton).Click();
+                if (restrictionType.ToUpper() == "ACCOUNT")
+                {
+                    var accountCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByAccountNumber(restrictionAccountNumber);
+                    clsMG.fnWaitUntilElementVisible(accountCheckboxSelector);
+                    var accountCheckbox = clsWebBrowser.objDriver.FindElement(accountCheckboxSelector);
+                    clsWebBrowser.objDriver.fnScrollToElement(accountCheckbox);
+                    accountCheckbox.Click();
+                }
+                else if (restrictionType.ToUpper() == "UNIT")
+                {
+                    var restrictionUnitNumber = objData.fnGetValue("UnitNumber", "");
+                    var unitCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByUnitNumber(restrictionUnitNumber);
+                    clsMG.fnWaitUntilElementVisible(unitCheckboxSelector);
+                    var unitCheckbox = clsWebBrowser.objDriver.FindElement(unitCheckboxSelector);
+                    clsWebBrowser.objDriver.fnScrollToElement(unitCheckbox);
+                    unitCheckbox.Click();
+                }
 
                 //Save Changes
                 clsMG.WaitWEUntilAppears("Save button", "//button[contains(text(),'Save Changes')]", 10);

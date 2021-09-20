@@ -1050,6 +1050,10 @@ namespace AutomationFrame_GlobalIntake.POM
 
         public bool fnReadLocationLookRows(string pstrType, string pstrAccUnit, string pstrExpectedVal, string pstrLocator)
         {
+            var parameters = pstrExpectedVal.Split(';').ToList();
+            var account = parameters.SingleOrDefault(x => x.Contains("Account"))?.Replace("Account:=", "");
+            var unit = parameters.SingleOrDefault(x => x.Contains("Unit"))?.Replace("Unit:=", "");
+            pstrExpectedVal = pstrAccUnit == "Account" ? account : unit;
             bool blResult = true;
             IList<IWebElement> lsRow = clsWebBrowser.objDriver.FindElements(By.XPath(pstrLocator));
             int intCounter = 0;

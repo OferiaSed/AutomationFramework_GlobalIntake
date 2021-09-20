@@ -559,8 +559,22 @@ namespace AutomationFrame_GlobalIntake.POM
                 objData.CurrentRow = intRow;
                 if (objData.fnGetValue("Set", "") == pstrSetNo)
                 {
+                    var clientNo = objData.fnGetValue("ClientNo", "");
+                    var clientName = objData.fnGetValue("ClientName", "");
+                    var singleClient = bool.Parse(objData.fnGetValue("SingleClient", "FALSE"));
+                    if (singleClient)
+                    {
+                        //Validate only the client in set is showed
+                        clsWebBrowser.objDriver.FindElement(By.Id("clientSelectorToggle")).Click();
+
+                        var clientPresent = clsWE.fnElementExist("FindAll ", $"//a[contains(text(), '{clientNo}') and contains(text(), '{clientName}')]", true);
+                        var elementCountOk = clsWebBrowser.objDriver.FindElements(By.XPath("//a[@class='dropdown-item bs-content-box']")).Count == 3;
+                        var success = clientPresent && elementCountOk;
+                        clsReportResult.fnLog("Verify Single Client Showed", $"Verify Client '{clientNo} - {clientName}' is the only available for the user", success ? "Pass" : "Fail", true);
+                    }
+
                     //Select Location Lookup or Search Validation
-                    if (fnSelectIntake(objData.fnGetValue("ClientNo", ""), objData.fnGetValue("ClientName", "")))
+                    if (fnSelectIntake(clientNo, clientName))
                     {
                         //Start Intake
                         fnStartNewIntake(objData.fnGetValue("IntakeName", ""));
@@ -1056,6 +1070,10 @@ namespace AutomationFrame_GlobalIntake.POM
 
         public bool fnReadLocationLookRows(string pstrType, string pstrAccUnit, string pstrExpectedVal, string pstrLocator)
         {
+            var parameters = pstrExpectedVal.Split(';').ToList();
+            var account = parameters.SingleOrDefault(x => x.Contains("Account"))?.Replace("Account:=", "");
+            var unit = parameters.SingleOrDefault(x => x.Contains("Unit"))?.Replace("Unit:=", "");
+            pstrExpectedVal = pstrAccUnit == "Account" ? account : unit;
             bool blResult = true;
             IList<IWebElement> lsRow = clsWebBrowser.objDriver.FindElements(By.XPath(pstrLocator));
             int intCounter = 0;

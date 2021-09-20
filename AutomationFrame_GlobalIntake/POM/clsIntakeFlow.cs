@@ -553,8 +553,22 @@ namespace AutomationFrame_GlobalIntake.POM
                 objData.CurrentRow = intRow;
                 if (objData.fnGetValue("Set", "") == pstrSetNo)
                 {
+                    var clientNo = objData.fnGetValue("ClientNo", "");
+                    var clientName = objData.fnGetValue("ClientName", "");
+                    var singleClient = bool.Parse(objData.fnGetValue("SingleClient", "FALSE"));
+                    if (singleClient)
+                    {
+                        //Validate only the client in set is showed
+                        clsWebBrowser.objDriver.FindElement(By.Id("clientSelectorToggle")).Click();
+
+                        var clientPresent = clsWE.fnElementExist("FindAll ", "//a[contains(text(), '6768') and contains(text(), 'LVMH MOET HENNESSY LOUIS VUITTON INC.')]", true);
+                        var elementCountOk = clsWebBrowser.objDriver.FindElements(By.XPath("//a[@class='dropdown-item bs-content-box']")).Count == 3;
+                        var success = clientPresent && elementCountOk;
+                        clsReportResult.fnLog("Verify Single Client Showed", $"Verify Client '{clientNo} - {clientName}' is the only available for the user", success ? "Pass" : "Fail", true);
+                    }
+
                     //Select Location Lookup or Search Validation
-                    if (fnSelectIntake(objData.fnGetValue("ClientNo", ""), objData.fnGetValue("ClientName", "")))
+                    if (fnSelectIntake(clientNo, clientName))
                     {
                         //Start Intake
                         fnStartNewIntake(objData.fnGetValue("IntakeName", ""));

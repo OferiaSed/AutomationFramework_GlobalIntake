@@ -1,14 +1,22 @@
-﻿using AutomationFramework;
+﻿using AutomationFrame_GlobalIntake.POM;
+using AutomationFramework;
+using MyUtils.Email;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace AutomationFrame_GlobalIntake.Utils
 {
     static class clsUtils
     {
+        /// <summary>
+        /// ClsMG object to reference clsMegaIntake Classs
+        /// </summary>
+        private static clsMegaIntake clsMG = new clsMegaIntake();
+
         /// <summary>
         /// Executes a method if the specified codition is true
         /// </summary>
@@ -177,5 +185,44 @@ namespace AutomationFrame_GlobalIntake.Utils
                 return false;
             }
         }
+
+        public static bool fnIsElementEnabledVisible(By by, IWebDriver driver)
+        {
+            try
+            {
+                IWebElement element = driver.FindElement(by);
+                return element.Displayed && element.Enabled; 
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+
+        public static clsEmailV2 fnFindGeneratedEmail(string pstrSetNo, string pstrSubject, string pstrContainsText, bool blNegativescenario = false)
+        {
+            // Get Email Credentials
+            Dictionary<string, string> strCreds = clsEmailV2.fnGetUserAndPasswordEmail(pstrSetNo);
+
+            // Find email
+            clsReportResult.fnLog("Info Email", $"Looking for email with subject '{pstrSubject}'", "Info", false);
+            var email = new clsEmailV2(strCreds["User"], strCreds["Password"], clsEmailV2.emServer.POPGMAIL, false);
+            var found = clsMG.fnGenericWait(() => email.fnReadEmail(pstrSubject, pstrContainsText), TimeSpan.FromSeconds(5), 10);
+            if (!blNegativescenario)
+            {
+                if (found) clsReportResult.fnLog("Info Email", $"The email with subject '{pstrSubject}' was found as expected.", "Pass", false);
+                else clsReportResult.fnLog("Info Email", $"The email with subject '{pstrSubject}' was not found as expected.", "Fail", false, false);
+            }
+            else
+            {
+                if (!found) clsReportResult.fnLog("Info Email", $"The email with subject '{pstrSubject}' was not found as expected.", "Pass", false);
+                else clsReportResult.fnLog("Info Email", $"The email with subject '{pstrSubject}' was found as expected but should not be generated.", "Fail", false, false);
+            }
+            
+
+            return email;
+        }
+
     }
 }

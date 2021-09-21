@@ -1,14 +1,22 @@
-﻿using AutomationFramework;
+﻿using AutomationFrame_GlobalIntake.POM;
+using AutomationFramework;
+using MyUtils.Email;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace AutomationFrame_GlobalIntake.Utils
 {
     static class clsUtils
     {
+        /// <summary>
+        /// ClsMG object to reference clsMegaIntake Classs
+        /// </summary>
+        private static clsMegaIntake clsMG = new clsMegaIntake();
+
         /// <summary>
         /// Executes a method if the specified codition is true
         /// </summary>
@@ -19,26 +27,6 @@ namespace AutomationFrame_GlobalIntake.Utils
             if (condition)
             {
                 action.Invoke();
-            }
-        }
-      
-        /// <summary>
-        /// Verifies if element is visible, if not returns false.
-        /// </summary>
-        /// <param name="By">Provide Locator like xpath, css, id, ect.</param>
-        /// <param name="By">Provide webdriver object.</param>
-        /// <returns></returns>
-        public static bool fnIsElementVisible(By by, IWebDriver driver)
-        {
-            try
-            {
-                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
-                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(by));
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
             }
         }
 
@@ -87,7 +75,7 @@ namespace AutomationFrame_GlobalIntake.Utils
             }
         }
 
-        //TODO Delete if it is not necessary
+        #region WebDriver Extensions
         /// <summary>
         /// Created to scroll in pages as needed and make a specific element visible
         /// </summary>
@@ -106,7 +94,28 @@ namespace AutomationFrame_GlobalIntake.Utils
         /// <param name="element">The element to find the parent of</param>
         /// <returns>The parent element</returns>
         public static IWebElement fnGetParentNodeFromJavascript(this IWebDriver driver, IWebElement element) => (IWebElement)((IJavaScriptExecutor)driver).ExecuteScript("return arguments[0].parentNode;", element);
-        
+
+        /// <summary>
+        /// Verifies if element is visible, if not returns false.
+        /// </summary>
+        /// <param name="by">Provide Locator like xpath, css, id, ect.</param>
+        /// <param name="driver">Provide webdriver object.</param>
+        /// <returns></returns>
+        public static bool fnIsElementVisible(this IWebDriver driver, By by)
+        {
+            try
+            {
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(by));
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+        #endregion
+
         /// <summary>
         /// Get the parent of a Web Element by using XPath
         /// </summary>
@@ -176,5 +185,44 @@ namespace AutomationFrame_GlobalIntake.Utils
                 return false;
             }
         }
+
+        public static bool fnIsElementEnabledVisible(By by, IWebDriver driver)
+        {
+            try
+            {
+                IWebElement element = driver.FindElement(by);
+                return element.Displayed && element.Enabled; 
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+
+        public static clsEmailV2 fnFindGeneratedEmail(string pstrSetNo, string pstrSubject, string pstrContainsText, bool blNegativescenario = false)
+        {
+            // Get Email Credentials
+            Dictionary<string, string> strCreds = clsEmailV2.fnGetUserAndPasswordEmail(pstrSetNo);
+
+            // Find email
+            clsReportResult.fnLog("Info Email", $"Looking for email with subject '{pstrSubject}'", "Info", false);
+            var email = new clsEmailV2(strCreds["User"], strCreds["Password"], clsEmailV2.emServer.POPGMAIL, false);
+            var found = clsMG.fnGenericWait(() => email.fnReadEmail(pstrSubject, pstrContainsText), TimeSpan.FromSeconds(5), 10);
+            if (!blNegativescenario)
+            {
+                if (found) clsReportResult.fnLog("Info Email", $"The email with subject '{pstrSubject}' was found as expected.", "Pass", false);
+                else clsReportResult.fnLog("Info Email", $"The email with subject '{pstrSubject}' was not found as expected.", "Fail", false, false);
+            }
+            else
+            {
+                if (!found) clsReportResult.fnLog("Info Email", $"The email with subject '{pstrSubject}' was not found as expected.", "Pass", false);
+                else clsReportResult.fnLog("Info Email", $"The email with subject '{pstrSubject}' was found as expected but should not be generated.", "Fail", false, false);
+            }
+            
+
+            return email;
+        }
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using AutomationFrame_GlobalIntake.Utils;
+﻿using AutomationFrame_GlobalIntake.Models;
+using AutomationFrame_GlobalIntake.Utils;
 using AutomationFramework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
@@ -66,6 +67,8 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             break;
                         case "ENABLE":
+                            var x = clsUtils.fnIsElementEnabledVisible(By.XPath("//button[contains(@data-bind, 'unlockUser')]"), clsWebBrowser.objDriver);
+
                             if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
                             {
                                 clsWE.fnClick(clsWE.fnGetWe("//button[contains(@data-bind, 'toggleEnableUser')]"), "Enable User", false);
@@ -84,7 +87,8 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             break;
                         case "UNLOCK":
-                            if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
+                            //clsUtils.fnIsElementEnabledVisible(By.XPath("//button[contains(@data-bind, 'unlockUser')]"), clsWebBrowser.objDriver);
+                            if (clsUtils.fnIsElementEnabledVisible(By.XPath("//button[contains(@data-bind, 'unlockUser')]"), clsWebBrowser.objDriver))
                             {
                                 clsWE.fnClick(clsWE.fnGetWe("//button[contains(@data-bind, 'unlockUser')]"), "Unlock User", false);
                                 if (clsWE.fnElementExist("Success Message", "//div[@class='md-toast md-toast-success']", false))
@@ -97,7 +101,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             else
                             {
-                                clsReportResult.fnLog("User Management", "The user cannot be unlocked since Edit Page was not loaded.", "Fail", true);
+                                clsReportResult.fnLog("User Management", "The unlock button is not displayed on the screen.", "Fail", true);
                                 blResult = false;
                             }
                             break;
@@ -245,10 +249,21 @@ namespace AutomationFrame_GlobalIntake.POM
                 clsMG.fnCleanAndEnterText("Phone", "//input[contains(@data-bind,'PhoneNumber')]", objData.fnGetValue("PhoneNumber", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Role", "//span[@data-select2-id=5]", objData.fnGetValue("Role", ""), true, false, "", false);
                 //clsMG.fnSelectDropDownWElm("Clients", "//span[contains(@data-select2-id,'69')]", objData.fnGetValue("Clients", ""), false, false, "", false);
-                clsMG.fnSelectDropDownWElm("Clients", "//div[select[contains(@data-bind, 'ClientSecurityTypes')]]//span[@class='select2-selection__rendered']", objData.fnGetValue("Clients", ""), false, false, "", false);
+                
+                //Client Restriction Section
+                var clients = objData.fnGetValue("Clients", "");
+                clsMG.fnSelectDropDownWElm("Clients", UserManagementModel.strClientSecurityTypes, clients, false, false, "", false);
+                var clientIds = objData.fnGetValue("ClientIds", "");
+                if (clients.Equals("Client") && !string.IsNullOrEmpty(clientIds))
+                {
+                    var newUserPage = new UserManagementModel(clsWebBrowser.objDriver, clsMG);
+                    newUserPage.fnSelectClients(clientIds.Split(',').ToList());
+                }
+
                 clsWE.fnScrollTo(clsWE.fnGetWe("//input[contains(@data-bind,'PhoneNumber')]"), "Scrolling to checkbox two factor authentication", true, false);
                 //MultiFactor Authentication
-                if (objData.fnGetValue("2FA", "False").ToUpper() == "YES" || objData.fnGetValue("2FA", "False").ToUpper() == "TRUE") 
+                var twoFA = objData.fnGetValue("2FA", "False").ToUpper();
+                if(twoFA == "YES" || twoFA == "TRUE") 
                 { clsWE.fnClick(clsWE.fnGetWe("//label[contains(text(),'Enable Multifactor Authentication')]"), "Two Factor Autphentication", false); }
                 //Line of business
                 if (objData.fnGetValue("Lob", "") != "") 
@@ -276,6 +291,32 @@ namespace AutomationFrame_GlobalIntake.POM
                         }
                     }
                     clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Env Bar", false, false);
+                }
+
+                //Restriction Type section
+                var restrictionType = objData.fnGetValue("RestrictionType", "");
+                clsMG.fnSelectDropDownWElm("Restriction Type Dropdown", UserManagementModel.strRestrictionTypeDropdown, restrictionType, true);
+
+                clsReportResult.fnLog("Restriction Type", "Step - Choosing Restriction Type", "Info", false);
+                var restrictionAccountNumber = objData.fnGetValue("AccountNumber", "");
+                clsMG.fnCleanAndEnterText("Search Account Number", UserManagementModel.strSearchAccountNumberInput, restrictionAccountNumber, true);
+                clsWebBrowser.objDriver.FindElement(UserManagementModel.objSeachAccountUnitButton).Click();
+                if (restrictionType.ToUpper() == "ACCOUNT")
+                {
+                    var accountCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByAccountNumber(restrictionAccountNumber);
+                    clsMG.fnWaitUntilElementVisible(accountCheckboxSelector);
+                    var accountCheckbox = clsWebBrowser.objDriver.FindElement(accountCheckboxSelector);
+                    clsWebBrowser.objDriver.fnScrollToElement(accountCheckbox);
+                    accountCheckbox.Click();
+                }
+                else if (restrictionType.ToUpper() == "UNIT")
+                {
+                    var restrictionUnitNumber = objData.fnGetValue("UnitNumber", "");
+                    var unitCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByUnitNumber(restrictionUnitNumber);
+                    clsMG.fnWaitUntilElementVisible(unitCheckboxSelector);
+                    var unitCheckbox = clsWebBrowser.objDriver.FindElement(unitCheckboxSelector);
+                    clsWebBrowser.objDriver.fnScrollToElement(unitCheckbox);
+                    unitCheckbox.Click();
                 }
 
                 //Save Changes

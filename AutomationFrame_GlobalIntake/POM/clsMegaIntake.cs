@@ -176,11 +176,6 @@ namespace AutomationFrame_GlobalIntake.POM
             while (!clsWE.fnElementExistNoReport(pstrStepName, pstrLocator, false) && intCount <= pintTime);
         }
 
-        public bool fnWaitUntilElementVisible(By by)
-        {
-            return this.fnGenericWait(() => clsWebBrowser.objDriver.fnIsElementVisible(by), TimeSpan.Zero, 20);
-        }
-
         /// <summary>
         /// Wait for condition to be true
         /// </summary>
@@ -266,7 +261,7 @@ namespace AutomationFrame_GlobalIntake.POM
             return this.fnSelectDropDownWElm(pstrElement, element, pstrValue, pblScreenShot, pblHardStop, pstrHardStopMsg, bWaitHeader, pstrWebElement);
         }
 
-        public bool fnSelectDropDownWElm(string pstrElement, IWebElement objWebElement, string pstrValue, bool pblScreenShot = false, bool pblHardStop = false, string pstrHardStopMsg = "", bool bWaitHeader = true, string pstrWebElement = "undefined")
+        public bool fnSelectDropDownWElm(string pstrElement, IWebElement objWebElement, string pstrValue, bool pblScreenShot = false, bool pblHardStop = false, string pstrHardStopMsg = "", bool bHeaderPresent = true, string pstrWebElement = "undefined")
         {
             clsWebElements clsWE = new clsWebElements();
             bool blResult = true;
@@ -280,9 +275,8 @@ namespace AutomationFrame_GlobalIntake.POM
                     clsReportResult.fnLog("SelectDropdown", "Step - Select Dropdown: " + pstrElement + " With Value: " + pstrValue, "Info", false);
                     IWebElement objDropDown = objWebElement;
                     objWebElement.Click();
-                    Thread.Sleep(1000);
 
-                    if (IsElementPresent("//span[@class='select2-results']"))
+                    if (clsWebBrowser.objDriver.fnWaitUntilElementVisible(By.XPath("//span[@class='select2-results']"), TimeSpan.FromSeconds(2)))
                     {
                         //Common Dropdown
                         objDropDownContent = clsWebBrowser.objDriver.FindElement(By.XPath("//span[@class='select2-results']"));
@@ -295,25 +289,14 @@ namespace AutomationFrame_GlobalIntake.POM
                         objOptions = objDropDownContent.FindElements(By.XPath("//span[@class='filtrable']"));
                     }
 
-                    foreach (IWebElement objOption in objOptions)
-                    {
-                        string pstrDropdownText = (objOption.GetAttribute("innerText"));
-                        if (pstrDropdownText == pstrValue)
-                        {
-                            objOption.Click();
-                            blResult = true;
-                            break;
-                        }
-                    }
+                    objOptions.Single(objOption => objOption.GetAttribute("innerText") == pstrValue).Click();
+                    blResult = true;
 
-                    if (bWaitHeader) 
+                    if (bHeaderPresent && IsElementPresent("//nav[@id='EnvironmentBar']"))
                     {
-                        if (IsElementPresent("//nav[@id='EnvironmentBar']"))
-                        {
-                            objDropDown = clsWebBrowser.objDriver.FindElement(By.XPath("//nav[@id='EnvironmentBar']"));
-                            Thread.Sleep(TimeSpan.FromMilliseconds(500));
-                            objDropDown.Click();
-                        }
+                        objDropDown = clsWebBrowser.objDriver.FindElement(By.XPath("//nav[@id='EnvironmentBar']"));
+                        clsWebBrowser.objDriver.fnScrollToElement(objDropDown);
+                        objDropDown.Click();
                     }
                 }
             }

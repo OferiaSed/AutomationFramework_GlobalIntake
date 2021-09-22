@@ -31,7 +31,7 @@ namespace AutomationFrame_GlobalIntake.Models
                 () =>
                 {
                     var openDetailsButtonSelector = By.XPath($"//td[text()='{strClaimNo}']/../td/a");
-                    clsMG.fnGenericWait(() => this.driver.fnIsElementVisible(openDetailsButtonSelector), TimeSpan.Zero, 5);
+                    clsMG.fnGenericWait(() => this.driver.fnWaitUntilElementVisible(openDetailsButtonSelector), TimeSpan.Zero, 5);
                     var openDetailsButton = driver.FindElement(openDetailsButtonSelector);
                     this.driver.fnScrollToElement(openDetailsButton);
                     openDetailsButton.Click();

@@ -100,16 +100,43 @@ namespace AutomationFrame_GlobalIntake.Utils
         /// </summary>
         /// <param name="by">Provide Locator like xpath, css, id, ect.</param>
         /// <param name="driver">Provide webdriver object.</param>
-        /// <returns></returns>
-        public static bool fnIsElementVisible(this IWebDriver driver, By by)
+        /// <param name="pTimeToWait">Provide the time to wait.</param>
+        /// <returns>true if element is visible</returns>
+        public static bool fnWaitUntilElementVisible(this IWebDriver driver, By by, TimeSpan pTimeToWait)
         {
             try
             {
-                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+                WebDriverWait wait = new WebDriverWait(driver, pTimeToWait);
                 wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(by));
                 return true;
             }
             catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Verifies if element is visible, if not returns false., default wait 5s
+        /// </summary>
+        /// <param name="by">Provide Locator like xpath, css, id, ect.</param>
+        /// <param name="driver">Provide webdriver object.</param>
+        /// <returns>true if element is visible</returns>
+        public static bool fnWaitUntilElementVisible(this IWebDriver driver, By by) => fnWaitUntilElementVisible(driver, by, TimeSpan.FromSeconds(5));
+
+        /// <summary>
+        /// Evaluate if element is present
+        /// </summary>
+        /// <param name="objWebElement"></param>
+        /// <returns></returns>
+        public static bool fnIsElementPresent(By objWebElement)
+        {
+            try
+            {
+                clsWebBrowser.objDriver.FindElement(objWebElement);
+                return true;
+            }
+            catch (NoSuchElementException)
             {
                 return false;
             }

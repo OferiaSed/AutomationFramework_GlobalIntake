@@ -15,6 +15,7 @@ namespace AutomationFrame_GlobalIntake.Models
         public static string strSelectClientsModal = "//div[@id='clientSelectorModal_User']/div";
         public static string strClientSecurityTypes = "//div[select[contains(@data-bind, 'ClientSecurityTypes')]]//span[@class='select2-selection__rendered']";
         public static string strSearchAccountNumberInput = "//input[contains(@data-bind,'searchAcctNumber')]";
+        public static string strTagDropdown = "//span[contains(@class, 'tag-select-container-custom')]/ul[@class='select2-selection__rendered']";
 
         public static By objSelectClientsButton = By.XPath("//button[@data-target='#clientSelectorModal_User']");
         public static By objSelectClientsModal = By.XPath(strSelectClientsModal);
@@ -34,7 +35,7 @@ namespace AutomationFrame_GlobalIntake.Models
                     driver.fnScrollToElement(button);
                     button.Click();
                     clsMG.WaitWEUntilAppears("Wait for Select Clients Modal", strSelectClientsModal, 0);
-                    var modalVisible = this.driver.fnIsElementVisible(objSelectClientsModal);
+                    var modalVisible = this.driver.fnWaitUntilElementVisible(objSelectClientsModal);
 
                     clsReportResult.fnLog(
                         "Opening Select Clients Modal",
@@ -53,7 +54,7 @@ namespace AutomationFrame_GlobalIntake.Models
                             filterByClientId.Clear();
                             filterByClientId.SendKeys(clientId);
                             var clientCheckbox = objSelectClientsCheckboxByClientId(clientId);
-                            clsMG.fnWaitUntilElementVisible(clientCheckbox);
+                            this.driver.fnWaitUntilElementVisible(clientCheckbox);
                             modal.FindElement(clientCheckbox).Click();
                         }    
                     );

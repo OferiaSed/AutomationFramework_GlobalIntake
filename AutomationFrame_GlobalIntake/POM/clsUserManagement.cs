@@ -185,24 +185,29 @@ namespace AutomationFrame_GlobalIntake.POM
                             {
                                 clsWE.fnScrollTo(clsWE.fnGetWe("//button[contains(@data-bind, 'addUser') and contains(text(),'Add User')]"), "Scrolling to Add user button", true, false);
                                 clsWE.fnClick(clsWE.fnGetWe("//button[contains(@data-bind, 'addUser') and contains(text(),'Add User')]"), "Clicking add user button", false);
-                                if (fnAddNewUser(objData))
+                                var userAdded = fnAddNewUser(objData);
+                                if (userAdded)
                                 {
-                                    if (fnReadEmailAndSetPassword(objData))
+                                    var performFirstLogin = bool.Parse(objData.fnGetValue("PerformFirstLogin", "true"));
+                                    if (performFirstLogin)
                                     {
-                                        if (fnSecurityQuestionsAndAnswers(objData.fnGetValue("SetSecurityQuestions", "")))
+                                        if (fnReadEmailAndSetPassword(objData))
                                         {
-                                            clsReportResult.fnLog("User Management", "The user was activated as successfully.", "Pass", true, false);
+                                            if (fnSecurityQuestionsAndAnswers(objData.fnGetValue("SetSecurityQuestions", "")))
+                                            {
+                                                clsReportResult.fnLog("User Management", "The user was activated as successfully.", "Pass", true, false);
+                                            }
+                                            else
+                                            {
+                                                clsReportResult.fnLog("User Management", "The user was not activated as expected.", "Fail", true, false);
+                                                blResult = false;
+                                            }
                                         }
                                         else
                                         {
-                                            clsReportResult.fnLog("User Management", "The user was not activated as expected.", "Fail", true, false);
+                                            clsReportResult.fnLog("User Management", "The email or password was not changes as expected.", "Fail", true, false);
                                             blResult = false;
                                         }
-                                    }
-                                    else 
-                                    {
-                                        clsReportResult.fnLog("User Management", "The email or password was not changes as expected.", "Fail", true, false);
-                                        blResult = false;
                                     }
                                 }
                                 else
@@ -216,6 +221,9 @@ namespace AutomationFrame_GlobalIntake.POM
                                 clsReportResult.fnLog("User Management", "The User Management > User Page was not loaded as expected", "Fail", true, false);
                                 blResult = false;
                             }
+                            
+                            break;
+                        case "VERIFYTAG":
                             
                             break;
                     }
@@ -259,6 +267,17 @@ namespace AutomationFrame_GlobalIntake.POM
                     var newUserPage = new UserManagementModel(clsWebBrowser.objDriver, clsMG);
                     newUserPage.fnSelectClients(clientIds.Split(',').ToList());
                 }
+
+                var tag = objData.fnGetValue("Tag", "");
+                clsReportResult.fnLog("Selecting Tag in dropdown", $"Selecting Tag: {tag}", "Info", false);
+                clsMG.fnSelectDropDownWElm(
+                    "Tag Dropdown",
+                    UserManagementModel.strTagDropdown,
+                    tag,
+                    true
+                );
+                var tagAdded = clsMG.IsElementPresent($"{UserManagementModel.strTagDropdown}/li[@title='{tag}']");
+                clsReportResult.fnLog("Selected Tag in dropdown", $"Selected Tag: {tag}", tagAdded ? "Pass" : "Fail", true);
 
                 clsWE.fnScrollTo(clsWE.fnGetWe("//input[contains(@data-bind,'PhoneNumber')]"), "Scrolling to checkbox two factor authentication", true, false);
                 //MultiFactor Authentication
@@ -304,7 +323,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 if (restrictionType.ToUpper() == "ACCOUNT")
                 {
                     var accountCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByAccountNumber(restrictionAccountNumber);
-                    clsMG.fnWaitUntilElementVisible(accountCheckboxSelector);
+                    clsWebBrowser.objDriver.fnWaitUntilElementVisible(accountCheckboxSelector);
                     var accountCheckbox = clsWebBrowser.objDriver.FindElement(accountCheckboxSelector);
                     clsWebBrowser.objDriver.fnScrollToElement(accountCheckbox);
                     accountCheckbox.Click();
@@ -313,7 +332,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 {
                     var restrictionUnitNumber = objData.fnGetValue("UnitNumber", "");
                     var unitCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByUnitNumber(restrictionUnitNumber);
-                    clsMG.fnWaitUntilElementVisible(unitCheckboxSelector);
+                    clsWebBrowser.objDriver.fnWaitUntilElementVisible(unitCheckboxSelector);
                     var unitCheckbox = clsWebBrowser.objDriver.FindElement(unitCheckboxSelector);
                     clsWebBrowser.objDriver.fnScrollToElement(unitCheckbox);
                     unitCheckbox.Click();

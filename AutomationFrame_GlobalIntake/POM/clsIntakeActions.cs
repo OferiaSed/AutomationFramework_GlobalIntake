@@ -88,7 +88,7 @@ namespace AutomationFrame_GlobalIntake.POM
             searchIntakePage.OpenIntakeDetailsByClaimNumber(strClaimNo);
 
             //Go to Event Section
-            clsMG.fnGenericWait(() => clsWebBrowser.objDriver.fnIsElementVisible(SearchIntakeModel.objEventSectionSelector), TimeSpan.Zero, 5);
+            clsMG.fnGenericWait(() => clsWebBrowser.objDriver.fnWaitUntilElementVisible(SearchIntakeModel.objEventSectionSelector), TimeSpan.Zero, 5);
             var eventSection = clsWebBrowser.objDriver.FindElement(SearchIntakeModel.objEventSectionSelector);
             clsWebBrowser.objDriver.fnScrollToElement(eventSection);
 

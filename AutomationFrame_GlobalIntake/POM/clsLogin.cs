@@ -167,7 +167,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 if (objData.fnGetValue("Set", "") == pstrSetNo)
                 {
                     //Enter Credentails
-                    fnLogOffSession();
+                    //fnLogOffSession();
                     if (clsMG.IsElementPresent("//button[@id='cookie-accept']")) { clsWE.fnClick(clsWE.fnGetWe("//button[@id='cookie-accept']"), "Accept Cookies Button", false); }
                     fnEnterCredentails(objData.fnGetValue("User", ""), objData.fnGetValue("Password", ""));
                     if (clsMG.IsElementPresent("//h3[text()='Multifactor Authentication']"))
@@ -175,8 +175,12 @@ namespace AutomationFrame_GlobalIntake.POM
                         //Select method & send code
                         clsMG.fnSelectDropDownWElm("Authentication Method", "//input[@class='select-dropdown form-control']", "Email", false, false);
                         clsWE.fnClick(clsWE.fnGetWe("//button[text()='Send Code']"), "Send Code", false);
+
+                        var readEmail = clsUtils.fnFindGeneratedEmail(objData.fnGetValue("Set", ""), "Sedgwick Global Intake Code", "Your Sedgwick Global Intake");
+                        var strToken = readEmail.fnGetContentAsString("code is:", "\r\nThe code", "code is:", "<br/>");
+
                         //Get Email Token
-                        string strToken = fnReadEmailConfirmation(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "code is:", "code is:", "\r\nThe code", "code is:", "<br/>");
+                        //string strToken = fnReadEmailConfirmation(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "code is:", "code is:", "\r\nThe code", "code is:", "<br/>");
                         //Verify if token was received
                         if (strToken != "")
                         {
@@ -190,11 +194,11 @@ namespace AutomationFrame_GlobalIntake.POM
                             blResult = false;
                         }
                         //Verify Login Page
-                        if (clsWE.fnElementExist("Login Label", "//span[contains(text(), 'You are currently logged into')]", false, false))
+                        if (clsMG.IsElementPresent("//span[contains(text(), 'You are currently logged into')]"))
                         { clsReportResult.fnLog("Two Factor Authentication", "The Login with 2FA was done as expected.", "Info", false, false); }
                         else
                         {
-                            clsReportResult.fnLog("Two Factor Authentication", "The Login with 2FA was not completed as expected.", "Fail", true, true);
+                            clsReportResult.fnLog("Two Factor Authentication", "The Login with 2FA was not completed as expected.", "Fail", true, false);
                             blResult = false;
                         }
                     }
@@ -203,7 +207,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         //Verify Error Messages
                         if (clsWE.fnElementExist("Login  - Error Message", "//div[@class='validation-summary-errors']", false, false))
                         {
-                            { clsReportResult.fnLog("Two Factor Authentication", "Some errors were found after privide 2FA credentials.", "Fail", true, true); }
+                            { clsReportResult.fnLog("Two Factor Authentication", "Some errors were found after privide 2FA credentials.", "Fail", true, false); }
                             blResult = false;
                         }
                     }
@@ -212,7 +216,7 @@ namespace AutomationFrame_GlobalIntake.POM
             if (blResult)
             { clsReportResult.fnLog("Two Factor Authentication", "The Two Factor Authentication was executed successfully.", "Pass", true, false); }
             else
-            { clsReportResult.fnLog("Two Factor Authentication", "Two Factor Authentication was not executed successfully.", "Fail", false, true); }
+            { clsReportResult.fnLog("Two Factor Authentication", "Two Factor Authentication was not executed successfully.", "Fail", false, false); }
             return blResult;
         }
 
@@ -254,7 +258,9 @@ namespace AutomationFrame_GlobalIntake.POM
                                         while (clsWE.fnGetAttribute(clsWE.fnGetWe("//input[@id='captcha-input']"), "Captcha", "value", false, false) == "");
                                         clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit", false);
                                         //Verify that email is received to change the password
-                                        string strURLReset = fnReadEmailConfirmation(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "reset your password", "your browser: ", "---", "your browser: ", "</span>");
+                                        var readEmail = clsUtils.fnFindGeneratedEmail(objData.fnGetValue("Set", ""), "Sedgwick Global Intake - Password Reset", "Please reset your password ");
+                                        var strURLReset = readEmail.fnGetContentAsString("your browser: ", "---", "your browser: ", "</span>");
+                                        //string strURLReset = fnReadEmailConfirmation(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "reset your password", "your browser: ", "---", "your browser: ", "</span>");
                                         if (strURLReset != "")
                                         {
                                             clsWebBrowser.objDriver.Navigate().GoToUrl(strURLReset);
@@ -309,7 +315,9 @@ namespace AutomationFrame_GlobalIntake.POM
                                     {
                                         //Verify that any email is received.
                                         clsReportResult.fnLog("Forgot Password", "The invalid captcha was not accepted as expected.", "Pass", true, false);
-                                        string strURLReset = fnReadEmailNegativeScenarios(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "reset your password", "your browser: ", "---", "your browser: ", "</span>");
+                                        var readEmail = clsUtils.fnFindGeneratedEmail(objData.fnGetValue("Set", ""), "Sedgwick Global Intake - Password Reset", "Please reset your password", true);
+                                        var strURLReset = readEmail.fnGetContentAsString("your browser: ", "---", "your browser: ", "</span>");
+                                        //string strURLReset = fnReadEmailNegativeScenarios(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "reset your password", "your browser: ", "---", "your browser: ", "</span>");
                                         if (strURLReset == "")
                                         { 
                                             clsReportResult.fnLog("Forgot Password", "The Forgot Password Email was not received as expected.", "Pass", false, false);
@@ -392,7 +400,9 @@ namespace AutomationFrame_GlobalIntake.POM
                                         if (!clsMG.IsElementPresent("//div[@class='invalid-feedback']"))
                                         {
                                             //Verify that email is received with username
-                                            strUsername = fnReadEmailConfirmation(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "username(s) associated", "are:\r\n\r\n", "\r\n\r\n", "are:</br> <ul><li>", "</li></ul>.");
+                                            var readEmail = clsUtils.fnFindGeneratedEmail(objData.fnGetValue("Set", ""), "Sedgwick Global Intake - Username Request", "username(s) associated");
+                                            strUsername = readEmail.fnGetContentAsString("are:\r\n\r\n", "\r\n\r\n", "are:</br> <ul><li>", "</li></ul>.");
+                                            //strUsername = fnReadEmailConfirmation(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "username(s) associated", "are:\r\n\r\n", "\r\n\r\n", "are:</br> <ul><li>", "</li></ul>.");
                                             if (strUsername != "")
                                             {
                                                 clsReportResult.fnLog("Forgot Username", "The Username email request was received as expected. The user is: " + strUsername, "Pass", false, false);
@@ -426,7 +436,9 @@ namespace AutomationFrame_GlobalIntake.POM
                                     if (clsMG.IsElementPresent("//div[@class='invalid-feedback']"))
                                     {
                                         clsReportResult.fnLog("Forgot Username", "The invalid messages are displayed after provide an invalid captcha.", "Pass", false, false);
-                                        strUsername = fnReadEmailNegativeScenarios(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "username(s) associated", "are:\r\n\r\n", "\r\n\r\n", "are:</br> <ul><li>", "</li></ul>.");
+                                        var readEmail = clsUtils.fnFindGeneratedEmail(objData.fnGetValue("Set", ""), "Sedgwick Global Intake - Username Request", "username(s) associated", true);
+                                        strUsername = readEmail.fnGetContentAsString("are:\r\n\r\n", "\r\n\r\n", "are:</br> <ul><li>", "</li></ul>.");
+                                        // = fnReadEmailNegativeScenarios(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "username(s) associated", "are:\r\n\r\n", "\r\n\r\n", "are:</br> <ul><li>", "</li></ul>.");
                                         if (strUsername == "")
                                         {
                                             clsReportResult.fnLog("Forgot Username", "The Forgot Username email was not received as expected.", "Pass", false, false);
@@ -671,28 +683,6 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
-        private bool Template(string pstrSetNo)
-        {
-            bool blResult = true;
-            clsData objData = new clsData();
-            clsReportResult.fnLog("", "<<<<<<<<<<  >>>>>>>>>>.", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "YourDataSheet");
-            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
-            {
-                objData.CurrentRow = intRow;
-                if (objData.fnGetValue("Set", "") == pstrSetNo)
-                {
-
-                }
-            }
-            return blResult;
-        }
-
-
-
-
-
-
-
+        
     }
 }

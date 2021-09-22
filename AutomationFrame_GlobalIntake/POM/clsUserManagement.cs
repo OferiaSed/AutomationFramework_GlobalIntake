@@ -67,6 +67,8 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             break;
                         case "ENABLE":
+                            var x = clsUtils.fnIsElementEnabledVisible(By.XPath("//button[contains(@data-bind, 'unlockUser')]"), clsWebBrowser.objDriver);
+
                             if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
                             {
                                 clsWE.fnClick(clsWE.fnGetWe("//button[contains(@data-bind, 'toggleEnableUser')]"), "Enable User", false);
@@ -85,7 +87,8 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             break;
                         case "UNLOCK":
-                            if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
+                            //clsUtils.fnIsElementEnabledVisible(By.XPath("//button[contains(@data-bind, 'unlockUser')]"), clsWebBrowser.objDriver);
+                            if (clsUtils.fnIsElementEnabledVisible(By.XPath("//button[contains(@data-bind, 'unlockUser')]"), clsWebBrowser.objDriver))
                             {
                                 clsWE.fnClick(clsWE.fnGetWe("//button[contains(@data-bind, 'unlockUser')]"), "Unlock User", false);
                                 if (clsWE.fnElementExist("Success Message", "//div[@class='md-toast md-toast-success']", false))
@@ -98,7 +101,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             else
                             {
-                                clsReportResult.fnLog("User Management", "The user cannot be unlocked since Edit Page was not loaded.", "Fail", true);
+                                clsReportResult.fnLog("User Management", "The unlock button is not displayed on the screen.", "Fail", true);
                                 blResult = false;
                             }
                             break;

@@ -157,16 +157,9 @@ namespace AutomationFrame_GlobalIntake.POM
                     }
                 }
                 clsWE.fnPageLoad(clsWE.fnGetWe(DuplicateCCModel.strDuplicatePageLabel), "Wait Duplicate CC Header", false, false);
-                clsMG.fnCleanAndEnterText("Loss Time", DuplicateCCModel.strLossTime, pobjData.fnGetValue("LossTime", ""), false, false, "", false);
+                clsMG.fnCleanAndEnterText("Loss Incident Time", DuplicateCCModel.strLossIncidentTime, pobjData.fnGetValue("LossTime", ""), false, false, "", false);
                 clsWE.fnClick(clsWE.fnGetWe(DuplicateCCModel.strDuplicatePageLabel), "Duplicate CC Header", false);
-                clsMG.fnCleanAndEnterText("Loss Date", DuplicateCCModel.strLossDate, pobjData.fnGetValue("LossDate", ""), false, false, "", false);
-                //RK Claim to Submit
-                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@class='row' and div[span[text()='Incident Time']]]//input[@class='form-control']"), TimeSpan.FromSeconds(1), 10);
-                clsMG.fnCleanAndEnterText("Incident Time", "//div[@class='row' and div[span[text()='Incident Time']]]//input[@class='form-control']", pobjData.fnGetValue("IncidentTime", ""), false, false, "", false);
-                clsWE.fnClick(clsWE.fnGetWe("//span[@data-bind='text:Value.Label']"), "Header Intake", false);
-                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@class='row' and div[span[text()='Incident Date']]]//input[@class='form-control']"), TimeSpan.FromSeconds(1), 10);
-                clsMG.fnCleanAndEnterText("Incident Date", "//div[@class='row' and div[span[text()='Incident Date']]]//input[@class='form-control']", pobjData.fnGetValue("IncidentDate", ""), false, false, "", false);
-                //
+                clsMG.fnCleanAndEnterText("Loss Incident Date", DuplicateCCModel.strLossIncidentDate, pobjData.fnGetValue("LossDate", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Reporter Type", DuplicateCCModel.strReporterType, pobjData.fnGetValue("ReporterType", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Reported By", DuplicateCCModel.strReportedBy, pobjData.fnGetValue("ReportedBy", ""), false, false, "", false);
                 clsWE.fnPageLoad(clsWE.fnGetWe(DuplicateCCModel.strEnvironmentBar), "Environment Bar", false, false);
@@ -241,16 +234,9 @@ namespace AutomationFrame_GlobalIntake.POM
                 }
 
                 clsWE.fnPageLoad(clsWE.fnGetWe(DuplicateCCModel.strDuplicatePageLabel), "Wait Duplicate CC Header", false, false);
-                clsMG.fnCleanAndEnterText("Loss Time", DuplicateCCModel.strLossTime, pobjData.fnGetValue("LossTime", ""), false, false, "", false);
+                clsMG.fnCleanAndEnterText("Loss/Incident Time", DuplicateCCModel.strLossIncidentTime, pobjData.fnGetValue("LossIncidentTime", ""), false, false, "", false);
                 clsWE.fnClick(clsWE.fnGetWe(DuplicateCCModel.strDuplicatePageLabel), "Duplicate CC Header", false);
-                clsMG.fnCleanAndEnterText("Loss Date", DuplicateCCModel.strLossDate, pobjData.fnGetValue("LossDate", ""), false, false, "", false);
-                //RK Claim to Submit
-                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@class='row' and div[span[text()='Incident Time']]]//input[@class='form-control']"), TimeSpan.FromSeconds(1), 10);
-                clsMG.fnCleanAndEnterText("Incident Time", "//div[@class='row' and div[span[text()='Incident Time']]]//input[@class='form-control']", pobjData.fnGetValue("IncidentTime", ""), false, false, "", false);
-                clsWE.fnClick(clsWE.fnGetWe("//span[@data-bind='text:Value.Label']"), "Header Intake", false);
-                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@class='row' and div[span[text()='Incident Date']]]//input[@class='form-control']"), TimeSpan.FromSeconds(1), 10);
-                clsMG.fnCleanAndEnterText("Incident Date", "//div[@class='row' and div[span[text()='Incident Date']]]//input[@class='form-control']", pobjData.fnGetValue("IncidentDate", ""), false, false, "", false);
-                //
+                clsMG.fnCleanAndEnterText("Loss/Incident Date", DuplicateCCModel.strLossIncidentDate, pobjData.fnGetValue("LossIncidentDate", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Reporter Type", DuplicateCCModel.strReporterType, pobjData.fnGetValue("ReporterType", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Reported By", DuplicateCCModel.strReportedBy, pobjData.fnGetValue("ReportedBy", ""), false, false, "", false);
                 clsWE.fnPageLoad(clsWE.fnGetWe(DuplicateCCModel.strEnvironmentBar), "Environment Bar", false, false);

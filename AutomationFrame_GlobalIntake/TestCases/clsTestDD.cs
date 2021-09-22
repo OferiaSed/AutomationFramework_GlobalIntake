@@ -154,6 +154,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
                         }
                     }
                     catch(Exception ex)
+
                     {
                         clsReportResult.fnLog("Unhandled Error", $"{ex.Message} => {ex.StackTrace}", "Fail", true);
                     }

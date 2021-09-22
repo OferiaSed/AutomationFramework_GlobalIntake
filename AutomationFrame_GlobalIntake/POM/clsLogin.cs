@@ -30,7 +30,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 if (objData.fnGetValue("Set", "") == pstrSetNo)
                 {
                     clsReportResult.fnLog("Login Function", "<<<<<<<<<< The Login Functions Starts. >>>>>>>>>>", "Info", false);
-                    fnLogOffSession();
+                    fnLogOffSession();//TODO: Optimize
                     if (objData.fnGetValue("TrainingMode", "").ToUpper() == "TRUE" || objData.fnGetValue("TrainingMode", "").ToUpper() == "YES")
                     { clsWebBrowser.objDriver.Navigate().GoToUrl(clsMG.fnGetURLEnv(clsDataDriven.strReportEnv) + "/training"); }
                     else

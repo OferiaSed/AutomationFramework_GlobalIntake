@@ -249,7 +249,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 
                 //Client Restriction Section
                 var clients = objData.fnGetValue("Clients", "");
-                clsMG.fnSelectDropDownWElm("Clients", "//div[select[contains(@data-bind, 'ClientSecurityTypes')]]//span[@class='select2-selection__rendered']", clients, false, false, "", false);
+                clsMG.fnSelectDropDownWElm("Clients", UserManagementModel.strClientSecurityTypes, clients, false, false, "", false);
                 var clientIds = objData.fnGetValue("ClientIds", "");
                 if (clients.Equals("Client") && !string.IsNullOrEmpty(clientIds))
                 {
@@ -259,7 +259,8 @@ namespace AutomationFrame_GlobalIntake.POM
 
                 clsWE.fnScrollTo(clsWE.fnGetWe("//input[contains(@data-bind,'PhoneNumber')]"), "Scrolling to checkbox two factor authentication", true, false);
                 //MultiFactor Authentication
-                if (objData.fnGetValue("2FA", "False").ToUpper() == "YES" || objData.fnGetValue("2FA", "False").ToUpper() == "TRUE") 
+                var twoFA = objData.fnGetValue("2FA", "False").ToUpper();
+                if(twoFA == "YES" || twoFA == "TRUE") 
                 { clsWE.fnClick(clsWE.fnGetWe("//label[contains(text(),'Enable Multifactor Authentication')]"), "Two Factor Autphentication", false); }
                 //Line of business
                 if (objData.fnGetValue("Lob", "") != "") 
@@ -287,6 +288,32 @@ namespace AutomationFrame_GlobalIntake.POM
                         }
                     }
                     clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Env Bar", false, false);
+                }
+
+                //Restriction Type section
+                var restrictionType = objData.fnGetValue("RestrictionType", "");
+                clsMG.fnSelectDropDownWElm("Restriction Type Dropdown", UserManagementModel.strRestrictionTypeDropdown, restrictionType, true);
+
+                clsReportResult.fnLog("Restriction Type", "Step - Choosing Restriction Type", "Info", false);
+                var restrictionAccountNumber = objData.fnGetValue("AccountNumber", "");
+                clsMG.fnCleanAndEnterText("Search Account Number", UserManagementModel.strSearchAccountNumberInput, restrictionAccountNumber, true);
+                clsWebBrowser.objDriver.FindElement(UserManagementModel.objSeachAccountUnitButton).Click();
+                if (restrictionType.ToUpper() == "ACCOUNT")
+                {
+                    var accountCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByAccountNumber(restrictionAccountNumber);
+                    clsMG.fnWaitUntilElementVisible(accountCheckboxSelector);
+                    var accountCheckbox = clsWebBrowser.objDriver.FindElement(accountCheckboxSelector);
+                    clsWebBrowser.objDriver.fnScrollToElement(accountCheckbox);
+                    accountCheckbox.Click();
+                }
+                else if (restrictionType.ToUpper() == "UNIT")
+                {
+                    var restrictionUnitNumber = objData.fnGetValue("UnitNumber", "");
+                    var unitCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByUnitNumber(restrictionUnitNumber);
+                    clsMG.fnWaitUntilElementVisible(unitCheckboxSelector);
+                    var unitCheckbox = clsWebBrowser.objDriver.FindElement(unitCheckboxSelector);
+                    clsWebBrowser.objDriver.fnScrollToElement(unitCheckbox);
+                    unitCheckbox.Click();
                 }
 
                 //Save Changes

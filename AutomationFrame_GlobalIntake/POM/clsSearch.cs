@@ -162,8 +162,9 @@ namespace AutomationFrame_GlobalIntake.POM
                         {
                             case "SEARCHVALIDCLAIM":
                                 blFound = true;
-                                if (clsWE.fnElementExist("Search Results", "//tr[td[text() = '" + pobjData.fnGetValue("ClaimNumber", "") + "']]", false))
-                                { clsReportResult.fnLog("Search Results", "The claim: " + pobjData.fnGetValue("ClaimNumber", "").ToString() + " was found as expected.", "Pass", true); }
+                                var strLocator = pobjData.fnGetValue("ConfNo", "") != "" ? pobjData.fnGetValue("ConfNo", "") : pobjData.fnGetValue("ClaimNumber", "");
+                                if (clsWE.fnElementExist("Search Results", $"//tr[td[text() = '{strLocator}']]", false))
+                                { clsReportResult.fnLog("Search Results", "The claim: " + strLocator.ToString() + " was found as expected.", "Pass", true); }
                                 else
                                 {
                                     clsReportResult.fnLog("Search Results", "The claim: " + pobjData.fnGetValue("ClaimNumber", "").ToString() + " was not found as expected but should be displayed.", "Fail", true);

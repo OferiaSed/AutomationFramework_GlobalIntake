@@ -18,6 +18,7 @@ namespace AutomationFrame_GlobalIntake.POM
         private clsWebElements clsWE = new clsWebElements();
         private clsMegaIntake clsMG = new clsMegaIntake();
         private clsLogin clsLN = new clsLogin();
+        private string strCreatedUsername;
 
         public bool fnUserMagmtWebUser(string pstrSetNo)
         {
@@ -223,11 +224,30 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             
                             break;
-                        case "VERIFYTAG":
-                            
+                        //Can be executed after new user created
+                        //Validates that the set tag is still there
+                        case "VALIDATE TAG":
+                            clsMG.fnHamburgerMenu("User Management;Web Users");
+                            clsWE.fnPageLoad(clsWE.fnGetWe("//h4[contains(text(),'Users')]"), "Users", true, false);
+                            clsMG.fnCleanAndEnterText("Username", "//input[@placeholder='Username']", this.strCreatedUsername, false, false, "", false);
+                            clsWE.fnClick(clsWE.fnGetWe("//button[text()='Search']"), "Search", false);
+                            var userRow = "//tr[td[text()='" + this.strCreatedUsername + "']]//a";
+                            clsWebBrowser.objDriver.fnScrollToElement(clsWebBrowser.objDriver.FindElement(By.XPath(userRow)));
+                            clsMG.fnGenericWait(
+                                () => clsWE.fnElementExist(
+                                        "User Record",
+                                        userRow,
+                                        false
+                                ),
+                                TimeSpan.FromSeconds(1),
+                                3
+                            );
+                            clsWE.fnClick(clsWE.fnGetWe("//tr[td[text()='" + this.strCreatedUsername + "']]//a"), "Edit Record", false);
+                            var tag = objData.fnGetValue("Tag", "");
+                            var tagAdded = clsMG.IsElementPresent($"{UserManagementModel.strTagDropdown}/li[@title='{tag}']");
+                            clsReportResult.fnLog("Selected Tag in dropdown", $"Selected Tag: {tag}", tagAdded ? "Pass" : "Fail", true);
                             break;
                     }
-                    Thread.Sleep(TimeSpan.FromSeconds(3));
                 }
             }
             if (blResult)
@@ -248,7 +268,10 @@ namespace AutomationFrame_GlobalIntake.POM
             {
                 clsReportResult.fnLog("Add user form", "The Add User form exist proceed to fill and save.", "Pass", true);
                 if (objData.fnGetValue("Username", "").ToUpper() == "RND" || objData.fnGetValue("Username", "").ToUpper() == "RANDOM")
-                { clsMG.fnCleanAndEnterText("Username", "//input[contains(@data-bind,'UserName')]", "IntAuto" + DateTime.Now.ToString("MMddyyyy_hhmmss"), false, false); }
+                {
+                    this.strCreatedUsername = "IntAuto" + DateTime.Now.ToString("Mddyyyyhhmmss");
+                    clsMG.fnCleanAndEnterText("Username", "//input[contains(@data-bind,'UserName')]", strCreatedUsername, false, false);
+                }
                 else
                 { clsMG.fnCleanAndEnterText("Username", "//input[contains(@data-bind,'UserName')]", objData.fnGetValue("FirstName", ""), false, false, "", false); }
                 clsMG.fnCleanAndEnterText("First name", "//input[contains(@data-bind,'FirstName')]", objData.fnGetValue("FirstName", ""), false, false, "", false);
@@ -269,15 +292,18 @@ namespace AutomationFrame_GlobalIntake.POM
                 }
 
                 var tag = objData.fnGetValue("Tag", "");
-                clsReportResult.fnLog("Selecting Tag in dropdown", $"Selecting Tag: {tag}", "Info", false);
-                clsMG.fnSelectDropDownWElm(
-                    "Tag Dropdown",
-                    UserManagementModel.strTagDropdown,
-                    tag,
-                    true
-                );
-                var tagAdded = clsMG.IsElementPresent($"{UserManagementModel.strTagDropdown}/li[@title='{tag}']");
-                clsReportResult.fnLog("Selected Tag in dropdown", $"Selected Tag: {tag}", tagAdded ? "Pass" : "Fail", true);
+                if (!tag.Equals(string.Empty))
+                {
+                    clsReportResult.fnLog("Selecting Tag in dropdown", $"Selecting Tag: {tag}", "Info", false);
+                    clsMG.fnSelectDropDownWElm(
+                        "Tag Dropdown",
+                        UserManagementModel.strTagDropdown,
+                        tag,
+                        true
+                    );
+                    var tagAdded = clsMG.IsElementPresent($"{UserManagementModel.strTagDropdown}/li[@title='{tag}']");
+                    clsReportResult.fnLog("Selected Tag in dropdown", $"Selected Tag: {tag}", tagAdded ? "Pass" : "Fail", true);
+                }
 
                 clsWE.fnScrollTo(clsWE.fnGetWe("//input[contains(@data-bind,'PhoneNumber')]"), "Scrolling to checkbox two factor authentication", true, false);
                 //MultiFactor Authentication
@@ -306,7 +332,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         else
                         {
                             clsWE.fnDoubleClick(clsWE.fnGetWe("//label[contains(text(),'Select all')]"), "Select all", true, false);
-                            clsWE.fnClick(clsWE.fnGetWe("//span[contains(text(),'" + objData.fnGetValue("Lob", "") + "')]"), "Select one LOB", true, false);
+                            clsWE.fnClick(clsWE.fnGetWe("//span[contains(text(),\"" + objData.fnGetValue("Lob", "") + "\")]"), "Select one LOB", true, false);
                         }
                     }
                     clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Env Bar", false, false);

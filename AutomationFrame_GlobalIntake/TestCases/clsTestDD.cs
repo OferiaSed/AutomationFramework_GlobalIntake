@@ -167,7 +167,10 @@ namespace AutomationFrame_GlobalIntake.TestCases
                     CloseTest();
                 }
             }
-            
+            //Print Result Path
+            Console.WriteLine("*************************************************************************************************");
+            Console.WriteLine($" >> Please find the test results in path: {clsDataDriven.strReportLocation + clsDataDriven.strReportName + @"\" + clsDataDriven.strReportName + ".html"}");
+            Console.WriteLine("*************************************************************************************************");
         }
 
         public void CloseTest()

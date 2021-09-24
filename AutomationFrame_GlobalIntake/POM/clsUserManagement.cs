@@ -87,7 +87,6 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             break;
                         case "UNLOCK":
-                            //clsUtils.fnIsElementEnabledVisible(By.XPath("//button[contains(@data-bind, 'unlockUser')]"), clsWebBrowser.objDriver);
                             if (clsUtils.fnIsElementEnabledVisible(By.XPath("//button[contains(@data-bind, 'unlockUser')]"), clsWebBrowser.objDriver))
                             {
                                 clsWE.fnClick(clsWE.fnGetWe("//button[contains(@data-bind, 'unlockUser')]"), "Unlock User", false);
@@ -248,7 +247,6 @@ namespace AutomationFrame_GlobalIntake.POM
                 clsMG.fnCleanAndEnterText("Email", "//input[contains(@data-bind,'Email')]", objData.fnGetValue("Email", ""), false, false, "", false);
                 clsMG.fnCleanAndEnterText("Phone", "//input[contains(@data-bind,'PhoneNumber')]", objData.fnGetValue("PhoneNumber", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Role", "//span[@data-select2-id=5]", objData.fnGetValue("Role", ""), true, false, "", false);
-                //clsMG.fnSelectDropDownWElm("Clients", "//span[contains(@data-select2-id,'69')]", objData.fnGetValue("Clients", ""), false, false, "", false);
                 
                 //Client Restriction Section
                 var clients = objData.fnGetValue("Clients", "");
@@ -269,7 +267,6 @@ namespace AutomationFrame_GlobalIntake.POM
                 if (objData.fnGetValue("Lob", "") != "") 
                 {
                     clsMG.WaitWEUntilAppears("Waiting for Line of bussiness", "//input[contains(@class,'select-dropdown form-control')]", 10);
-                    //clsWE.fnClick(clsWE.fnGetWe("//input[contains(@class,'select-dropdown form-control')]"), "Line of bussiness", false);
                     clsWE.fnClick(clsWE.fnGetWe("//div[select[contains(@data-bind, 'LinesOfBusiness')]]//input[@class='select-dropdown form-control']"), "Line of bussiness", false);
                     clsMG.WaitWEUntilAppears("Waiting for LOB active", "//input[contains(@class,'select-dropdown form-control active')]", 5);
                     if (clsMG.IsElementPresent("//input[contains(@class,'select-dropdown form-control active')]"))
@@ -299,7 +296,9 @@ namespace AutomationFrame_GlobalIntake.POM
 
                 clsReportResult.fnLog("Restriction Type", "Step - Choosing Restriction Type", "Info", false);
                 var restrictionAccountNumber = objData.fnGetValue("AccountNumber", "");
+                var restrictionUnitNumber = objData.fnGetValue("UnitNumber", "");
                 clsMG.fnCleanAndEnterText("Search Account Number", UserManagementModel.strSearchAccountNumberInput, restrictionAccountNumber, true);
+                clsMG.fnCleanAndEnterText("Search Unit Number", UserManagementModel.strSearchUnitNumberInput, restrictionUnitNumber, true);
                 clsWebBrowser.objDriver.FindElement(UserManagementModel.objSeachAccountUnitButton).Click();
                 if (restrictionType.ToUpper() == "ACCOUNT")
                 {
@@ -311,7 +310,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 }
                 else if (restrictionType.ToUpper() == "UNIT")
                 {
-                    var restrictionUnitNumber = objData.fnGetValue("UnitNumber", "");
+                    //var restrictionUnitNumber = objData.fnGetValue("UnitNumber", "");
                     var unitCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByUnitNumber(restrictionUnitNumber);
                     clsMG.fnWaitUntilElementVisible(unitCheckboxSelector);
                     var unitCheckbox = clsWebBrowser.objDriver.FindElement(unitCheckboxSelector);
@@ -351,16 +350,6 @@ namespace AutomationFrame_GlobalIntake.POM
                 clsWebBrowser.objDriver.Navigate().GoToUrl(strURLReset);
                 clsWE.fnPageLoad(clsWE.fnGetWe("//h3[text()='Create Password']"), "Create password", true, false);
                 while (!clsMG.IsElementPresent("//input[@id='new-pwd']")) { Thread.Sleep(TimeSpan.FromSeconds(2)); }
-                /*
-                if (clsWE.fnElementExist("New Password", "//input[@id='new-pwd']", false))
-                {
-                    clsMG.fnCleanAndEnterText("New Password", "//input[@id='new-pwd']", objData.fnGetValue("NewPass", ""), false, false, "", false);
-                }
-                else
-                {
-                    clsReportResult.fnLog("New password field", "New password field is not displayed on screen", "Fail", true, false);
-                    blResult = false;
-                }*/
 
                 clsMG.fnCleanAndEnterText("New Password", "//input[@id='new-pwd']", objData.fnGetValue("NewPass", ""), false, false, "", false);
                 clsWE.fnClick(clsWE.fnGetWe("//h3[text()='Create Password']"), "", false);

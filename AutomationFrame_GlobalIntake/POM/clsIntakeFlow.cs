@@ -559,6 +559,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 objData.CurrentRow = intRow;
                 if (objData.fnGetValue("Set", "") == pstrSetNo)
                 {
+                    clsMG.fnHamburgerMenu("Home");
                     var clientNo = objData.fnGetValue("ClientNo", "");
                     var clientName = objData.fnGetValue("ClientName", "");
                     var singleClient = bool.Parse(objData.fnGetValue("SingleClient", "FALSE"));
@@ -582,14 +583,31 @@ namespace AutomationFrame_GlobalIntake.POM
                         clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'Duplicate Claim')]"), "Duplicate Claim Page", false, false);
                         if (clsWE.fnElementExist("Duplicate Claim Check Page", "//span[contains(text(), 'Duplicate Claim')]", true))
                         {
+                            //Open EE Lookup
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//button[span[text()='Employee Lookup']]"), TimeSpan.FromSeconds(1), 3);
+                            if (clsMG.IsElementPresent("//button[span[text()='Employee Lookup']]"))
+                            {
+                                clsWE.fnClick(clsWE.fnGetWe("//button[span[text()='Employee Lookup']]"), "Employee Lookup Button", false);
+                                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@id='jurisEmployeeSearchModal_EMPLOYEE_LOOKUP' and contains(@style, 'display: block')]"), TimeSpan.FromSeconds(1), 10);
+                                if (clsMG.IsElementPresent("//div[@id='jurisEmployeeSearchModal_EMPLOYEE_LOOKUP' and contains(@style, 'display: block')]"))
+                                { clsWE.fnClick(clsWE.fnGetWe("//div[@id='jurisEmployeeSearchModal_EMPLOYEE_LOOKUP' and contains(@style, 'display: block')]//button[text()='Close']"), "Close Button", false); }
+                            }
+
+
+
                             //Verify Location Lookup Popup was opened successfully
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//button[@id='btnJurisLocation_LOCATION_LOOKUP']"), TimeSpan.FromSeconds(1), 10);
                             clsWE.fnClick(clsWE.fnGetWe("//button[@id='btnJurisLocation_LOCATION_LOOKUP']"), "Location Lookup Button", false);
-                            Thread.Sleep(TimeSpan.FromSeconds(3));
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block;')]"), TimeSpan.FromSeconds(1), 10);
+                            //Thread.Sleep(TimeSpan.FromSeconds(3));
+
                             if (clsWE.fnElementExist("Location Lookup Popup", "//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block;')]", true))
                             {
                                 //Verify the account or unit in the table
                                 clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block;')]"), "Location Lookup Page", false, false);
-                                clsWE.fnPageLoad(clsWE.fnGetWe("//table[@id='jurisLocationResults_LOCATION_LOOKUP']"), "Location Lookup Values", false, false);
+                                //clsWE.fnPageLoad(clsWE.fnGetWe("//table[@id='jurisLocationResults_LOCATION_LOOKUP']"), "Location Lookup Values", false, false);
+                                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block;')]"), TimeSpan.FromSeconds(1), 10);
+
                                 //verify that all records in the first page has the correct values
                                 if (fnAccountUnitTableRows(objData.fnGetValue("ScenarioType", ""), objData.fnGetValue("RestrictionType", ""), objData.fnGetValue("AccUnitVal", "")))
                                 {
@@ -629,105 +647,6 @@ namespace AutomationFrame_GlobalIntake.POM
                     }
                     else { blResult = false; }
                     fnCloseLocationLookupPopup();
-
-
-
-                    /*
-                    switch (objData.fnGetValue("Action", "").ToUpper())
-                    {
-                        case "LOCATIONLOOKUP":
-                            //Verify that it goes to Select Intake Page
-                            if (fnSelectIntake(objData.fnGetValue("ClientNo", ""), objData.fnGetValue("ClientName", "")))
-                            {
-                                //Start Intake
-                                fnStartNewIntake(objData.fnGetValue("IntakeName", ""));
-                                clsReportResult.fnLog("Account Unit Security", "--->> The Location Lookup Account/Unit Verification Start.", "Info", false);
-                                clsWE.fnPageLoad(clsWE.fnGetWe("//span[contains(text(), 'Duplicate Claim')]"), "Duplicate Claim Page", false, false);
-                                if (clsWE.fnElementExist("Duplicate Claim Check Page", "//span[contains(text(), 'Duplicate Claim')]", true))
-                                {
-                                    //Verify Location Lookup Popup was opened successfully
-                                    clsWE.fnClick(clsWE.fnGetWe("//button[@id='btnJurisLocation_LOCATION_LOOKUP']"), "Location Lookup Button", false);
-                                    Thread.Sleep(TimeSpan.FromSeconds(3));
-                                    if (clsWE.fnElementExist("Location Lookup Popup", "//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block;')]", true))
-                                    {
-                                        //Verify the account or unit in the table
-                                        clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block;')]"), "Location Lookup Page", false, false);
-                                        clsWE.fnPageLoad(clsWE.fnGetWe("//table[@id='jurisLocationResults_LOCATION_LOOKUP']"), "Location Lookup Values", false, false);
-                                        //verify that all records in the first page has the correct values
-                                        if (fnAccountUnitTableRows(objData.fnGetValue("ScenarioType", ""), objData.fnGetValue("RestrictionType", ""), objData.fnGetValue("AccUnitVal", "")))
-                                        {
-                                            //Apply the filter and verify that the table display the correct values
-                                            if (objData.fnGetValue("RestrictionType", "").Contains("Unit")) 
-                                            { clsWE.fnClick(clsWE.fnGetWe("(//th[contains(@aria-label, 'Unit Name')])[1]"), "Unit Name Sorting", false); }
-                                            else 
-                                            { clsWE.fnClick(clsWE.fnGetWe("(//th[contains(@aria-label, 'Account Name')])[1]"), "Account Name Sorting", false); }
-                                            Thread.Sleep(TimeSpan.FromSeconds(3));
-                                            if (fnAccountUnitTableRows(objData.fnGetValue("ScenarioType", ""), objData.fnGetValue("RestrictionType", ""), objData.fnGetValue("AccUnitVal", "")))
-                                            {
-                                                clsReportResult.fnLog("Location Lookup Popup", "The Account/Unit records in Location Lookup was verified successfully.", "Pass", false, false);
-                                            }
-                                            else
-                                            {
-                                                clsReportResult.fnLog("Location Lookup Popup", "An Invalid Account/Unit was identified after apply a sorting in the table.", "Fail", false, false);
-                                                blResult = false;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            clsReportResult.fnLog("Location Lookup Popup", "An Invalid Account/Unit was identified in the record of the table.", "Fail", false, false);
-                                            blResult = false;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        clsReportResult.fnLog("Location Lookup Popup", "The Location Lookup Popup was not loaded correctly and test cannot continue.", "Fail", true, false);
-                                        blResult = false;
-                                    }
-                                }
-                                else
-                                {
-                                    clsReportResult.fnLog("Duplicate Claim Check Page", "The Duplicate Claim Page was not loaded correctly and test cannot continue.", "Fail", true, false);
-                                    blResult = false;
-                                }
-                            }
-                            else { blResult = false; }
-                            fnCloseLocationLookupPopup();
-                            break;
-                        case "SEARCH":
-                            clsReportResult.fnLog("Account Unit Security", "--->> The Search Claim Account/Unit Verification Start.", "Info", false);
-                            if (fnSearchClaim(objData))
-                            {
-                                //verify Results
-                                switch (objData.fnGetValue("ScenarioType", "").ToUpper()) 
-                                {
-                                    case "POSITIVE":
-                                        if (clsWE.fnElementExist("Search Intake Value", "//tr[td[text() = '" + objData.fnGetValue("ClaimNumber", "") + "']]", false))
-                                        { clsReportResult.fnLog("Account Unit Security", "The claim: " + objData.fnGetValue("ClaimNumber", "").ToString() + " is displayed as expected.", "Pass", true); }
-                                        else
-                                        {
-                                            clsReportResult.fnLog("Account Unit Security", "The claim: " + objData.fnGetValue("ClaimNumber", "").ToString() + " should be displayed for this user.", "Fail", true);
-                                            blResult = false;
-                                        }
-                                        break;
-                                    case "NEGATIVE":
-                                        if (clsWE.fnElementExist("Search Intake Value", "//td[contains(text(), 'No data available in table')]", false))
-                                        { clsReportResult.fnLog("Account Unit Security", "The restricted claim: " + objData.fnGetValue("ClaimNumber", "").ToString() + " is not displayed as expected.", "Pass", true); }
-                                        else
-                                        {
-                                            clsReportResult.fnLog("Account Unit Security", "The restricted claim: " + objData.fnGetValue("ClaimNumber", "").ToString() + " should not be displayed for this user.", "Fail", true);
-                                            blResult = false;
-                                        }
-                                        break;
-                                }
-                            }
-                            else
-                            {
-                                clsReportResult.fnLog("Account Unit Security", "The Search Intake Page was not loaded successfully and test cannot continue.", "Fail", false);
-                                blResult = false;
-                            }
-                            break;
-                    }
-                    */
                 }
             }
             if (blResult)
@@ -1058,9 +977,15 @@ namespace AutomationFrame_GlobalIntake.POM
                     foreach (string strRestriction in arrVal)
                     {
                         if (strRestriction.ToUpper().Contains("ACCOUNT"))
+                        { blResult = fnReadLocationLookRows(pstrType, "Account", strRestriction, strLocator); }
+                        else
+                        { blResult = fnReadLocationLookRows(pstrType, "Unit", strRestriction, strUit); }
+                        /*
+                        if (strRestriction.ToUpper().Contains("ACCOUNT"))
                         { blResult = fnReadLocationLookRows(pstrType, "Account", strRestriction.Replace("Account:=", ""), strLocator); }
                         else
                         { blResult = fnReadLocationLookRows(pstrType, "Unit", strRestriction.Replace("Unit:=", ""), strUit); }
+                        */
                     }
                     break;
             }
@@ -1084,7 +1009,7 @@ namespace AutomationFrame_GlobalIntake.POM
                     {
                         intCounter++;
                         if (elmRow.GetAttribute("innerText") == pstrExpectedVal)
-                        { clsReportResult.fnLog("Location Lookup Table", "The " + pstrAccUnit + ": " + pstrExpectedVal + " was found correctly in the row[" + intCounter.ToString() + "].", "Info", false); }
+                        { clsReportResult.fnLog("Location Lookup Table", "The " + pstrAccUnit + ": " + pstrExpectedVal + " was found correctly in the row[" + intCounter.ToString() + "].", "Info", true); }
                         else
                         {
                             clsReportResult.fnLog("Location Lookup Table", "The " + pstrAccUnit + ": " + elmRow.GetAttribute("innerText") + " was found but should be: " + pstrExpectedVal + " in row[" + intCounter.ToString() + "]", "Fail", true);
@@ -1097,7 +1022,7 @@ namespace AutomationFrame_GlobalIntake.POM
                     {
                         intCounter++;
                         if (elmRow.GetAttribute("innerText") != pstrExpectedVal)
-                        { clsReportResult.fnLog("Location Lookup Table", "The " + pstrAccUnit + ": " + pstrExpectedVal + " was not found in the row[" + intCounter.ToString() + "] as expected.", "Info", false); }
+                        { clsReportResult.fnLog("Location Lookup Table", "The " + pstrAccUnit + ": " + pstrExpectedVal + " was not found in the row[" + intCounter.ToString() + "] as expected.", "Info", true); }
                         else
                         {
                             clsReportResult.fnLog("Location Lookup Table", "The " + pstrAccUnit + ": " + elmRow.GetAttribute("innerText") + " was found but should not be displayed for a restricted account/unit.", "Fail", true);

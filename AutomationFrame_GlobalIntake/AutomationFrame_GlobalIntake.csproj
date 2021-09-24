@@ -178,12 +178,14 @@
     <Compile Include="Models\CreateIntakeModel.cs" />
     <Compile Include="Models\DisseminationModel.cs" />
     <Compile Include="Models\DuplicateCCModel.cs" />
+    <Compile Include="Models\GroupManagementModel.cs" />
     <Compile Include="Models\LoginModel.cs" />
     <Compile Include="Models\ReviewIntakeModel.cs" />
     <Compile Include="Models\SearchIntakeModel.cs" />
     <Compile Include="Models\UserManagementModel.cs" />
     <Compile Include="POM\clsAPI.cs" />
     <Compile Include="POM\clsDissemination.cs" />
+    <Compile Include="POM\clsGroupManagement.cs" />
     <Compile Include="POM\clsIntakeActions.cs" />
     <Compile Include="POM\clsIntakeFlow.cs" />
     <Compile Include="POM\clsLogin.cs" />

@@ -25,6 +25,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
         readonly clsMegaIntake clsMG = new clsMegaIntake();
         readonly clsUserManagment clsUM = new clsUserManagment();
         readonly clsDissemination clsDiss = new clsDissemination();
+        readonly clsGroupManagement clsGM = new clsGroupManagement();
         clsIntakeFlow clsIntake;
         clsSearch clsSearch;
 
@@ -145,6 +146,15 @@ namespace AutomationFrame_GlobalIntake.TestCases
                                     break;
                                 case "DISSEMINATION":
                                     if (!clsDiss.fnDisseminationPage(TempValue)) { blStatus = false; }
+                                    break;
+                                case "USERGROUPS":
+                                    if (!clsGM.fnUserGroups(TempValue)) { blStatus = false; }
+                                    break;
+                                case "VERIFYCLIENTS":
+                                    if (!clsGM.fnverifyClientsPopup(TempValue)) { blStatus = false; }
+                                    break;
+                                case "VERIFYSELECTEDLOC":
+                                    if (!clsGM.fnReadingSelectedLocations(TempValue)) { blStatus = false; }
                                     break;
                                 default:
                                     clsReportResult.fnLog("Data Driven Test", "The action: "+ item.ToString() + " does not exsit.", "Fail", false);

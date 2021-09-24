@@ -234,15 +234,14 @@ namespace AutomationFrame_GlobalIntake.POM
                 }
 
                 clsWE.fnPageLoad(clsWE.fnGetWe(DuplicateCCModel.strDuplicatePageLabel), "Wait Duplicate CC Header", false, false);
-                clsMG.fnCleanAndEnterText("Loss/Incident Time", DuplicateCCModel.strLossIncidentTime, pobjData.fnGetValue("LossIncidentTime", ""), false, false, "", false);
+                clsMG.fnCleanAndEnterText("Loss/Incident Time", DuplicateCCModel.strLossIncidentTime, pobjData.fnGetValue("LossTime", ""), false, false, "", false);
                 clsWE.fnClick(clsWE.fnGetWe(DuplicateCCModel.strDuplicatePageLabel), "Duplicate CC Header", false);
-                clsMG.fnCleanAndEnterText("Loss/Incident Date", DuplicateCCModel.strLossIncidentDate, pobjData.fnGetValue("LossIncidentDate", ""), false, false, "", false);
-                clsMG.fnSelectDropDownWElm("Reporter Type", DuplicateCCModel.strReporterType, pobjData.fnGetValue("ReporterType", ""), false, false, "", false);
+                clsMG.fnCleanAndEnterText("Loss/Incident Date", DuplicateCCModel.strLossIncidentDate, pobjData.fnGetValue("LossDate", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Reported By", DuplicateCCModel.strReportedBy, pobjData.fnGetValue("ReportedBy", ""), false, false, "", false);
+                clsMG.fnSelectDropDownWElm("Reporter Type", DuplicateCCModel.strReporterType, pobjData.fnGetValue("ReporterType", ""), false, false, "", false);
                 clsWE.fnPageLoad(clsWE.fnGetWe(DuplicateCCModel.strEnvironmentBar), "Environment Bar", false, false);
                 clsMG.fnGenericWait(() => clsMG.IsElementPresent(DuplicateCCModel.strEnvironmentBar), TimeSpan.FromSeconds(1), 10);
                 clsWE.fnClick(clsWE.fnGetWe(DuplicateCCModel.strEnvironmentBar), "Move Focus to Environment Bar", false);
-
                 //Fill EE Lookup
                 if (pobjData.fnGetValue("FillEELookup", "").ToUpper() == "TRUE") { blResult = fnEmployeeLocationLookup(pobjData.fnGetValue("EELookupSet", "")); }
                 //FIll Location Lookup
@@ -257,7 +256,7 @@ namespace AutomationFrame_GlobalIntake.POM
                     {
                         clsReportResult.fnLog("Duplicate Claim Check", "The Duplicate Claim Check Page was filled successfully.", "Pass", false, false);
                     }
-                    else
+                    else 
                     {
                         clsReportResult.fnLog("Duplicate Claim Check", "Some errors were found in Duplicate Claim Check Page and test cannot continue", "Fail", true, false);
                         blResult = false;
@@ -270,6 +269,9 @@ namespace AutomationFrame_GlobalIntake.POM
                     case "VERIFYDOL":
                         clsReportResult.fnLog("Preview Mode Label", "The DOL Verification After Fill Data Starts on Duplicated Claim Check.", "Info", false, false);
                         blResult = VerifyDOLElement(pobjData.fnGetValue("LossDate", ""));
+                        break;
+                    case "VERIFYLOCLOOKUP":
+
                         break;
                     case "VERIFYDOLRESTRICTIONS":
                         string[] arrCustomDates = pobjData.fnGetValue("ActionValues", "").Split('|');
@@ -592,9 +594,6 @@ namespace AutomationFrame_GlobalIntake.POM
                                 if (clsMG.IsElementPresent("//div[@id='jurisEmployeeSearchModal_EMPLOYEE_LOOKUP' and contains(@style, 'display: block')]"))
                                 { clsWE.fnClick(clsWE.fnGetWe("//div[@id='jurisEmployeeSearchModal_EMPLOYEE_LOOKUP' and contains(@style, 'display: block')]//button[text()='Close']"), "Close Button", false); }
                             }
-
-
-
                             //Verify Location Lookup Popup was opened successfully
                             clsMG.fnGenericWait(() => clsMG.IsElementPresent("//button[@id='btnJurisLocation_LOCATION_LOOKUP']"), TimeSpan.FromSeconds(1), 10);
                             clsWE.fnClick(clsWE.fnGetWe("//button[@id='btnJurisLocation_LOCATION_LOOKUP']"), "Location Lookup Button", false);
@@ -1748,6 +1747,9 @@ namespace AutomationFrame_GlobalIntake.POM
                                             break;
                                         case "VERIFYONETEAMFORM":
                                             this.fnVerifyOneTeamIntakeFlow(objData);
+                                            break;
+                                        case "VERIFYLOCLOOKUP":
+                                            System.Console.WriteLine("Voy a verificar Lookup");
                                             break;
                                         case "FILLRKCLAIM":
                                             //Reporter First Name
@@ -3119,5 +3121,220 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
+
+        public bool fnIntakeLookupValidation(string pstrSetNo)
+        {
+            bool blResult = true;
+            clsData objData = new clsData();
+            clsReportResult.fnLog("Create Standard Claim", "Create Standard Claim.", "Info", false);
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "EventInfo");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == pstrSetNo)
+                {
+                    //Go to Select Client
+                    clsReportResult.fnLog("Create Claim", "The Create Claim Function Starts.", "Info", false);
+                    if (fnSelectIntake(objData.fnGetValue("ClientNo", ""), objData.fnGetValue("ClientName", "")))
+                    {
+                        //Start Intake and go to Duplicate Claim Check
+                        if (fnStartNewIntake(objData.fnGetValue("LOB", "")))
+                        {
+                            //Populate Duplicate Claim Check
+                            if (fnDuplicateClaimPageIntakeScreen(objData, objData.fnGetValue("SendDuplicateClaim", "TRUE")))
+                            {
+                                //Go to Start Intake
+                                if (clsMG.IsElementPresent("//button[@id='start-intake']"))
+                                {
+                                    IWebElement objWeBar = clsWebBrowser.objDriver.FindElement(By.XPath("//*[@id='EnvironmentBar']"));
+                                    Actions action = new Actions(clsWebBrowser.objDriver);
+                                    objWeBar.Click();
+                                    action.SendKeys(Keys.Home).Perform();
+                                    Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                                    clsWE.fnClick(clsWE.fnGetWe("//button[@id='start-intake']"), "Start Intake Button", false, false);
+                                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                                }
+                                clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='page-container']"), "Intake FLow Page", false, false);
+
+                                var actionDriver = objData.fnGetValue("Action");
+                                var actions = actionDriver.Split(';').ToList();
+                                actions.ForEach(action =>
+                                {
+                                    switch (action.ToUpper())
+                                    {
+
+                                    }
+                                });
+
+                                //Submit Claim
+                                if (objData.fnGetValue("SubmitClaim", "").ToUpper() == "YES" || objData.fnGetValue("SubmitClaim", "").ToUpper() == "TRUE")
+                                {
+                                    clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Next')]"), "Next Button", false, false);
+                                    if (!clsMG.IsElementPresent("//*[@class='col-md-8 secondary-red']"))
+                                    {
+                                        //Verify Actions
+                                        actionDriver = objData.fnGetValue("Action");
+                                        actions = actionDriver.Split(';').ToList();
+                                        actions.ForEach(action => {
+                                            switch (action.ToUpper())
+                                            {
+                                                case "VERIFYSSNMASKINGININTAKEREVIEWEMAILDISSEMINATIONANDFROIPDF":
+                                                    this.fnVerifySsnMaskedInReviewIntakeScreen();
+                                                    this.reviewIntakeScreen.ClickEditFieldValue("SSN");
+                                                    this.fnVerifySsnMaskedInCreateIntakeModel();
+                                                    clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Next')]"), "Next Button", false, false);
+                                                    clsMG.IsElementPresent("//*[@class='col-md-8 secondary-red']");
+                                                    break;
+                                                case "VERIFYPREVIEWMODE":
+                                                    clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label verification starts on Closing Script Screen.", "Info", false, false);
+                                                    if (objData.fnGetValue("ActionValues", "").ToUpper() == "TRUE" || objData.fnGetValue("ActionValues", "").ToUpper() == "YES")
+                                                    {
+                                                        blResult = clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]");
+                                                        string strMessage = blResult ? "was displayed in the Closing Script Page as expected." : "should be displayed in the Closing Script Page but was not found.";
+                                                        clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
+                                                    }
+                                                    else if (objData.fnGetValue("ActionValues", "").ToUpper() == "FALSE" || objData.fnGetValue("ActionValues", "").ToUpper() == "NO")
+                                                    {
+                                                        clsMG.fnGoTopPage();
+                                                        blResult = !clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]");
+                                                        string strMessage = blResult ? "is not displayed as expected in the Closing Script Page." : "should not be displayed in the Closing Script Page for this user role.";
+                                                        clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
+                                                    }
+                                                    break;
+                                                case "VERIFYOFFICENUMBER":
+                                                    clsReportResult.fnLog("Verify Branch Office", "The Branch Office Verification Starts.", "Info", false, false);
+                                                    if (clsMG.IsElementPresent(CreateIntakeModel.strBONumber))
+                                                    {
+                                                        //Get BO Provided
+                                                        clsWE.fnScrollTo(clsWE.fnGetWe(CreateIntakeModel.strBenefitLabel), "Benefit State", false);
+                                                        var strActualBO = (clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strBONumber), "Get Current BO", "innerText", false)).Replace("(", "").Replace(")", "");
+                                                        var strDefaultState = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strDefaultBenefitState), "Get Default State", "innerText", false);
+                                                        var strDBOffice = fnGetBranchOffice(objData.fnGetValue("ClientNo", ""), strDefaultState);
+                                                        clsMG.fnGoTopPage();
+                                                        if (strActualBO.Replace("(", "").Replace(")", "") == strDBOffice)
+                                                        {
+                                                            clsWE.fnScrollTo(clsWE.fnGetWe(CreateIntakeModel.strReviewLabel), "Review State", false);
+                                                            clsReportResult.fnLog("Verify Branch Office", "The Branch Office matches as expected, the DB return(" + strDBOffice + ") and UI has(" + strActualBO + ")", "Pass", true, false);
+                                                        }
+                                                        else
+                                                        {
+                                                            clsReportResult.fnLog("Verify Branch Office", "The Branch Office does not match, the DB return(" + strDBOffice + ") but UI has(" + strActualBO.Replace("(", "").Replace(")", "") + ")", "Fail", true, false);
+                                                            blResult = false;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        clsReportResult.fnLog("Verify Branch Office", "The Branch Office Number is not displayed on UI.", "Fail", false, false);
+                                                        blResult = false;
+                                                    }
+                                                    break;
+                                                case "SAVEEMAILOFFICE":
+                                                    clsConstants.strOfficeEmail = clsWE.fnGetAttribute(clsWE.fnGetWe(CreateIntakeModel.strOfficeEmail), "Get Email Office", "innerText", false);
+                                                    break;
+                                            }
+                                        });
+
+                                        clsReportResult.fnLog("Submit Claim", "Submiting Claim Created.", "Info", true, false);
+                                        clsMG.fnGoTopPage();
+                                        clsWE.fnClick(clsWE.fnGetWe("//button[@id='top-submit']"), "Submit Button", false, false);
+                                        if (!clsMG.IsElementPresent("//*[@data-bind='text:ValidationMessage']"))
+                                        {
+                                            clsWE.fnPageLoad(clsWE.fnGetWe("//*[text()='Thank you']"), "Thank You Page", false, false);
+                                            string strClaimNo = "";
+                                            strClaimNo = fnGetConfirmationNumber();
+                                            //Save Confirmation Number
+                                            clsData objSaveData = new clsData();
+                                            objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "EventInfo", "ClaimNumber", intRow, strClaimNo);
+                                            clsConstants.strSubmitClaimTrainingMode = strClaimNo;
+                                            clsReportResult.fnLog("Create Claim", "The claim: " + strClaimNo + " was created successfully.", "Pass", false, false);
+
+
+                                            actionDriver = objData.fnGetValue("Action");
+                                            actions = actionDriver.Split(';').ToList();
+                                            actions.ForEach(action => {
+                                                switch (action.ToUpper())
+                                                {
+                                                    case "CHECKFROIATTACHMENTWCONLY":
+                                                        this.fnVerifyFroiAttachmentForWcIsReceived(objData, strClaimNo);
+                                                        break;
+                                                    case "VERIFYFROIINTHEEMAILSFORWC":
+                                                        this.fnVerifyFroiLogInDisseminationEvent(strClaimNo);
+                                                        break;
+                                                    case "CREATEGENERATEPDFDISSEMINATION":
+                                                        this.fnVerifyEmailPdfCopyAttachmentForWcIsReceived(objData, strClaimNo);
+                                                        break;
+                                                    case "VERIFYSSNMASKINGININTAKEREVIEWEMAILDISSEMINATIONANDFROIPDF":
+                                                        this.fnTcVerifySsnMaskingInIntakeReviewEmailDisseminationAndFroiPdf(objData, strClaimNo);
+                                                        break;
+                                                    case "VERIFYPREVIEWMODE":
+                                                        clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label verification starts on Submit Screen.", "Info", false, false);
+                                                        if (objData.fnGetValue("ActionValues", "").ToUpper() == "TRUE" || objData.fnGetValue("ActionValues", "").ToUpper() == "YES")
+                                                        {
+                                                            blResult = clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]");
+                                                            string strMessage = blResult ? "was displayed in the Submit Page as expected." : "should be displayed in the Submit Page but was not found.";
+                                                            clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
+                                                        }
+                                                        else if (objData.fnGetValue("ActionValues", "").ToUpper() == "FALSE" || objData.fnGetValue("ActionValues", "").ToUpper() == "NO")
+                                                        {
+                                                            clsMG.fnGoTopPage();
+                                                            blResult = !clsMG.IsElementPresent("//span[contains(@data-bind, 'PreviewModeSubmitting')]");
+                                                            string strMessage = blResult ? "is not displayed as expected in the Submit Page." : "should not be displayed in the Submit Page for this user role.";
+                                                            clsReportResult.fnLog("Preview Mode Label", $"The Preview Mode Label {strMessage}.", blResult ? "Pass" : "Fail", true, false);
+                                                        }
+                                                        break;
+                                                    case "SAVETEMPCLAIM":
+                                                        clsConstants.strTempClaimNo = strClaimNo;
+                                                        break;
+                                                    case "SAVECONFNUMBERRISKCON":
+                                                        clsConstants.strTempConfirmationNo = strClaimNo;
+                                                        break;
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            clsReportResult.fnLog("Create Claim", "Some errors were found after submit the claim and the creation cannot continue.", "Fail", true, false);
+                                            blResult = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        clsReportResult.fnLog("Create Claim", "Some errors were found after try to go to Closing Script Page and claim creation cannot continue.", "Fail", true, false);
+                                        blResult = false;
+                                    }
+                                }
+                                else
+                                {
+                                    //Resume Claim
+                                    clsReportResult.fnLog("Create Claim", "The claim was left on resume status", "Info", true, false);
+                                    string strClaimNo = "";
+                                    strClaimNo = fnGetConfirmationNumber();
+                                    clsData objSaveData = new clsData();
+                                    objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "EventInfo", "ClaimNumber", intRow, strClaimNo);
+                                    clsConstants.strResumeClaimTrainingMode = strClaimNo;
+                                    clsReportResult.fnLog("Create Claim", "The resume claim: " + strClaimNo + " was created.", "Pass", true, false);
+                                }
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Create Claim", "The Duplicated Claim Check was not successfully and claim creation cannot continue.", "Fail", true, false);
+                                blResult = false;
+                            }
+                        }
+                        else
+                        {
+                            clsReportResult.fnLog("Create Claim", "The Create Claim cannot continue since the claim cannot start successfully.", "Fail", true, false);
+                            blResult = false;
+                        }
+                    }
+                    else
+                    {
+                        clsReportResult.fnLog("Create Claim", "The Create Claim cannot continue since the client was not selected as expected.", "Fail", true, false);
+                        blResult = false;
+                    }
+                }
+            }
+            return blResult;
+        }
     }
 }

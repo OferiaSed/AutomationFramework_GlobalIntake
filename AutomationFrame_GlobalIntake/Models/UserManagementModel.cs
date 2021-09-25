@@ -25,12 +25,6 @@ namespace AutomationFrame_GlobalIntake.Models
         public static By objSelectRestrictionAcountByUnitNumber(string unitNumber) => By.XPath($"//tr[td[contains(@data-bind,'UnitNumber') and text()='{unitNumber}']]//Label");
 
 
-        //public static By objSelectRestrictionAcountByAccountNumber(string accountNumber) => By.XPath($"//td[contains(text(), '{accountNumber}')]/..//input/../label");
-        //public static By objSelectRestrictionAcountByUnitNumber(string unitNumber) => By.XPath($"//td[contains(text(), '{unitNumber}')]/..//input/../label");
-
-
-
-
         public static By objSeachAccountUnitButton = By.XPath("//button[contains(@data-bind,'searchAccountUnit')]");
 
         public bool fnSelectClients(List<string> clientIds)

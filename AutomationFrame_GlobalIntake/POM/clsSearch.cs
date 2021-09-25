@@ -66,7 +66,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Search Results", "<<<<<<<<<< The Search Results Function starts. >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "SearchIntake");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "SearchIntake");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;

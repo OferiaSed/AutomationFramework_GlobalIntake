@@ -327,7 +327,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Employee Lookup", "Employee Lookup Function Starts.", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "EELookup");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "EELookup");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -389,7 +389,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Location Lookup", "Location Lookup Function Starts.", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LocLookup");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "LocLookup");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -553,7 +553,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Account Unit Security", "<<<<<<<<<< Account Unit Security Function Starts. >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "AccUnitSec");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "AccUnitSec");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -662,7 +662,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("", "", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "PolicyLookup");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "PolicyLookup");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -1039,7 +1039,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Create Standard Claim", "Create Standard Claim.", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "EventInfo");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "EventInfo");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -1163,7 +1163,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             strClaimNo = clsWE.fnGetAttribute(clsWE.fnGetWe("//span[contains(@data-bind, 'VendorIncidentNumber')]"), "Confirmation Number", "innerText");
                                             //Save Confirmation Number
                                             clsData objSaveData = new clsData();
-                                            objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "EventInfo", "ClaimNumber", intRow, strClaimNo);
+                                            objSaveData.fnSaveValue(clsDataDriven.strDataDriverLocation, "EventInfo", "ClaimNumber", intRow, strClaimNo);
                                             clsConstants.strSubmitClaimTrainingMode = strClaimNo;
                                             clsReportResult.fnLog("Create Claim", "The claim: " + strClaimNo + " was created successfully.", "Pass", false, false);
                                             //Verify Preview Mode
@@ -1212,7 +1212,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                         strClaimNo = clsWE.fnGetAttribute(clsWE.fnGetWe("//span[contains(@data-bind, 'VendorIncidentNumber')]"), "Confirmation Number", "innerText");
                                         //Save Confirmation Number
                                         clsData objSaveData = new clsData();
-                                        objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "EventInfo", "ClaimNumber", intRow, strClaimNo);
+                                        objSaveData.fnSaveValue(clsDataDriven.strDataDriverLocation, "EventInfo", "ClaimNumber", intRow, strClaimNo);
                                         clsConstants.strResumeClaimTrainingMode = strClaimNo;
                                         clsReportResult.fnLog("Create Claim", "The resume claim: " + strClaimNo + " was created but not submited.", "Pass", false, false);
                                         //Verify Preview Mode
@@ -1285,7 +1285,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Create Standard Claim", "Create Standard Claim.", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "EventInfo");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "EventInfo");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -1432,7 +1432,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             }
                                             break;
                                         case "VERIFYDOL":
-                                            blResult = VerifyDOLElement(objData.fnGetValue("LossDate", ""));
+                                            blResult = VerifyDOLElement(objData.fnGetValue("LossIncidentDate", ""));
                                             break;
                                         case "VERIFYPREVIEWMODE":
                                             clsReportResult.fnLog("Preview Mode Label", "The Preview Mode Label verification starts on Intake Flow Screen.", "Info", false, false);
@@ -1992,7 +1992,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             strClaimNo = fnGetConfirmationNumber();
                                             //Save Confirmation Number
                                             clsData objSaveData = new clsData();
-                                            objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "EventInfo", "ClaimNumber", intRow, strClaimNo);
+                                            objSaveData.fnSaveValue(clsDataDriven.strDataDriverLocation, "EventInfo", "ClaimNumber", intRow, strClaimNo);
                                             clsConstants.strSubmitClaimTrainingMode = strClaimNo;
                                             clsReportResult.fnLog("Create Claim", "The claim: " + strClaimNo + " was created successfully.", "Pass", false, false);
 
@@ -2058,7 +2058,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                     string strClaimNo = "";
                                     strClaimNo = fnGetConfirmationNumber();
                                     clsData objSaveData = new clsData();
-                                    objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "EventInfo", "ClaimNumber", intRow, strClaimNo);
+                                    objSaveData.fnSaveValue(clsDataDriven.strDataDriverLocation, "EventInfo", "ClaimNumber", intRow, strClaimNo);
                                     clsConstants.strResumeClaimTrainingMode = strClaimNo;
                                     clsReportResult.fnLog("Create Claim", "The resume claim: " + strClaimNo + " was created.", "Pass", true, false);
                                 }
@@ -2125,7 +2125,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Restricted Reported By", "Create Standard Claim.", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "EventInfo");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "EventInfo");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -2139,7 +2139,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         if (fnStartNewIntake(objData.fnGetValue("LOB", "")))
                         {
                             //Populate Duplicate Claim Check
-                            if (fnDuplicateClaimPage(objData, false))
+                            if (fnDuplicateClaimPageIntakeScreen(objData, "False"))
                             {
                                 //Verify that Reported By is not displayed on Duplicated Claim Check
                                 if (!clsMG.IsElementPresent("//div[@class='row' and div[span[text()='Reported By']]]//span[@class='select2-selection select2-selection--single']"))
@@ -2204,132 +2204,6 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
-        /*
-        public bool fnIntakeOnlyResumeVerification(string pstrSetNo)
-        {
-            bool blResult = true;
-            
-            clsData objData = new clsData();
-            clsReportResult.fnLog("Verify Intake Only Resume Claim", "<<<<<<<<<< Resume Claim Function Starts. >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "ResumeIntOnly");
-            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
-            {
-                objData.CurrentRow = intRow;
-                if (objData.fnGetValue("Set", "") == pstrSetNo)
-                {
-                    //Search Claim
-                    if (fnSearchClaim(objData))
-                    {
-                        clsReportResult.fnLog("Verify Intake Only Resume Claim", "Search Page Results", "Info", true);
-                        //Get Claim List
-                        IList<IWebElement> lsPagButton = clsWebBrowser.objDriver.FindElements(By.XPath("//li[contains(@class, 'paginate_button page-item')]"));
-                        IList<IWebElement> lsRows = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='results']//tr//td[8]"));
-                        string strCurrentUser = clsWebBrowser.objDriver.FindElement(By.XPath("//li[@class='nav-item dropdown m-menuitem-show']//span[contains(@data-bind, 'DisplayName')]")).GetAttribute("innerText");
-                        bool blFound = false;
-                        if (lsRows.Count > 0)
-                        {
-                            //Iterate for each Page
-                            for (int intPage = 1; intPage <= lsPagButton.Count - 2; intPage++) 
-                            {
-                                int intCount = 0;
-                                lsRows = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='results']//tr//td[8]"));
-                                switch (objData.fnGetValue("UserVerification", "").ToUpper()) 
-                                {
-                                    case "SAMEUSER":
-                                        //Search all the records with the same user logged in
-                                        foreach (var row in lsRows)
-                                        {
-                                            intCount++;
-                                            if (row.GetAttribute("innerText") == strCurrentUser)
-                                            {
-                                                //Select Rown and Click on submit
-                                                clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false, false);
-                                                Thread.Sleep(TimeSpan.FromSeconds(1));
-                                                clsWE.fnClick(clsWE.fnGetWe("(//table[@id='results']//tr//a)["+ intCount +"]"), "Click Edit Button", false, false);
-                                                Thread.Sleep(TimeSpan.FromSeconds(4));
-                                                clsWE.fnPageLoad(clsWE.fnGetWe("//h4[text()='Intake Details']"), "Intake Details Page", false, false);
-                                                blFound = true;
-                                                if (!clsMG.IsElementPresent("//button[text()='Resume']"))
-                                                {
-                                                    clsReportResult.fnLog("Verify Intake Only Resume Claim", "The RESUME button is not displayed for Intake Only Users as expected.", "Pass", true, false);
-                                                }
-                                                else
-                                                {
-                                                    clsReportResult.fnLog("Verify Intake Only Resume Claim", "The RESUME button should not be displayed for Intake Only Users.", "Fail", true, false);
-                                                    blResult = false;
-                                                }
-                                                break;
-                                            }
-                                        }
-                                        break;
-                                    case "OTHERUSER":
-                                        //Search all the records with a different user
-                                        clsWE.fnScrollTo(clsWE.fnGetWe("//h4[text()='Search Results']"), "", false, false);
-                                        Thread.Sleep(TimeSpan.FromSeconds(3));
-                                        foreach (var row in lsRows)
-                                        {
-                                            intCount++;
-                                            if (row.GetAttribute("innerText") != strCurrentUser)
-                                            {
-                                                //Select
-                                                clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false, false);
-                                                Thread.Sleep(TimeSpan.FromSeconds(1));
-                                                clsWE.fnClick(clsWE.fnGetWe("(//table[@id='results']//tr//a)[" + intCount + "]"), "Click Edit Button", false, false);
-                                                Thread.Sleep(TimeSpan.FromSeconds(2));
-                                                clsWE.fnPageLoad(clsWE.fnGetWe("//h4[text()='Intake Details']"), "Intake Details Page", false, false);
-                                                blFound = true;
-                                                if (!clsMG.IsElementPresent("//button[text()='Resume']"))
-                                                {
-                                                    clsReportResult.fnLog("Verify Intake Only Resume Claim", "The RESUME button is not displayed for Intake Only Users as expected.", "Pass", true, false);
-                                                }
-                                                else
-                                                {
-                                                    clsReportResult.fnLog("Verify Intake Only Resume Claim", "The RESUME button should not be displayed for Intake Only Users.", "Fail", true, false);
-                                                    blResult = false;
-                                                }
-                                                break;
-                                            }
-                                        }
-                                        break;
-                                }
-                                //Click Next Button
-                                if (!clsMG.IsElementPresent("//li[@id='results_next']/a")) 
-                                {
-                                    clsWebBrowser.objDriver.Navigate().Back();
-                                }
-                                clsWE.fnPageLoad(clsWE.fnGetWe("//li[@id='results_next']/a"), "Wait Next Button", false, false);
-                                if (intPage + 1 > 1) 
-                                { 
-                                    clsWE.fnClick(clsWE.fnGetWe("//li[@id='results_next']/a"), "Next Button", false, false);
-                                    //clsMG.fnGoTopPage();
-                                }
-                                if (blFound) { break; }
-                            }
-                            //Verify that Resume button is not displayed
-                            if (!blFound) 
-                            {
-                                clsReportResult.fnLog("Verify Intake Only Resume Claim", "No claims were found with the criteria provided and test cannot continue.", "Fail", true, false);
-                                blResult = false;
-                            }
-                        }
-                        else
-                        {
-                            clsReportResult.fnLog("Verify Intake Only Resume Claim", "The search criteria did not return any data and test cannot continue.", "Fail", true, false);
-                            blResult = false;
-                        }
-                    }
-                    else
-                    {
-                        clsReportResult.fnLog("Verify Intake Only Resume Claim", "The Intake Only Resume Claims cannot continue since some error appears in the search page.", "Fail", true, false);
-                        blResult = false;
-                    }
-                }
-            }
-            
-            return blResult;
-        }
-        */
-
         public bool fnIntakeOnlyDashboardResumeAPI()
         {
             bool blResult = true;
@@ -2338,7 +2212,7 @@ namespace AutomationFrame_GlobalIntake.POM
             clsReportResult.fnLog("Resume API Claim", "<<<<<<<<<< Resume API Claim Function Starts. >>>>>>>>>>", "Info", false);
 
             //Get Claim Created via API
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "API");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "API");
             objData.CurrentRow = 2;
             string strClaim = objData.fnGetValue("IncidentNumber", "");
 
@@ -2522,7 +2396,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("LOB Restriction By User", "The User with LOB Restriction Function Starts.", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "EventInfo");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "EventInfo");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -2804,7 +2678,7 @@ namespace AutomationFrame_GlobalIntake.POM
 
             clsData objData = new clsData();
             clsReportResult.fnLog("Users Home Restriction", "<<<<<<<<<< Users Home Restriction Function Starts >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "UserMGMT");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "UserMGMT");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -3032,7 +2906,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Store Lookup", "Store Lookup Function Starts.", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LocLookup");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "LocLookup");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;

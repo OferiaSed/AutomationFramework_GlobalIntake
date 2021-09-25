@@ -13,7 +13,7 @@ namespace AutomationFrame_GlobalIntake.Utils
         public static string strDBPort = "1521";
         public static string strDBService = "viaoneR";
         public static string strDBUser = "oferia";
-        public static string strDBPass = "P@ssw0rd#02";
+        public static string strDBPass = "P@ssw0rd#04";
 
         //API Credentials
         public static string strAPIUSer = "OmarAPI";

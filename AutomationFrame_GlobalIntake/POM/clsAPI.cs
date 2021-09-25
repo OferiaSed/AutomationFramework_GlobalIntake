@@ -80,7 +80,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Intake Instance API", "<<<<<<<<<< Intake Instance API Function Starts. >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "API");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "API");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -94,9 +94,9 @@ namespace AutomationFrame_GlobalIntake.POM
                             {
                                 clsReportResult.fnLog("Intake Instance API", "The Intake Instance was created with IntakeInstanceId: "+ ciResponse.IntakeInstanceId + " and ConfirmationNumber: "+ ciResponse.ConfirmationNumber + " and IncidentNumber: "+ ciResponse.IncidentNumber + ".", "Pass", false);
                                 clsData objSaveData = new clsData();
-                                objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "API", "IntakeInstanceId", intRow, ciResponse.IntakeInstanceId);
-                                objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "API", "ConfirmationNumber", intRow, ciResponse.ConfirmationNumber);
-                                objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "API", "IncidentNumber", intRow, ciResponse.IncidentNumber);
+                                objSaveData.fnSaveValue(clsDataDriven.strDataDriverLocation, "API", "IntakeInstanceId", intRow, ciResponse.IntakeInstanceId);
+                                objSaveData.fnSaveValue(clsDataDriven.strDataDriverLocation, "API", "ConfirmationNumber", intRow, ciResponse.ConfirmationNumber);
+                                objSaveData.fnSaveValue(clsDataDriven.strDataDriverLocation, "API", "IncidentNumber", intRow, ciResponse.IncidentNumber);
                             }
                             else 
                             {
@@ -110,9 +110,9 @@ namespace AutomationFrame_GlobalIntake.POM
                             {
                                 clsReportResult.fnLog("Intake Instance API", "The Intake Instance was created with IntakeInstanceId: " + sbResponse.IntakeInstanceId + " and ConfirmationNumber: " + sbResponse.ConfirmationNumber + ".", "Pass", false);
                                 clsData objSaveData = new clsData();
-                                objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "API", "IntakeInstanceId", intRow, sbResponse.IntakeInstanceId);
-                                objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "API", "ConfirmationNumber", intRow, sbResponse.ConfirmationNumber);
-                                objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "API", "IncidentNumber", intRow, sbResponse.IncidentNumber);
+                                objSaveData.fnSaveValue(clsDataDriven.strDataDriverLocation, "API", "IntakeInstanceId", intRow, sbResponse.IntakeInstanceId);
+                                objSaveData.fnSaveValue(clsDataDriven.strDataDriverLocation, "API", "ConfirmationNumber", intRow, sbResponse.ConfirmationNumber);
+                                objSaveData.fnSaveValue(clsDataDriven.strDataDriverLocation, "API", "IncidentNumber", intRow, sbResponse.IncidentNumber);
                             }
                             else
                             {

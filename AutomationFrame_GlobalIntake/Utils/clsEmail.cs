@@ -189,7 +189,7 @@ namespace AutomationFrame_GlobalIntake.Utils
             bool blResult = true;
             clsData objData = new clsData();
             Dictionary<string, string> dicCredentials = new Dictionary<string, string>();
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "LogInData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;

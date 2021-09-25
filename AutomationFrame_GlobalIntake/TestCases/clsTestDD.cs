@@ -48,7 +48,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
         [Test]
         public void fnTest_DataDriven()
         {
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], ConfigurationManager.AppSettings["Sheet"]);
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, clsDataDriven.strDriverSheet);
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -102,7 +102,8 @@ namespace AutomationFrame_GlobalIntake.TestCases
                                     if (!clsIntake.fnAccountUnitSecurityVerification(TempValue)) { blStatus = false; }
                                     break;
                                 case "CREATECLAIM":
-                                    if (!clsIntake.fnCreateAndSubmitClaim(TempValue)) { blStatus = false; }
+                                    if (!clsIntake.fnIntakeScreen(TempValue)) { blStatus = false; }
+                                    //if (!clsIntake.fnCreateAndSubmitClaim(TempValue)) { blStatus = false; }
                                     break;
                                 case "SEARCHTRAININGCLAIM":
                                     if (!clsSearch.fnVerifyTrainingModeClaims()) { blStatus = false; }
@@ -161,13 +162,16 @@ namespace AutomationFrame_GlobalIntake.TestCases
 
                     //Check Status
                     if (clsReportResult.TC_Status)
-                    { objData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "TestCases", "Status", intRow, "Pass"); }
+                    { objData.fnSaveValue(clsDataDriven.strDataDriverLocation, "TestCases", "Status", intRow, "Pass"); }
                     else
-                    { objData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "TestCases", "Status", intRow, "Fail"); }
+                    { objData.fnSaveValue(clsDataDriven.strDataDriverLocation, "TestCases", "Status", intRow, "Fail"); }
                     CloseTest();
                 }
             }
-            
+            //Print Result Path
+            Console.WriteLine("*************************************************************************************************");
+            Console.WriteLine($" >> Find test results in : {clsDataDriven.strReportLocation + clsDataDriven.strReportName + @"\" + clsDataDriven.strReportName + ".html"}");
+            Console.WriteLine("*************************************************************************************************");
         }
 
         public void CloseTest()

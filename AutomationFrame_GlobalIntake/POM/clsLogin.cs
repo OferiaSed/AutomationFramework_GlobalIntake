@@ -23,7 +23,7 @@ namespace AutomationFrame_GlobalIntake.POM
         {
             bool blResult = true;
             clsData objData = new clsData();
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "LogInData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -83,7 +83,7 @@ namespace AutomationFrame_GlobalIntake.POM
         {
             bool blResult = true;
             clsData objData = new clsData();
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "LogInData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -160,7 +160,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Two Factor Authentication", "<<<<<<<<<< Two Factor Authentication Function Starts. >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "LogInData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -225,7 +225,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Forgot Password", "<<<<<<<<<< Forfot Password Function Starts. >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "ForgotData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "ForgotData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -276,7 +276,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             {
                                                 //Save the claim
                                                 clsData objSaveData = new clsData();
-                                                objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "LogInData", "Password", intRow, strNewPass);
+                                                objSaveData.fnSaveValue(clsDataDriven.strDataDriverLocation, "LogInData", "Password", intRow, strNewPass);
 
                                                 //Verify email confirmation for password reset
                                                 if (fnReadTextEmail(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "password for your account was changed"))
@@ -366,7 +366,7 @@ namespace AutomationFrame_GlobalIntake.POM
             clsData objData = new clsData();
             string strUsername = "";
             clsReportResult.fnLog("Forgot Username", "<<<<<<<<<< Two Forgot Username Function Starts. >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "ForgotData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "ForgotData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -486,7 +486,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Restriction for Expired User", "<<<<<<<<<< Restriction for Expired User Function Starts. >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "LogInData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -558,7 +558,7 @@ namespace AutomationFrame_GlobalIntake.POM
             int intCount = 0;
             clsData objData = new clsData();
             clsReportResult.fnLog("Timeout session", "<<<<<<<<<< The Login Timeout session function Starts >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "LogInData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;

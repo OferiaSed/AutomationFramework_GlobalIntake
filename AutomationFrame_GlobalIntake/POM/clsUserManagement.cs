@@ -26,7 +26,7 @@ namespace AutomationFrame_GlobalIntake.POM
 
             clsData objData = new clsData();
             clsReportResult.fnLog("User Management", "<<<<<<<<<< User Management Function Starts >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "UserMGMT");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "UserMGMT");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -88,7 +88,6 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             break;
                         case "UNLOCK":
-                            //clsUtils.fnIsElementEnabledVisible(By.XPath("//button[contains(@data-bind, 'unlockUser')]"), clsWebBrowser.objDriver);
                             if (clsUtils.fnIsElementEnabledVisible(By.XPath("//button[contains(@data-bind, 'unlockUser')]"), clsWebBrowser.objDriver))
                             {
                                 clsWE.fnClick(clsWE.fnGetWe("//button[contains(@data-bind, 'unlockUser')]"), "Unlock User", false);
@@ -279,7 +278,6 @@ namespace AutomationFrame_GlobalIntake.POM
                 clsMG.fnCleanAndEnterText("Email", "//input[contains(@data-bind,'Email')]", objData.fnGetValue("Email", ""), false, false, "", false);
                 clsMG.fnCleanAndEnterText("Phone", "//input[contains(@data-bind,'PhoneNumber')]", objData.fnGetValue("PhoneNumber", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Role", "//span[@data-select2-id=5]", objData.fnGetValue("Role", ""), true, false, "", false);
-                //clsMG.fnSelectDropDownWElm("Clients", "//span[contains(@data-select2-id,'69')]", objData.fnGetValue("Clients", ""), false, false, "", false);
                 
                 //Client Restriction Section
                 var clients = objData.fnGetValue("Clients", "");
@@ -314,7 +312,6 @@ namespace AutomationFrame_GlobalIntake.POM
                 if (objData.fnGetValue("Lob", "") != "") 
                 {
                     clsMG.WaitWEUntilAppears("Waiting for Line of bussiness", "//input[contains(@class,'select-dropdown form-control')]", 10);
-                    //clsWE.fnClick(clsWE.fnGetWe("//input[contains(@class,'select-dropdown form-control')]"), "Line of bussiness", false);
                     clsWE.fnClick(clsWE.fnGetWe("//div[select[contains(@data-bind, 'LinesOfBusiness')]]//input[@class='select-dropdown form-control']"), "Line of bussiness", false);
                     clsMG.WaitWEUntilAppears("Waiting for LOB active", "//input[contains(@class,'select-dropdown form-control active')]", 5);
                     if (clsMG.IsElementPresent("//input[contains(@class,'select-dropdown form-control active')]"))
@@ -340,29 +337,33 @@ namespace AutomationFrame_GlobalIntake.POM
 
                 //Restriction Type section
                 var restrictionType = objData.fnGetValue("RestrictionType", "");
-                clsMG.fnSelectDropDownWElm("Restriction Type Dropdown", UserManagementModel.strRestrictionTypeDropdown, restrictionType, true);
-
-                clsReportResult.fnLog("Restriction Type", "Step - Choosing Restriction Type", "Info", false);
-                var restrictionAccountNumber = objData.fnGetValue("AccountNumber", "");
-                clsMG.fnCleanAndEnterText("Search Account Number", UserManagementModel.strSearchAccountNumberInput, restrictionAccountNumber, true);
-                clsWebBrowser.objDriver.FindElement(UserManagementModel.objSeachAccountUnitButton).Click();
-                if (restrictionType.ToUpper() == "ACCOUNT")
+                if (restrictionType != "") 
                 {
-                    var accountCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByAccountNumber(restrictionAccountNumber);
-                    clsWebBrowser.objDriver.fnWaitUntilElementVisible(accountCheckboxSelector);
-                    var accountCheckbox = clsWebBrowser.objDriver.FindElement(accountCheckboxSelector);
-                    clsWebBrowser.objDriver.fnScrollToElement(accountCheckbox);
-                    accountCheckbox.Click();
-                }
-                else if (restrictionType.ToUpper() == "UNIT")
-                {
+                    clsMG.fnSelectDropDownWElm("Restriction Type Dropdown", UserManagementModel.strRestrictionTypeDropdown, restrictionType, true);
+                    clsReportResult.fnLog("Restriction Type", "Step - Choosing Restriction Type", "Info", false);
+                    var restrictionAccountNumber = objData.fnGetValue("AccountNumber", "");
                     var restrictionUnitNumber = objData.fnGetValue("UnitNumber", "");
-                    var unitCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByUnitNumber(restrictionUnitNumber);
-                    clsWebBrowser.objDriver.fnWaitUntilElementVisible(unitCheckboxSelector);
-                    var unitCheckbox = clsWebBrowser.objDriver.FindElement(unitCheckboxSelector);
-                    clsWebBrowser.objDriver.fnScrollToElement(unitCheckbox);
-                    unitCheckbox.Click();
+                    clsMG.fnCleanAndEnterText("Search Account Number", UserManagementModel.strSearchAccountNumberInput, restrictionAccountNumber, true);
+                    clsMG.fnCleanAndEnterText("Search Unit Number", UserManagementModel.strSearchUnitNumberInput, restrictionUnitNumber, true);
+                    clsWebBrowser.objDriver.FindElement(UserManagementModel.objSeachAccountUnitButton).Click();
+                    if (restrictionType.ToUpper() == "ACCOUNT")
+                    {
+                        var accountCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByAccountNumber(restrictionAccountNumber);
+                        clsMG.fnWaitUntilElementVisible(accountCheckboxSelector);
+                        var accountCheckbox = clsWebBrowser.objDriver.FindElement(accountCheckboxSelector);
+                        clsWebBrowser.objDriver.fnScrollToElement(accountCheckbox);
+                        accountCheckbox.Click();
+                    }
+                    else if (restrictionType.ToUpper() == "UNIT")
+                    {
+                        var unitCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByUnitNumber(restrictionUnitNumber);
+                        clsMG.fnWaitUntilElementVisible(unitCheckboxSelector);
+                        var unitCheckbox = clsWebBrowser.objDriver.FindElement(unitCheckboxSelector);
+                        clsWebBrowser.objDriver.fnScrollToElement(unitCheckbox);
+                        unitCheckbox.Click();
+                    }
                 }
+                
 
                 //Save Changes
                 clsMG.WaitWEUntilAppears("Save button", "//button[contains(text(),'Save Changes')]", 10);
@@ -396,16 +397,6 @@ namespace AutomationFrame_GlobalIntake.POM
                 clsWebBrowser.objDriver.Navigate().GoToUrl(strURLReset);
                 clsWE.fnPageLoad(clsWE.fnGetWe("//h3[text()='Create Password']"), "Create password", true, false);
                 while (!clsMG.IsElementPresent("//input[@id='new-pwd']")) { Thread.Sleep(TimeSpan.FromSeconds(2)); }
-                /*
-                if (clsWE.fnElementExist("New Password", "//input[@id='new-pwd']", false))
-                {
-                    clsMG.fnCleanAndEnterText("New Password", "//input[@id='new-pwd']", objData.fnGetValue("NewPass", ""), false, false, "", false);
-                }
-                else
-                {
-                    clsReportResult.fnLog("New password field", "New password field is not displayed on screen", "Fail", true, false);
-                    blResult = false;
-                }*/
 
                 clsMG.fnCleanAndEnterText("New Password", "//input[@id='new-pwd']", objData.fnGetValue("NewPass", ""), false, false, "", false);
                 clsWE.fnClick(clsWE.fnGetWe("//h3[text()='Create Password']"), "", false);
@@ -451,7 +442,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Security Question", "<<<<<<<<<< The Set Security Question Function Starts. >>>>>>>>>>.", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "SecQuestions");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "SecQuestions");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;

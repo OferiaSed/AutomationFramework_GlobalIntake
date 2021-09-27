@@ -156,6 +156,9 @@ namespace AutomationFrame_GlobalIntake.TestCases
                                 case "VERIFYSELECTEDLOC":
                                     if (!clsGM.fnReadingSelectedLocations(TempValue)) { blStatus = false; }
                                     break;
+                                case "UPDATEGROUP":
+                                    if (!clsGM.fnUpdateUserGroups(TempValue)) { blStatus = false; }
+                                    break;
                                 default:
                                     clsReportResult.fnLog("Data Driven Test", "The action: "+ item.ToString() + " does not exsit.", "Fail", false);
                                     blStatus = false;

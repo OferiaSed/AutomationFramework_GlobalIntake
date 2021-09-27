@@ -31,12 +31,12 @@ namespace AutomationFrame_GlobalIntake.POM
                 {
                     clsMG.fnHamburgerMenu("User Management;Group Management");
                     clsMG.fnGenericWait(() => clsMG.IsElementPresent(GroupManagementModel.strGroupManagementPage), TimeSpan.FromSeconds(5), 10);
-                    clsMG.fnGoTopPage();
+                    //clsMG.fnGoTopPage();
                     if (clsWE.fnElementExist("Verify Groups Management Page", GroupManagementModel.strGroupManagementPage, true))
                     {
                         var strTemp = fnReadingClientsGroup(objData);
                         objData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "UserGroups", "ClientsFromGM", intRow, strTemp);
-
+                        Thread.Sleep(TimeSpan.FromSeconds(5));
                     }
                 }
             }
@@ -269,6 +269,77 @@ namespace AutomationFrame_GlobalIntake.POM
 
                     }
                 }
+            }
+            return blResult;
+        }
+
+        public bool fnUpdateUserGroups(string pstrSetNo)
+        {
+            bool blResult = true;
+            clsData objData = new clsData();
+            clsReportResult.fnLog("", "<<<<<<<<<< User groups update funtion start >>>>>>>>>>.", "Info", false);
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "UserGroups");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == pstrSetNo)
+                {
+                    clsMG.fnHamburgerMenu("User Management;Group Management");
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                    fnReadingClientsGroup(objData);
+                    if (clsWE.fnElementExist("Verify Groups Management Page", GroupManagementModel.strGroupManagementPage, true))
+                    {
+                        IList<IWebElement> cardList = clsWebBrowser.objDriver.FindElements(By.XPath("//div[contains(@data-bind, 'clientGroups')]//div[@class='card-body']"));
+
+                        for (int i = 0; i < cardList.Count; i++)
+                        {
+                            IWebElement groupName = cardList.ElementAt(i).FindElement(By.XPath(".//input[contains(@data-bind, 'data.Description')]"));
+                            if (groupName.GetAttribute("value") == objData.fnGetValue("GroupName", ""))
+                            {
+                                clsReportResult.fnLog("Group Management", "******Group name matched******.", "Pass", false, false);
+                                IWebElement SelectClientsButton = cardList.ElementAt(i).FindElement(By.XPath(".//button[contains(@data-bind, 'clientSelectorModal')]"));
+                                IWebElement SaveGroupButton = cardList.ElementAt(i).FindElement(By.XPath(".//button[contains(@data-bind,'saveClientGroup')]"));
+                                SelectClientsButton.Click();
+                                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]"), TimeSpan.FromSeconds(1), 10);
+                                if (clsMG.IsElementPresent("//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]"))
+                                {
+                                    clsWE.fnClick(clsWE.fnGetWe("(//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]//tr)[5]//label[@class='form-check-label']"), "Click checkbox", false, false);
+                                    clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]//a[contains(@id, 'btn_close_client')]"), TimeSpan.FromSeconds(1), 10);
+                                    clsWE.fnClick(clsWE.fnGetWe("//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]//a[contains(@id, 'btn_close_client')]"), "Click Save", true, false);
+                                }
+                                fnSavingClientsGroup(objData);
+                            }
+
+                        }
+                    }
+
+                }
+            }
+            return blResult;
+        }
+
+        public bool fnSavingClientsGroup(clsData objData)
+        {
+            bool blResult = true;
+            clsReportResult.fnLog("", "<<<<<<<<<< User groups update funtion start >>>>>>>>>>.", "Info", false);
+            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "UserGroups");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                    if (clsWE.fnElementExist("Verify Groups Management Page", GroupManagementModel.strGroupManagementPage, true))
+                    {
+                        IList<IWebElement> cardList = clsWebBrowser.objDriver.FindElements(By.XPath("//div[contains(@data-bind, 'clientGroups')]//div[@class='card-body']"));
+                        for (int i = 0; i < cardList.Count; i++)
+                        {
+                            IWebElement groupName = cardList.ElementAt(i).FindElement(By.XPath(".//input[contains(@data-bind, 'data.Description')]"));
+                            if (groupName.GetAttribute("value") == objData.fnGetValue("GroupName", ""))
+                            {
+                                clsReportResult.fnLog("Group Management", "******Group name matched to save******.", "Pass", false, false);
+                                IWebElement SaveGroupButton = cardList.ElementAt(i).FindElement(By.XPath(".//button[contains(@data-bind,'saveClientGroup')]"));
+                                SaveGroupButton.Click();
+                            }
+                        }
+                    }
             }
             return blResult;
         }

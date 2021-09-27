@@ -15,10 +15,6 @@ namespace AutomationFrame_GlobalIntake.Utils
         public static string strDBUser = "oferia";
         public static string strDBPass = "P@ssw0rd#04";
 
-        //API Credentials
-        public static string strAPIUSer = "OmarAPI";
-        public static string strAPIPass = "P@ssw0rd!";
-
         //Training Mode
         public static bool blTrainingMode = false;
         public static bool blLogin = false;

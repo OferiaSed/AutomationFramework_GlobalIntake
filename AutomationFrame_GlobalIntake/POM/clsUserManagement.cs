@@ -56,14 +56,31 @@ namespace AutomationFrame_GlobalIntake.POM
                     #region local functions
                     void ExportUsersExcelTemplate()
                     {
-                        var umPage = new UserManagementModel(clsWebBrowser.objDriver, clsMG);
-                        var exportButton = clsWebBrowser.objDriver.FindElement(umPage.objExportUsersSelector);
+                        var umPage1 = new UserManagementModel(clsWebBrowser.objDriver, clsMG);
+                        var exportButton = clsWebBrowser.objDriver.FindElement(umPage1.objExportUsersSelector);
                         clsWebBrowser.objDriver.fnScrollToElement(exportButton);
-                        exportButton.Click();
-                        clsReportResult.fnLog("Waiting for Success Toaster", "Waiting for success toaster to show up", "Info", true);
-                        var successToaster = umPage.fnUntilSuccessToasterVisible();
+                        clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false);
+                        clsWE.fnClick(exportButton, "Export Button", false, false);
+                        var successToaster = umPage1.fnUntilSuccessToasterVisible();
                         // TODO: Add Warn to AutomationFramework
                         clsReportResult.fnLog("Success Toaster was showed", "Success Toaster was showed after clicking Expor Users", successToaster ? "Pass" : "Warn", true);
+                    }
+
+                    string  ReadExportedEmailAttachments() 
+                    {
+                        var ExportedExcelPath = "";
+                        var blAttachmentFound = clsMG.fnGenericWait(
+                        () =>
+                        {
+                            var readEmail = clsUtils.fnFindGeneratedEmail(objData.fnGetValue("SetCredentials", ""), "Sedgwick Global Intake - UAT - User Export Completed", "User Export job has completed with a status of Success", false, true);
+                            ExportedExcelPath = readEmail.Attachments.SingleOrDefault(path => path.Contains("SedgwickAllClientAccessUsersAsOf"));
+                            return !string.IsNullOrEmpty(ExportedExcelPath);
+                        },
+                               TimeSpan.FromSeconds(15),
+                               3
+                        );
+                        clsReportResult.fnLog(templateFoundStep, templateFoundStep, blAttachmentFound ? "Info" : "Warn", false);
+                        return ExportedExcelPath;
                     }
 
                     var email = new clsEmailV2(objData.fnGetValue("Email", ""), objData.fnGetValue("Password", ""), clsEmailV2.emServer.POPGMAIL, true);
@@ -213,7 +230,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             clsMG.fnHamburgerMenu("User Management;Web Users");
                             if(searchUser())
                             {
-                                clsWE.fnClick(clsWE.fnGetWe(rowLocator), "Edit Record", false);
+                                clsWE.fnClick(clsWE.fnGetWe($"//tr[td[text()='{objData.fnGetValue("Username", this.strLastUsername)}']]//a"), "Edit Record", false);
                                 clsWE.fnPageLoad(clsWE.fnGetWe("//h4[text()='Edit User']"), "Edit User", true, false);
                             }
                             else
@@ -399,46 +416,32 @@ namespace AutomationFrame_GlobalIntake.POM
                             var tagAdded = clsMG.IsElementPresent($"{UserManagementModel.strTagDropdown}/li[@title='{tag}']");
                             clsReportResult.fnLog("Selected Tag in dropdown", $"Selected Tag: {tag}", tagAdded ? "Pass" : "Fail", true);
                             break;
-                        case "EXPORT USERS":
+                        case "EXPORTUSERS":
                             {
-                                bool fnFindUserInAttachedExcel()
+                                fnNavigateToWebUsers();
+                                ExportUsersExcelTemplate();
+                                var strPatFileAttached = ReadExportedEmailAttachments();
+                                var blSuccess = false;
+                                if (strPatFileAttached != "")
                                 {
-                                    var pathToExcel = ReadUsersExcelTemplateFromEmail(TimeSpan.Zero, 1);
-                                    if (string.IsNullOrEmpty(pathToExcel))
-                                    {
-                                        return false;
-                                    }
                                     var excel = new clsData();
-                                    excel.fnLoadFile(pathToExcel, "Users");
-                                    var success = false;
+                                    excel.fnLoadFile(strPatFileAttached, "Users");
                                     excel.CurrentRow = 2;
                                     while (excel.CurrentRow <= excel.RowCount)
                                     {
                                         this.ResolveUsername(objData.fnGetValue("ImportExportParameters", "").fnTextBetween("\"", "\""), objData);
                                         if (excel.fnGetValue("UserName", "") == this.strLastUsername)
                                         {
-                                            success = true;
+                                            blSuccess = true;
                                             break;
                                         }
                                         excel.CurrentRow++;
                                     }
-                                    return success;
                                 }
-
-                                fnNavigateToWebUsers();
-                                var found = clsMG.fnGenericWait(
-                                    condition: () =>
-                                    {
-                                        ExportUsersExcelTemplate();
-                                        return clsMG.fnGenericWait(() => fnFindUserInAttachedExcel(), TimeSpan.FromMilliseconds(700), 5);
-                                    },
-                                    sleepTime: TimeSpan.Zero,
-                                    attempts: 12
-                                );
                                 clsReportResult.fnLog(
                                     "Verify created user was exported",
                                     $"User {this.strLastUsername} is present in the attachments of Export Users Email",
-                                    found ? "Pass" : "Fail",
+                                    blSuccess ? "Pass" : "Fail",
                                     false
                                 );
                                 break;

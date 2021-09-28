@@ -227,14 +227,14 @@ namespace AutomationFrame_GlobalIntake.Utils
         }
 
 
-        public static clsEmailV2 fnFindGeneratedEmail(string pstrSetNo, string pstrSubject, string pstrContainsText, bool blNegativescenario = false)
+        public static clsEmailV2 fnFindGeneratedEmail(string pstrSetNo, string pstrSubject, string pstrContainsText, bool blNegativescenario = false, bool blSaveAttachments = false)
         {
             // Get Email Credentials
             Dictionary<string, string> strCreds = clsEmailV2.fnGetUserAndPasswordEmail(pstrSetNo);
 
             // Find email
             clsReportResult.fnLog("Info Email", $"Looking for email with subject '{pstrSubject}'", "Info", false);
-            var email = new clsEmailV2(strCreds["User"], strCreds["Password"], clsEmailV2.emServer.POPGMAIL, false);
+            var email = new clsEmailV2(strCreds["User"], strCreds["Password"], clsEmailV2.emServer.POPGMAIL, blSaveAttachments);
             var found = clsMG.fnGenericWait(() => email.fnReadEmail(pstrSubject, pstrContainsText), TimeSpan.FromSeconds(5), 10);
             if (!blNegativescenario)
             {

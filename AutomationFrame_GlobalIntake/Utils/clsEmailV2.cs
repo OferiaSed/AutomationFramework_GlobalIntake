@@ -78,6 +78,9 @@ namespace MyUtils.Email
 
         public bool fnReadEmail(string pstrSubject, string pstrContainsText) 
         {
+            //Clear Attachments of possible past read emails
+            this.Attachments.Clear();
+
             client = new Pop3Client();
             try
             {

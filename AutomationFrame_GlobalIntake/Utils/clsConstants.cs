@@ -37,5 +37,36 @@ namespace AutomationFrame_GlobalIntake.Utils
 
         public static string ssnMask = "XXX-XX-";
 
+        public static string[] ClientAccountUnitRestrictionsUserSheetColumns =
+            {
+                "Action (Add, Update, Delete)",
+                "TenantName",
+                "UserName",
+                "Role",
+                "FirstName",
+                "LastName",
+                "Email",
+                "PhoneNumber",
+                "TwoFactorEnabled",
+                "IsSsoUser",
+                "SsoIssuer",
+                "ClientSecurityType",
+                "AU",
+                "CR",
+                "DS",
+                "GL",
+                "INF",
+                "JA",
+                "LV",
+                "PF",
+                "PR",
+                "WC",
+                "LocationSecurityType",
+                "Tags",
+                "VendorId",
+                "SensitiveAccess",
+                "CanCopyIntakes",
+                "SubmitIntakesAsPending"
+            };
     }
 }

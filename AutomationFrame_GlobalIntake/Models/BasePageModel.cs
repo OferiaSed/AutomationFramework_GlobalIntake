@@ -35,6 +35,21 @@ namespace AutomationFrame_GlobalIntake.Models
         internal static By objLoadSpinnerSelector = By.Id("spinner");
 
         /// <summary>
+        /// Success Toaster Selector
+        /// </summary>
+        internal static By objSuccessToasterSelector = By.CssSelector("#toast-container .md-toast-success");
+
+        /// <summary>
+        /// Wait until the success toaster is visible
+        /// </summary>
+        /// <returns></returns>
+        public bool fnUntilSuccessToasterVisible()
+        {
+            var successToasterVisible = clsMG.fnGenericWait(() => this.driver.fnWaitUntilElementVisible(objSuccessToasterSelector), TimeSpan.Zero, 2);
+            return successToasterVisible;
+        }
+
+        /// <summary>
         /// Wait until spinner is hidden.
         /// </summary>
         /// <param name="clsMG">clsMegaIntake</param>
@@ -60,7 +75,7 @@ namespace AutomationFrame_GlobalIntake.Models
         /// </returns>
         public bool fnUntilSpinnerVisible()
         {
-            var spinnerVisible = clsMG.fnGenericWait(() => this.driver.fnIsElementVisible(objLoadSpinnerSelector), TimeSpan.Zero, 2);
+            var spinnerVisible = clsMG.fnGenericWait(() => this.driver.fnWaitUntilElementVisible(objLoadSpinnerSelector), TimeSpan.Zero, 2);
             return spinnerVisible;
         }
     }

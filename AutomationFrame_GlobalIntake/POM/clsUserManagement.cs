@@ -1,11 +1,14 @@
 ﻿using AutomationFrame_GlobalIntake.Models;
 using AutomationFrame_GlobalIntake.Utils;
 using AutomationFramework;
+using MyUtils.Email;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
+using SpreadsheetLight;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -19,8 +22,23 @@ namespace AutomationFrame_GlobalIntake.POM
         private clsMegaIntake clsMG = new clsMegaIntake();
         private clsLogin clsLN = new clsLogin();
 
+        /// <summary>
+        /// Last used username, it can be used across tests and actions
+        /// </summary>
+        private string strLastUsername;
+
         public bool fnUserMagmtWebUser(string pstrSetNo)
         {
+            void fnNavigateToWebUsers()
+            {
+                if (clsWebBrowser.objDriver.Url.EndsWith("/UserManagement"))
+                {
+                    clsWebBrowser.objDriver.Navigate().Refresh();
+                    return;
+                }
+                clsMG.fnHamburgerMenu("User Management;Web Users");
+                clsWE.fnPageLoad(clsWE.fnGetWe("//h4[contains(text(),'Users')]"), "Users", true, false);
+            }
             bool blResult = true;
 
             clsData objData = new clsData();
@@ -31,7 +49,98 @@ namespace AutomationFrame_GlobalIntake.POM
                 objData.CurrentRow = intRow;
                 if (objData.fnGetValue("Set", "") == pstrSetNo)
                 {
-                    switch (objData.fnGetValue("Action", "").ToUpper())
+                    var action = objData.fnGetValue("Action", "");
+
+                    var templateFoundStep = "Assert User Import Template was found";
+
+                    #region local functions
+                    void ExportUsersExcelTemplate()
+                    {
+                        var umPage = new UserManagementModel(clsWebBrowser.objDriver, clsMG);
+                        var exportButton = clsWebBrowser.objDriver.FindElement(umPage.objExportUsersSelector);
+                        clsWebBrowser.objDriver.fnScrollToElement(exportButton);
+                        exportButton.Click();
+                        clsReportResult.fnLog("Waiting for Success Toaster", "Waiting for success toaster to show up", "Info", true);
+                        var successToaster = umPage.fnUntilSuccessToasterVisible();
+                        // TODO: Add Warn to AutomationFramework
+                        clsReportResult.fnLog("Success Toaster was showed", "Success Toaster was showed after clicking Expor Users", successToaster ? "Pass" : "Warn", true);
+                    }
+
+                    var email = new clsEmailV2(objData.fnGetValue("Email", ""), objData.fnGetValue("Password", ""), clsEmailV2.emServer.POPGMAIL, true);
+                    string ReadUsersExcelTemplateFromEmail(TimeSpan spareTime, int maxAttempts)
+                    {
+                        var emailInfo = new {
+                            subject = "Sedgwick Global Intake - UAT - User Export Completed",
+                            content = "User Export job has completed with a status of Success"
+                        };
+
+                        // Finding Excel for Client Restricted Users
+                        string pathToExcel = null;
+                        var findingTemplateStep = "Look for User Import Template within emails";
+                        clsReportResult.fnLog(findingTemplateStep, $"{findingTemplateStep} - Email info: {emailInfo}", "Info", false);
+
+                        var attachmentFound = clsMG.fnGenericWait(
+                            () =>
+                            {
+                                email.fnReadEmail(emailInfo.subject, emailInfo.content);
+                                pathToExcel = email.Attachments.SingleOrDefault(path => path.Contains("SedgwickClientAccountUnitRestrictionsUsersAsOf"));
+                                return !string.IsNullOrEmpty(pathToExcel);
+                            },
+                            spareTime,
+                            maxAttempts
+                        );
+
+                        clsReportResult.fnLog(templateFoundStep, templateFoundStep, attachmentFound ? "Info" : "Warn", false);
+                        return pathToExcel;
+                    };
+
+                    bool ClearUsersSheet(string pathToExcel) => clsUtils.TryExecute(
+                        () =>
+                        {
+                            var documentToClear = new SLDocument(pathToExcel);
+                            documentToClear.SelectWorksheet("Users");
+                            var numberOfRows = documentToClear.GetWorksheetStatistics().NumberOfRows;
+                            documentToClear.ClearRowContent(2, numberOfRows);
+                            documentToClear.Save();
+                        }
+                    );
+
+                    bool AddUserToExcelFile(string pathToExcel) => clsUtils.TryExecute(
+                        () =>
+                        {
+                            var documentToAddUserTo = new SLDocument(pathToExcel);
+                            documentToAddUserTo.SelectWorksheet("Users");
+                            var parametersString = objData.fnGetValue("ImportExportParameters");
+                            var values = parametersString.Split(',').Select(val => val.fnTextBetween("\"", "\"")).ToList();
+                            var columns = clsConstants.ClientAccountUnitRestrictionsUserSheetColumns.ToList();
+                            columns.ForEach(
+                                column =>
+                                {
+                                    var columnIndex = columns.IndexOf(column);
+                                    var value = values[columnIndex];
+                                    if (column.Equals("UserName"))
+                                    {
+                                        this.ResolveUsername(value, objData);
+                                        value = this.strLastUsername;
+                                    }
+                                    if (int.TryParse(value, out int intValue))
+                                        documentToAddUserTo.SetCellValue(2, columnIndex + 1, intValue);
+                                    else
+                                        documentToAddUserTo.SetCellValue(2, columnIndex + 1, value);
+                                }
+                            );
+                            documentToAddUserTo.Save();
+                        }
+                    );
+                    bool searchUser()
+                    {
+                        var username = objData.fnGetValue("Username", this.strLastUsername);
+                        clsMG.fnCleanAndEnterText("Username", "//input[@placeholder='Username']", username, false, false, "", false);
+                        clsWE.fnClick(clsWE.fnGetWe("//button[text()='Search']"), "Search", false);
+                        return clsWebBrowser.objDriver.fnWaitUntilElementVisible(By.XPath("//tr[td[text()='" + username + "']]//a"), TimeSpan.FromSeconds(5));
+                    }
+                    #endregion
+                    switch (action.ToUpper())
                     {
                         case "DELETE":
                             if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
@@ -102,12 +211,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             break;
                         case "SEARCH":
                             clsMG.fnHamburgerMenu("User Management;Web Users");
-                            var strUserName = objData.fnGetValue("Username", "") != "" ? objData.fnGetValue("Username", "") : clsConstants.strTempUserName;
-                            clsMG.fnCleanAndEnterText("Username", "//input[@placeholder='Username']", strUserName, false, false, "", false);
-                            clsWE.fnClick(clsWE.fnGetWe("//button[text()='Search']"), "Search", false);
-                            Thread.Sleep(TimeSpan.FromSeconds(3));
-                            var rowLocator = $"//tr[td[text()='{strUserName}']]//a";
-                            if (clsWE.fnElementExist("User Record", rowLocator, false))
+                            if(searchUser())
                             {
                                 clsWE.fnClick(clsWE.fnGetWe(rowLocator), "Edit Record", false);
                                 clsWE.fnPageLoad(clsWE.fnGetWe("//h4[text()='Edit User']"), "Edit User", true, false);
@@ -230,30 +334,34 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             break;
                         case "NEWRANDOMUSER":
-                            clsMG.fnHamburgerMenu("User Management;Web Users");
-                            clsWE.fnPageLoad(clsWE.fnGetWe("//h4[contains(text(),'Users')]"), "Users", true, false);
+                            fnNavigateToWebUsers();
                             if (clsMG.IsElementPresent("//h4[contains(text(),'Users')]"))
                             {
                                 clsWE.fnScrollTo(clsWE.fnGetWe("//button[contains(@data-bind, 'addUser') and contains(text(),'Add User')]"), "Scrolling to Add user button", true, false);
                                 clsWE.fnClick(clsWE.fnGetWe("//button[contains(@data-bind, 'addUser') and contains(text(),'Add User')]"), "Clicking add user button", false);
-                                if (fnAddNewUser(objData))
+                                var userAdded = fnAddNewUser(objData);
+                                if (userAdded)
                                 {
-                                    if (fnReadEmailAndSetPassword(objData))
+                                    var performFirstLogin = bool.Parse(objData.fnGetValue("PerformFirstLogin", "true"));
+                                    if (performFirstLogin)
                                     {
-                                        if (fnSecurityQuestionsAndAnswers(objData.fnGetValue("SetSecurityQuestions", "")))
+                                        if (fnReadEmailAndSetPassword(objData))
                                         {
-                                            clsReportResult.fnLog("User Management", "The user was activated as successfully.", "Pass", true, false);
+                                            if (fnSecurityQuestionsAndAnswers(objData.fnGetValue("SetSecurityQuestions", "")))
+                                            {
+                                                clsReportResult.fnLog("User Management", "The user was activated as successfully.", "Pass", true, false);
+                                            }
+                                            else
+                                            {
+                                                clsReportResult.fnLog("User Management", "The user was not activated as expected.", "Fail", true, false);
+                                                blResult = false;
+                                            }
                                         }
                                         else
                                         {
-                                            clsReportResult.fnLog("User Management", "The user was not activated as expected.", "Fail", true, false);
+                                            clsReportResult.fnLog("User Management", "The email or password was not changes as expected.", "Fail", true, false);
                                             blResult = false;
                                         }
-                                    }
-                                    else 
-                                    {
-                                        clsReportResult.fnLog("User Management", "The email or password was not changes as expected.", "Fail", true, false);
-                                        blResult = false;
                                     }
                                 }
                                 else
@@ -269,8 +377,126 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             
                             break;
+                        //Can be executed after new user created
+                        //Validates that the set tag is still there
+                        case "VALIDATE TAG":
+                            fnNavigateToWebUsers();
+                            clsMG.fnCleanAndEnterText("Username", "//input[@placeholder='Username']", this.strLastUsername, false, false, "", false);
+                            clsWE.fnClick(clsWE.fnGetWe("//button[text()='Search']"), "Search", false);
+                            var userRow = "//tr[td[text()='" + this.strLastUsername + "']]//a";
+                            clsWebBrowser.objDriver.fnScrollToElement(clsWebBrowser.objDriver.FindElement(By.XPath(userRow)));
+                            clsMG.fnGenericWait(
+                                () => clsWE.fnElementExist(
+                                        "User Record",
+                                        userRow,
+                                        false
+                                ),
+                                TimeSpan.FromSeconds(1),
+                                3
+                            );
+                            clsWE.fnClick(clsWE.fnGetWe("//tr[td[text()='" + this.strLastUsername + "']]//a"), "Edit Record", false);
+                            var tag = objData.fnGetValue("Tag", "");
+                            var tagAdded = clsMG.IsElementPresent($"{UserManagementModel.strTagDropdown}/li[@title='{tag}']");
+                            clsReportResult.fnLog("Selected Tag in dropdown", $"Selected Tag: {tag}", tagAdded ? "Pass" : "Fail", true);
+                            break;
+                        case "EXPORT USERS":
+                            {
+                                bool fnFindUserInAttachedExcel()
+                                {
+                                    var pathToExcel = ReadUsersExcelTemplateFromEmail(TimeSpan.Zero, 1);
+                                    if (string.IsNullOrEmpty(pathToExcel))
+                                    {
+                                        return false;
+                                    }
+                                    var excel = new clsData();
+                                    excel.fnLoadFile(pathToExcel, "Users");
+                                    var success = false;
+                                    excel.CurrentRow = 2;
+                                    while (excel.CurrentRow <= excel.RowCount)
+                                    {
+                                        this.ResolveUsername(objData.fnGetValue("ImportExportParameters", "").fnTextBetween("\"", "\""), objData);
+                                        if (excel.fnGetValue("UserName", "") == this.strLastUsername)
+                                        {
+                                            success = true;
+                                            break;
+                                        }
+                                        excel.CurrentRow++;
+                                    }
+                                    return success;
+                                }
+
+                                fnNavigateToWebUsers();
+                                var found = clsMG.fnGenericWait(
+                                    condition: () =>
+                                    {
+                                        ExportUsersExcelTemplate();
+                                        return clsMG.fnGenericWait(() => fnFindUserInAttachedExcel(), TimeSpan.FromMilliseconds(700), 5);
+                                    },
+                                    sleepTime: TimeSpan.Zero,
+                                    attempts: 12
+                                );
+                                clsReportResult.fnLog(
+                                    "Verify created user was exported",
+                                    $"User {this.strLastUsername} is present in the attachments of Export Users Email",
+                                    found ? "Pass" : "Fail",
+                                    false
+                                );
+                                break;
+                            }
+                        case "IMPORT USERS":
+                            {
+                                fnNavigateToWebUsers();
+                                string pathToExcel = null;
+                                var attachmentFound = clsMG.fnGenericWait(
+                                    condition: () =>
+                                    {
+                                        ExportUsersExcelTemplate();
+                                        pathToExcel = ReadUsersExcelTemplateFromEmail(TimeSpan.FromMilliseconds(700), 5);
+                                        return !string.IsNullOrEmpty(pathToExcel);
+                                    },
+                                    sleepTime: TimeSpan.Zero,
+                                    attempts: 25
+                                );
+
+                                // TODO: Disable screenshot once fnLog gets fixed
+                                clsReportResult.fnLog(templateFoundStep, templateFoundStep, attachmentFound ? "Pass" : "Fail", true, !attachmentFound, $"Attachment was never found");
+
+                                string importAction =  objData.fnGetValue("ImportExportParameters").Split(',').First().fnTextBetween("\"", "\"");
+
+                                // Clear Users Sheet
+                                var sheetIsClean = ClearUsersSheet(pathToExcel);
+                                clsReportResult.fnLog($"{importAction} User Sheet Status", "Sheet has been cleaned", sheetIsClean ? "Info" : "Warn", false);
+
+                                // Add new user to excel file
+                                var userRowAdded = AddUserToExcelFile(pathToExcel);
+                                clsReportResult.fnLog($"{importAction} User Sheet Status", $"{importAction} User row added to sheet", userRowAdded ? "Info" : "Warn", false);
+
+                                var umPage = new UserManagementModel(clsWebBrowser.objDriver, clsMG);
+                                
+                                // Upload excel File 
+                                clsWebBrowser.objDriver.FindElement(umPage.objImportUsersInput).SendKeys(pathToExcel);
+
+                                clsReportResult.fnLog("Success Toaster was showed", "Success Toaster was showed after Importing Users", umPage.fnUntilSuccessToasterVisible() ? "Pass" : "Warn", true);
+
+                                var filename = Path.GetFileName(pathToExcel);
+                                var successEmail = clsMG.fnGenericWait(
+                                    condition: () => email.fnReadEmail("User Import Completed", $"{filename} has completed with a status of Success."),
+                                    sleepTime: TimeSpan.FromMilliseconds(750),
+                                    attempts: 25
+                                );
+
+                                clsReportResult.fnLog("Success Email was received", $"Success Email was received after Importing Users - File{filename}", successEmail ? "Pass" : "Fail", true);
+
+                                // Search user
+                                var userFound = searchUser();
+
+                                var success = importAction != "Delete" ? userFound : !userFound;
+                                
+                                // Final Assertion
+                                clsReportResult.fnLog("User search", $"User {this.strLastUsername} {(importAction + "ed").Replace("ee", "e")} successfully", success ? "Pass" : "Fail", true);
+                                break;
+                            }
                     }
-                    Thread.Sleep(TimeSpan.FromSeconds(3));
                 }
             }
             if (blResult)
@@ -281,7 +507,34 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
-
+        /// <summary>
+        /// Generate or get username
+        /// </summary>
+        /// <param name="username">RND, RANDOM, LASTUSER</param>
+        void ResolveUsername(string username, clsData objData)
+        {
+            string result = null;
+            switch (username)
+            {
+                case "RND":
+                case "RANDOM":
+                    result = "IntAuto" + DateTime.Now.ToString("Mddyyyyhhmmss");
+                    break;
+                case "LASTUSERNAME":
+                    if (string.IsNullOrEmpty(this.strLastUsername))
+                    {
+                        throw new NullReferenceException("No last username is defined, make sure you are running actions in correct order");
+                    }
+                    return;
+                case "":
+                    result = objData.fnGetValue("FirstName", "");
+                    break;
+                default:
+                    result = username;
+                    break;
+            }
+            this.strLastUsername = result;
+        }
 
         public bool fnAddNewUser(clsData objData)
         {
@@ -289,15 +542,8 @@ namespace AutomationFrame_GlobalIntake.POM
             if (clsWE.fnElementExist("Add New User Screen", "//h4[contains(text(),'Add User')]", false))
             {
                 clsReportResult.fnLog("Add user form", "The Add User form exist proceed to fill and save.", "Pass", true);
-                if (objData.fnGetValue("Username", "").ToUpper() == "RND" || objData.fnGetValue("Username", "").ToUpper() == "RANDOM")
-                {
-                    string strNewUserName = "IntAuto" + DateTime.Now.ToString("MMddyyyy_hhmm");
-                    clsMG.fnCleanAndEnterText("Username", "//input[contains(@data-bind,'UserName')]", strNewUserName, false, false);
-                    if (objData.fnGetValue("SaveCredentials", "").ToUpper() == "TRUE" || objData.fnGetValue("SaveCredentials", "").ToUpper() == "YES")
-                    { clsConstants.strTempUserName = strNewUserName; }
-                }
-                else
-                { clsMG.fnCleanAndEnterText("Username", "//input[contains(@data-bind,'UserName')]", objData.fnGetValue("FirstName", ""), false, false, "", false); }
+                this.ResolveUsername(objData.fnGetValue("Username", ""), objData);
+                clsMG.fnCleanAndEnterText("Username", "//input[contains(@data-bind,'UserName')]", this.strLastUsername, bWaitHeader: false);
                 clsMG.fnCleanAndEnterText("First name", "//input[contains(@data-bind,'FirstName')]", objData.fnGetValue("FirstName", ""), false, false, "", false);
                 clsMG.fnCleanAndEnterText("Last name", "//input[contains(@data-bind,'LastName')]", objData.fnGetValue("LastName", ""), false, false, "", false);
                 clsMG.fnCleanAndEnterText("Email", "//input[contains(@data-bind,'Email')]", objData.fnGetValue("Email", ""), false, false, "", false);
@@ -312,6 +558,20 @@ namespace AutomationFrame_GlobalIntake.POM
                 {
                     var newUserPage = new UserManagementModel(clsWebBrowser.objDriver, clsMG);
                     newUserPage.fnSelectClients(clientIds.Split(',').ToList());
+                }
+
+                var tag = objData.fnGetValue("Tag", "");
+                if (!tag.Equals(string.Empty))
+                {
+                    clsReportResult.fnLog("Selecting Tag in dropdown", $"Selecting Tag: {tag}", "Info", false);
+                    clsMG.fnSelectDropDownWElm(
+                        "Tag Dropdown",
+                        UserManagementModel.strTagDropdown,
+                        tag,
+                        true
+                    );
+                    var tagAdded = clsMG.IsElementPresent($"{UserManagementModel.strTagDropdown}/li[@title='{tag}']");
+                    clsReportResult.fnLog("Selected Tag in dropdown", $"Selected Tag: {tag}", tagAdded ? "Pass" : "Fail", true);
                 }
 
                 clsWE.fnScrollTo(clsWE.fnGetWe("//input[contains(@data-bind,'PhoneNumber')]"), "Scrolling to checkbox two factor authentication", true, false);
@@ -340,7 +600,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         else
                         {
                             clsWE.fnDoubleClick(clsWE.fnGetWe("//label[contains(text(),'Select all')]"), "Select all", true, false);
-                            clsWE.fnClick(clsWE.fnGetWe("//span[contains(text(),'" + objData.fnGetValue("Lob", "") + "')]"), "Select one LOB", true, false);
+                            clsWE.fnClick(clsWE.fnGetWe("//span[contains(text(),\"" + objData.fnGetValue("Lob", "") + "\")]"), "Select one LOB", true, false);
                         }
                     }
                     clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Env Bar", false, false);
@@ -353,22 +613,21 @@ namespace AutomationFrame_GlobalIntake.POM
                     clsMG.fnSelectDropDownWElm("Restriction Type Dropdown", UserManagementModel.strRestrictionTypeDropdown, restrictionType, true);
                     clsReportResult.fnLog("Restriction Type", "Step - Choosing Restriction Type", "Info", false);
                     var restrictionAccountNumber = objData.fnGetValue("AccountNumber", "");
-                    var restrictionUnitNumber = objData.fnGetValue("UnitNumber", "");
                     clsMG.fnCleanAndEnterText("Search Account Number", UserManagementModel.strSearchAccountNumberInput, restrictionAccountNumber, true);
-                    clsMG.fnCleanAndEnterText("Search Unit Number", UserManagementModel.strSearchUnitNumberInput, restrictionUnitNumber, true);
                     clsWebBrowser.objDriver.FindElement(UserManagementModel.objSeachAccountUnitButton).Click();
                     if (restrictionType.ToUpper() == "ACCOUNT")
                     {
                         var accountCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByAccountNumber(restrictionAccountNumber);
-                        clsMG.fnWaitUntilElementVisible(accountCheckboxSelector);
+                        clsWebBrowser.objDriver.fnWaitUntilElementVisible(accountCheckboxSelector);
                         var accountCheckbox = clsWebBrowser.objDriver.FindElement(accountCheckboxSelector);
                         clsWebBrowser.objDriver.fnScrollToElement(accountCheckbox);
                         accountCheckbox.Click();
                     }
                     else if (restrictionType.ToUpper() == "UNIT")
                     {
+                        var restrictionUnitNumber = objData.fnGetValue("UnitNumber", "");
                         var unitCheckboxSelector = UserManagementModel.objSelectRestrictionAcountByUnitNumber(restrictionUnitNumber);
-                        clsMG.fnWaitUntilElementVisible(unitCheckboxSelector);
+                        clsWebBrowser.objDriver.fnWaitUntilElementVisible(unitCheckboxSelector);
                         var unitCheckbox = clsWebBrowser.objDriver.FindElement(unitCheckboxSelector);
                         clsWebBrowser.objDriver.fnScrollToElement(unitCheckbox);
                         unitCheckbox.Click();

@@ -97,6 +97,15 @@ namespace AutomationFrame_GlobalIntake.POM
                                     if (!fnVerifyDissemination("Details", objData.fnGetValue("FilterResults", ""), objData.fnGetValue("ActionValue", ""))) { blResult = false; }
                                     clsConstants.strTempClaimNo = "";
                                     break;
+                                case "VERIFYAPIVENDORID":
+                                    var strArrValues = objData.fnGetValue("ActionValue", "").Split(';');
+                                    foreach (string value in strArrValues)
+                                    {
+                                        if (!fnVerifyDissemination("Content", objData.fnGetValue("FilterResults", ""), value)) { blResult = false; }
+                                    };
+                                    clsConstants.strTempClaimNo = "";
+                                    clsConstants.strTempConfirmationNo = "";
+                                    break;
                                 case "SEARCH":
                                     clsWE.fnClick(clsWE.fnGetWe(DisseminationModel.strSearchButton), "Search Button", false, false);
                                     Thread.Sleep(TimeSpan.FromSeconds(3));
@@ -168,7 +177,10 @@ namespace AutomationFrame_GlobalIntake.POM
                         var strTempMessage = strDetailsMessage.Split('|');
                         if (strDetailsMessage.Contains(strTempMessage[0]) || strDetailsMessage.Contains(strTempMessage[1]))
                         {
-                            clsReportResult.fnLog("Verify Dissemination Message", "The " + strDisseminationType + ": " + clsConstants.strOfficeEmail + " was found as expected.", "Pass", true, false);
+                            if (clsConstants.strOfficeEmail != "")
+                            { clsReportResult.fnLog("Verify Dissemination Message", "The " + strDisseminationType + ": " + clsConstants.strOfficeEmail + " was found as expected.", "Pass", true, false); }
+                            else 
+                            { clsReportResult.fnLog("Verify Dissemination Message", $"The value: { strTempMessage} was found as expected in the {strMessageType} popup.", "Pass", true, false); }
                             blEmailFound = true;
                             break;
                         }
@@ -177,7 +189,11 @@ namespace AutomationFrame_GlobalIntake.POM
                     {
                         if (textMessage.Contains(strDetailsMessage))
                         {
-                            clsReportResult.fnLog("Verify Dissemination Message", "The " + strDisseminationType + ": " + clsConstants.strOfficeEmail + " was found as expected.", "Pass", true, false);
+                            if (clsConstants.strOfficeEmail != "")
+                            { clsReportResult.fnLog("Verify Dissemination Message", "The " + strDisseminationType + ": " + clsConstants.strOfficeEmail + " was found as expected.", "Pass", true, false); }
+                            else
+                            { clsReportResult.fnLog("Verify Dissemination Message", $"The value: { strDetailsMessage} was found as expected in the {strMessageType} popup.", "Pass", true, false); }
+
                             blEmailFound = true;
                             break;
                         }
@@ -187,7 +203,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 }
                 if (!blEmailFound)
                 {
-                    clsReportResult.fnLog("Verify Dissemination Page", "The " + strDisseminationType + ": " + clsConstants.strOfficeEmail + " was not found in the dissemination page.", "Fail", true, false);
+                    clsReportResult.fnLog("Verify Dissemination Message", $"The dissemination: { strDisseminationType} was found as expected in the {strMessageType} popup.", "Pass", true, false);
                     blResult = false;
                 }
                 else

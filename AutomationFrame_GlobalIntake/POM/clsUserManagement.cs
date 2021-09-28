@@ -142,6 +142,57 @@ namespace AutomationFrame_GlobalIntake.POM
                     #endregion
                     switch (action.ToUpper())
                     {
+                        case "DELETE":
+                            if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
+                            {
+                                //Click on Delete button
+                                clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(), 'Delete')]"), "Delete Button", false);
+                                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@id='removeUserModal' and contains(@style, 'display: block')]"), TimeSpan.FromSeconds(1), 10);
+                                //Wait Popup
+                                clsWE.fnClick(clsWE.fnGetWe("//div[@id='removeUserModal' and contains(@style, 'display: block')]//button[text()='YES']"), "Yes Button", true);
+                                //Verify Success Message
+                                var succesMessage = clsMG.fnGenericWait(() => clsWE.fnElementExist("Success Message", "//div[@class='md-toast md-toast-success']", false), TimeSpan.FromSeconds(1), 10);
+                                if (succesMessage)
+                                { clsReportResult.fnLog("User Management", "The user was deleted as expected.", "Pass", true); }
+                                else
+                                { clsReportResult.fnLog("User Management", "The user was not deleted as expected.", "Fail", true); }
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("User Management", "The user cannot be enabled since Edit Page was not loaded.", "Fail", true);
+                                blResult = false;
+                            }
+                            break;
+                        case "VERIFYUNDO":
+                            if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
+                            {
+                                //Edit Name, Last Name, Email
+                                clsReportResult.fnLog("User Management", "Edit user before undo action.", "Info", true);
+                                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//input[@placeholder='First Name *']"), TimeSpan.FromSeconds(1), 10);
+                                clsWE.fnClick(clsWE.fnGetWe("//*[@id='EnvironmentBar']"), "Header Intake", false);
+                                clsMG.fnCleanAndEnterText("First Name", "//input[@placeholder='First Name *']", clsConstants.strUsrMngFirstName, false, false, "", false);
+                                clsMG.fnCleanAndEnterText("Last Name", "//input[@placeholder='Last Name *']", clsConstants.strUsrMngLastName, false, false, "", false);
+                                clsMG.fnCleanAndEnterText("Email", "//input[@placeholder='Email *']", clsConstants.strUsrMngEmail, false, false, "", false);
+                                //Click on Undo button
+                                clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(), 'Undo')]"), "Undo Button", false);
+                                clsReportResult.fnLog("User Management", "Edit user after undo action.", "Info", true);
+                                //Get User Name, Last Name, Email
+                                var strEditName = clsWE.fnGetAttribute(clsWE.fnGetWe("//input[@placeholder='First Name *']"), "Get Username", "value", false);
+                                var strEditLastName = clsWE.fnGetAttribute(clsWE.fnGetWe("//input[@placeholder='Last Name *']"), "Get Last Name", "value", false);
+                                var strEditEmail = clsWE.fnGetAttribute(clsWE.fnGetWe("//input[@placeholder='Email *']"), "Get Email", "value", false);
+                                //Review Undo Action
+                                if (strEditName != clsConstants.strUsrMngFirstName && strEditLastName != clsConstants.strUsrMngLastName && strEditEmail != clsConstants.strUsrMngEmail)
+                                { clsReportResult.fnLog("User Management", "The Undo action was executed as expected", "Pass", true); }
+                                else
+                                { clsReportResult.fnLog("User Management", "The Undo action was done as expected", "Fail", true); }
+                                clsConstants.strTempUserName = "";
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("User Management", "The user cannot be enabled since Edit Page was not loaded.", "Fail", true);
+                                blResult = false;
+                            }
+                            break;
                         case "EDIT":
                             if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
                             {
@@ -162,7 +213,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             clsMG.fnHamburgerMenu("User Management;Web Users");
                             if(searchUser())
                             {
-                                clsWE.fnClick(clsWE.fnGetWe("//tr[td[text()='" + objData.fnGetValue("Username", "") + "']]//a"), "Edit Record", false);
+                                clsWE.fnClick(clsWE.fnGetWe(rowLocator), "Edit Record", false);
                                 clsWE.fnPageLoad(clsWE.fnGetWe("//h4[text()='Edit User']"), "Edit User", true, false);
                             }
                             else
@@ -452,7 +503,6 @@ namespace AutomationFrame_GlobalIntake.POM
             { clsReportResult.fnLog("User Management", "The User Management Function was executed successfully.", "Pass", true); }
             else
             { clsReportResult.fnLog("User Management", "The User Management Function was not executed successfully.", "Fail", true); }
-            //clsLN.fnLogOffSession();
 
             return blResult;
         }
@@ -492,7 +542,6 @@ namespace AutomationFrame_GlobalIntake.POM
             if (clsWE.fnElementExist("Add New User Screen", "//h4[contains(text(),'Add User')]", false))
             {
                 clsReportResult.fnLog("Add user form", "The Add User form exist proceed to fill and save.", "Pass", true);
-
                 this.ResolveUsername(objData.fnGetValue("Username", ""), objData);
                 clsMG.fnCleanAndEnterText("Username", "//input[contains(@data-bind,'UserName')]", this.strLastUsername, bWaitHeader: false);
                 clsMG.fnCleanAndEnterText("First name", "//input[contains(@data-bind,'FirstName')]", objData.fnGetValue("FirstName", ""), false, false, "", false);
@@ -611,8 +660,12 @@ namespace AutomationFrame_GlobalIntake.POM
         public bool fnReadEmailAndSetPassword(clsData objData)
         {
             bool blResult = true;
-            clsEmail clsEmail = new clsEmail();
-            string strURLReset = clsEmail.fnReadConfirmationEmail(objData.fnGetValue("SetCredentials", ""), "Please activate your account", "your browser: ", "---", "your browser: ", "</span>");
+            //clsEmail clsEmail = new clsEmail();
+            //string strURLReset = clsEmail.fnReadConfirmationEmail(objData.fnGetValue("SetCredentials", ""), "Please activate your account", "your browser: ", "---", "your browser: ", "</span>");
+
+            var readEmail = clsUtils.fnFindGeneratedEmail(objData.fnGetValue("SetCredentials", ""), "Welcome to Sedgwick Global Intake", "Please activate your account");
+            var strURLReset = readEmail.fnGetContentAsString("your browser: ", "---", "your browser: ", "</span>");
+
             if (strURLReset != "")
             {
                 clsWebBrowser.objDriver.Navigate().GoToUrl(strURLReset);
@@ -634,7 +687,6 @@ namespace AutomationFrame_GlobalIntake.POM
                     clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit", true);
                     if (clsMG.IsElementPresent("//i[contains(@class,'fa fa-warning fa-exclamation-triangle red-text')]"))
                     {
-
                         clsReportResult.fnLog("Set Password Form not filled correctly", "The Set Password Form was not filled successfully.", "Fail", false, false);
                         blResult = false;
                     }
@@ -671,19 +723,19 @@ namespace AutomationFrame_GlobalIntake.POM
                 {
                     //QUESTION 1
                     clsWE.fnPageLoad(clsWE.fnGetWe("//h3[text()='Security Questions']"), "Security Questions", false, false);
-                    clsMG.fnSelectDropDownWElm("Question1", "(//input[contains(@class,'select-dropdown form-control')])[1]", objData.fnGetValue("Question1", ""), false, false, "", false);
+                    clsMG.fnSelectCustomDropDown("Question1", "(//input[contains(@class,'select-dropdown form-control')])[1]", objData.fnGetValue("Question1", ""), false, false, "", false);
                     clsMG.fnCleanAndEnterText("Answer1", "(//div[@class='md-form pb-2']//div[@class='col-10']//input[@placeholder='Answer *'])[1]", objData.fnGetValue("Value1", ""), false, false, "", false);
                     //QUESTION 2
-                    clsMG.fnSelectDropDownWElm("Question2", "(//input[contains(@class,'select-dropdown form-control')])[2]", objData.fnGetValue("Question2", ""), false, false, "", false);
+                    clsMG.fnSelectCustomDropDown("Question2", "(//input[contains(@class,'select-dropdown form-control')])[2]", objData.fnGetValue("Question2", ""), false, false, "", false);
                     clsMG.fnCleanAndEnterText("Answer2", "(//div[@class='md-form pb-2']//div[@class='col-10']//input[@placeholder='Answer *'])[2]", objData.fnGetValue("Value2", ""), false, false, "", false);
                     //QUESTION 3
-                    clsMG.fnSelectDropDownWElm("Question2", "(//input[contains(@class,'select-dropdown form-control')])[3]", objData.fnGetValue("Question3", ""), false, false, "", false);
+                    clsMG.fnSelectCustomDropDown("Question2", "(//input[contains(@class,'select-dropdown form-control')])[3]", objData.fnGetValue("Question3", ""), false, false, "", false);
                     clsMG.fnCleanAndEnterText("Answer3", "(//div[@class='md-form pb-2']//div[@class='col-10']//input[@placeholder='Answer *'])[3]", objData.fnGetValue("Value3", ""), false, false, "", false);
                     //QUESTION 4
-                    clsMG.fnSelectDropDownWElm("Question4", "(//input[contains(@class,'select-dropdown form-control')])[4]", objData.fnGetValue("Question4", ""), false, false, "", false);
+                    clsMG.fnSelectCustomDropDown("Question4", "(//input[contains(@class,'select-dropdown form-control')])[4]", objData.fnGetValue("Question4", ""), false, false, "", false);
                     clsMG.fnCleanAndEnterText("Answer4", "(//div[@class='md-form pb-2']//div[@class='col-10']//input[@placeholder='Answer *'])[4]", objData.fnGetValue("Value4", ""), false, false, "", false);
                     //QUESTION 5
-                    clsMG.fnSelectDropDownWElm("Question5", "(//input[contains(@class,'select-dropdown form-control')])[5]", objData.fnGetValue("Question5", ""), false, false, "", false);
+                    clsMG.fnSelectCustomDropDown("Question5", "(//input[contains(@class,'select-dropdown form-control')])[5]", objData.fnGetValue("Question5", ""), false, false, "", false);
                     clsMG.fnCleanAndEnterText("Answer5", "(//div[@class='md-form pb-2']//div[@class='col-10']//input[@placeholder='Answer *'])[5]", objData.fnGetValue("Value5", ""), false, false, "", false);
 
                     clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Submit')]"), "Submit button", false);

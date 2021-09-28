@@ -341,6 +341,70 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
+        public bool fnSelectCustomDropDown(string pstrElement, string objWebElement, string pstrValue, bool pblScreenShot = false, bool pblHardStop = false, string pstrHardStopMsg = "", bool bWaitHeader = true, string pstrWebElement = "undefined")
+        {
+            clsWebElements clsWE = new clsWebElements();
+            bool blResult = true;
+            IWebElement objDropDownContent;
+            IList<IWebElement> objOptions;
+
+            try
+            {
+                if (pstrElement != "" && pstrValue != "")
+                {
+                    clsReportResult.fnLog("SelectDropdown", "Step - Select Dropdown: " + pstrElement + " With Value: " + pstrValue, "Info", false);
+                    IWebElement objDropDown = clsWebBrowser.objDriver.FindElement(By.XPath(objWebElement));
+                    objDropDown.Click();
+                    Thread.Sleep(TimeSpan.FromMilliseconds(500));
+
+                    //two Factor Dropdown
+                    objDropDownContent = clsWebBrowser.objDriver.FindElement(By.XPath("//ul[@class='dropdown-content select-dropdown w-100 active']"));
+                    objOptions = objDropDownContent.FindElements(By.XPath("//span[@class='filtrable']"));
+
+                    foreach (IWebElement objOption in objOptions)
+                    {
+                        string pstrDropdownText = (objOption.GetAttribute("innerText"));
+                        if (pstrDropdownText == pstrValue)
+                        {
+                            objOption.Click();
+                            blResult = true;
+                            break;
+                        }
+                    }
+
+                    if (bWaitHeader)
+                    {
+                        if (IsElementPresent("//nav[@id='EnvironmentBar']"))
+                        {
+                            objDropDown = clsWebBrowser.objDriver.FindElement(By.XPath("//nav[@id='EnvironmentBar']"));
+                            Thread.Sleep(TimeSpan.FromMilliseconds(500));
+                            objDropDown.Click();
+                        }
+                    }
+                }
+            }
+            catch (Exception objException)
+            {
+                blResult = false;
+                clsWebElements.fnExceptionHandling(objException);
+            }
+            if (pstrElement != "" && pstrValue != "")
+            {
+                if (blResult && pstrElement != "" && pstrValue != "")
+                {
+                    clsReportResult.fnLog("SelectListPass", "Select Dropdown for element: " + pstrElement + " was done successfully.", "Pass", pblScreenShot);
+                }
+                else
+                {
+                    blResult = false;
+                    clsReportResult.fnLog("SelectListFail", "Select Dropdown for element: " + pstrElement + " has failed with value: " + pstrValue + " and locator " + pstrWebElement, "Fail", pblScreenShot);
+                }
+            }
+
+            return blResult;
+        }
+
+
         public void fnReadCaptcha()
         {
             var objCaptcha = clsWebBrowser.objDriver.FindElement(By.XPath("//img[@id='ForgotUserNameCaptcha_CaptchaImage']"));

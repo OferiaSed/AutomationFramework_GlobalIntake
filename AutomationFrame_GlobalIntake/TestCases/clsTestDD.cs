@@ -57,7 +57,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
                     //Setup Report, Execution Functions
                     blStatus = true;
                     dtStartTime = DateTime.Now.ToString("MMddyyyy_hhmmss");
-                    string[] arrFunctions = objData.fnGetValue("Funcions").Split(';');
+                    var arrFunctions = objData.fnGetValue("Funcions").Split(';').Where(act => !string.IsNullOrEmpty(act)).ToArray();
                     string[] arrValue = objData.fnGetValue("Values").Split(';');
                     int intCount = -1;
 
@@ -148,14 +148,13 @@ namespace AutomationFrame_GlobalIntake.TestCases
                                     if (!clsDiss.fnDisseminationPage(TempValue)) { blStatus = false; }
                                     break;
                                 default:
-                                    clsReportResult.fnLog("Data Driven Test", "The action: "+ item.ToString() + " does not exsit.", "Fail", false);
+                                    clsReportResult.fnLog("Data Driven Test", "The action: "+ item.ToString() + " does not exist.", "Fail", false);
                                     blStatus = false;
                                     break;
                             }
                         }
                     }
                     catch(Exception ex)
-
                     {
                         clsReportResult.fnLog("Unhandled Error", $"{ex.Message} => {ex.StackTrace}", "Fail", true);
                     }

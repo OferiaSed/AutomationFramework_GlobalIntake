@@ -10,6 +10,12 @@ namespace AutomationFrame_GlobalIntake.Models
     {
         public UserManagementModel(IWebDriver driver, clsMegaIntake clsMG) : base(driver, clsMG) { }
 
+        // User Management Screen
+        public static By objUserManagementButtons(int n) => By.XPath($"//div[@class='py-3']//button[{n}]");
+        public By objImportUsers = objUserManagementButtons(2);
+        public By objExportUsersSelector = objUserManagementButtons(3);
+        public By objImportUsersInput = By.Id("file-import");
+
         // Add User Screen
         public static string strRestrictionTypeDropdown = "//*[@id='select2-restriction-type-select-container']";
         public static string strSelectClientsModal = "//div[@id='clientSelectorModal_User']/div";
@@ -22,11 +28,11 @@ namespace AutomationFrame_GlobalIntake.Models
         public static By objSelectClientsModal = By.XPath(strSelectClientsModal);
         public static By objSelectClientsSaveButton = By.XPath(".//a[@id='btn_close_client']");
         public static By objSelectClientsCheckboxByClientId(string clientId) => By.XPath($".//td[text()='{clientId}']/../td//input/../label");
+        public static By objSeachAccountUnitButton = By.XPath("//button[contains(@data-bind,'searchAccountUnit')]");
         public static By objSelectRestrictionAcountByAccountNumber(string accountNumber) => By.XPath($"//tr[td[contains(@data-bind,'AccountNumber') and text()='{accountNumber}']]//Label");
         public static By objSelectRestrictionAcountByUnitNumber(string unitNumber) => By.XPath($"//tr[td[contains(@data-bind,'UnitNumber') and text()='{unitNumber}']]//Label");
 
 
-        public static By objSeachAccountUnitButton = By.XPath("//button[contains(@data-bind,'searchAccountUnit')]");
 
         public bool fnSelectClients(List<string> clientIds)
         {

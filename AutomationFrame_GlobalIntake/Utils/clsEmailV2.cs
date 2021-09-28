@@ -138,7 +138,7 @@ namespace MyUtils.Email
                     var list = message.FindAllAttachments();
 
                     //Create Attachment Directories
-                    var strExtentAttachmentsDir = $@"{clsDataDriven.strReportLocation}\Attachments";
+                    var strExtentAttachmentsDir = $@"{clsDataDriven.strReportLocation}\Attachments".Replace("\\\\", "\\");
                     if (list.Any())
                     {
                         Directory.CreateDirectory(strExtentAttachmentsDir);
@@ -146,7 +146,8 @@ namespace MyUtils.Email
 
                     foreach(var attachment in list)
                     {
-                        string strFilePath = Path.Combine(strExtentAttachmentsDir, attachment.FileName);
+                        var fileName = attachment.FileName.Split('.');
+                        string strFilePath = Path.Combine(strExtentAttachmentsDir, $"{fileName[0].fnOnlyAlphanumericChars()}.{fileName[1]}");
                         FileStream stream = new FileStream(strFilePath, FileMode.Create);
                         BinaryWriter binaryStream = new BinaryWriter(stream);
                         binaryStream.Write(attachment.Body);

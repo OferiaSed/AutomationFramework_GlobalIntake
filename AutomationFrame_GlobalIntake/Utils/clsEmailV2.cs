@@ -78,6 +78,9 @@ namespace MyUtils.Email
 
         public bool fnReadEmail(string pstrSubject, string pstrContainsText) 
         {
+            //Clear Attachments of possible past read emails
+            this.Attachments.Clear();
+
             client = new Pop3Client();
             try
             {
@@ -138,7 +141,7 @@ namespace MyUtils.Email
                     var list = message.FindAllAttachments();
 
                     //Create Attachment Directories
-                    var strExtentAttachmentsDir = $@"{clsDataDriven.strReportLocation}\Attachments";
+                    var strExtentAttachmentsDir = $@"{clsDataDriven.strReportLocation}\Attachments".Replace("\\\\", "\\");
                     if (list.Any())
                     {
                         Directory.CreateDirectory(strExtentAttachmentsDir);
@@ -146,7 +149,8 @@ namespace MyUtils.Email
 
                     foreach(var attachment in list)
                     {
-                        string strFilePath = Path.Combine(strExtentAttachmentsDir, attachment.FileName);
+                        var fileName = attachment.FileName.Split('.');
+                        string strFilePath = Path.Combine(strExtentAttachmentsDir, $"{fileName[0].fnOnlyAlphanumericChars()}.{fileName[1]}");
                         FileStream stream = new FileStream(strFilePath, FileMode.Create);
                         BinaryWriter binaryStream = new BinaryWriter(stream);
                         binaryStream.Write(attachment.Body);
@@ -187,7 +191,7 @@ namespace MyUtils.Email
         {
             clsData objData = new clsData();
             Dictionary<string, string> dicCredentials = new Dictionary<string, string>();
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "LogInData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;

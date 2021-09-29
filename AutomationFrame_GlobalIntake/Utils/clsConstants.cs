@@ -13,11 +13,7 @@ namespace AutomationFrame_GlobalIntake.Utils
         public static string strDBPort = "1521";
         public static string strDBService = "viaoneR";
         public static string strDBUser = "oferia";
-        public static string strDBPass = "P@ssw0rd#02";
-
-        //API Credentials
-        public static string strAPIUSer = "OmarAPI";
-        public static string strAPIPass = "P@ssw0rd!";
+        public static string strDBPass = "P@ssw0rd#04";
 
         //Training Mode
         public static bool blTrainingMode = false;
@@ -32,7 +28,45 @@ namespace AutomationFrame_GlobalIntake.Utils
         public static string strTempConfirmationNo = "";
         public static string strOfficeEmail = "";
 
+        //User Management Creation
+        public static string strTempUserName = "";
+        public static string strUsrMngFirstName = "TempFN";
+        public static string strUsrMngLastName = "TempLN";
+        public static string strUsrMngEmail = "mytest@sedgtest.com";
+
+
         public static string ssnMask = "XXX-XX-";
 
+        public static string[] ClientAccountUnitRestrictionsUserSheetColumns =
+            {
+                "Action (Add, Update, Delete)",
+                "TenantName",
+                "UserName",
+                "Role",
+                "FirstName",
+                "LastName",
+                "Email",
+                "PhoneNumber",
+                "TwoFactorEnabled",
+                "IsSsoUser",
+                "SsoIssuer",
+                "ClientSecurityType",
+                "AU",
+                "CR",
+                "DS",
+                "GL",
+                "INF",
+                "JA",
+                "LV",
+                "PF",
+                "PR",
+                "WC",
+                "LocationSecurityType",
+                "Tags",
+                "VendorId",
+                "SensitiveAccess",
+                "CanCopyIntakes",
+                "SubmitIntakesAsPending"
+            };
     }
 }

@@ -88,7 +88,7 @@ namespace AutomationFrame_GlobalIntake.POM
             searchIntakePage.OpenIntakeDetailsByClaimNumber(strClaimNo);
 
             //Go to Event Section
-            clsMG.fnGenericWait(() => clsWebBrowser.objDriver.fnIsElementVisible(SearchIntakeModel.objEventSectionSelector), TimeSpan.Zero, 5);
+            clsMG.fnGenericWait(() => clsWebBrowser.objDriver.fnWaitUntilElementVisible(SearchIntakeModel.objEventSectionSelector), TimeSpan.Zero, 5);
             var eventSection = clsWebBrowser.objDriver.FindElement(SearchIntakeModel.objEventSectionSelector);
             clsWebBrowser.objDriver.fnScrollToElement(eventSection);
 
@@ -243,7 +243,7 @@ namespace AutomationFrame_GlobalIntake.POM
         private string fnGetBranchOffice(string strClientNo, string strState)
         {
             clsDB objDBOR = new clsDB();
-            objDBOR.fnOpenConnection(objDBOR.GetConnectionString("lltcsed1dvq-scan", "1521", "viaonei", "oferia", "P@ssw0rd#02"));
+            objDBOR.fnOpenConnection(objDBOR.GetConnectionString(clsConstants.strDBHost, clsConstants.strDBPort, clsConstants.strDBService, clsConstants.strDBUser, clsConstants.strDBPass));
             string strQuery = "select ex_office from viaone.cont_st_off where cont_num = '{CLIENTNO}' and data_set = 'WC' and state = '{STATE}' fetch first 1 row only";
             var strValue = objDBOR.fnGetSingleValue(strQuery.Replace("{CLIENTNO}", strClientNo).Replace("{STATE}", strState));
             return strValue;

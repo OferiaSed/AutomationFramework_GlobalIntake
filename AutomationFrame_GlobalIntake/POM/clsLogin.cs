@@ -23,7 +23,7 @@ namespace AutomationFrame_GlobalIntake.POM
         {
             bool blResult = true;
             clsData objData = new clsData();
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "LogInData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -83,7 +83,7 @@ namespace AutomationFrame_GlobalIntake.POM
         {
             bool blResult = true;
             clsData objData = new clsData();
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "LogInData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -160,7 +160,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Two Factor Authentication", "<<<<<<<<<< Two Factor Authentication Function Starts. >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "LogInData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -225,7 +225,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Forgot Password", "<<<<<<<<<< Forfot Password Function Starts. >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "ForgotData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "ForgotData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -254,8 +254,10 @@ namespace AutomationFrame_GlobalIntake.POM
                                         //Enter username/captcha
                                         clsReportResult.fnLog("Forgot Password", "The required field messages are displayed as expected.", "info", true, true);
                                         clsMG.fnCleanAndEnterText("Username*", "//input[@id='uname']", objData.fnGetValue("User", ""), true, false, "", false);
-                                        do { Thread.Sleep(TimeSpan.FromSeconds(20)); }
-                                        while (clsWE.fnGetAttribute(clsWE.fnGetWe("//input[@id='captcha-input']"), "Captcha", "value", false, false) == "");
+
+                                        //Verify Captcha value not empty
+                                        this.fnCaptchaValueNotEmpty(TimeSpan.FromSeconds(20));
+
                                         clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit", false);
                                         //Verify that email is received to change the password
                                         var readEmail = clsUtils.fnFindGeneratedEmail(objData.fnGetValue("Set", ""), "Sedgwick Global Intake - Password Reset", "Please reset your password ");
@@ -274,7 +276,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                             {
                                                 //Save the claim
                                                 clsData objSaveData = new clsData();
-                                                objSaveData.fnSaveValue(ConfigurationManager.AppSettings["FilePath"], "LogInData", "Password", intRow, strNewPass);
+                                                objSaveData.fnSaveValue(clsDataDriven.strDataDriverLocation, "LogInData", "Password", intRow, strNewPass);
 
                                                 //Verify email confirmation for password reset
                                                 if (fnReadTextEmail(objData.fnGetValue("EmailAcc", ""), objData.fnGetValue("PassAcc", ""), "password for your account was changed"))
@@ -364,7 +366,7 @@ namespace AutomationFrame_GlobalIntake.POM
             clsData objData = new clsData();
             string strUsername = "";
             clsReportResult.fnLog("Forgot Username", "<<<<<<<<<< Two Forgot Username Function Starts. >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "ForgotData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "ForgotData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -393,8 +395,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                         //Enter username/captcha
                                         clsReportResult.fnLog("Forgot Username", "The required field messages are displayed as expected.", "info", true, false);
                                         clsMG.fnCleanAndEnterText("Email", "//input[@id='uname']", objData.fnGetValue("EmailAcc", ""), false, false, "", false);
-                                        do { Thread.Sleep(TimeSpan.FromSeconds(15)); }
-                                        while (clsWE.fnGetAttribute(clsWE.fnGetWe("//input[@id='captcha-input']"), "Captcha", "value", false, false) == "");
+                                        this.fnCaptchaValueNotEmpty(TimeSpan.FromSeconds(15));
                                         clsReportResult.fnLog("Forgot Username", "The email/captcha was entered", "Info", true, false);
                                         clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit", true);
                                         if (!clsMG.IsElementPresent("//div[@class='invalid-feedback']"))
@@ -485,7 +486,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             clsData objData = new clsData();
             clsReportResult.fnLog("Restriction for Expired User", "<<<<<<<<<< Restriction for Expired User Function Starts. >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "LogInData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -557,7 +558,7 @@ namespace AutomationFrame_GlobalIntake.POM
             int intCount = 0;
             clsData objData = new clsData();
             clsReportResult.fnLog("Timeout session", "<<<<<<<<<< The Login Timeout session function Starts >>>>>>>>>>", "Info", false);
-            objData.fnLoadFile(ConfigurationManager.AppSettings["FilePath"], "LogInData");
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "LogInData");
             for (int intRow = 2; intRow <= objData.RowCount; intRow++)
             {
                 objData.CurrentRow = intRow;
@@ -572,12 +573,19 @@ namespace AutomationFrame_GlobalIntake.POM
                         {
                             intCount++;
                             clsReportResult.fnLog("Timeout session", "Waiting timeout label (" + intCount.ToString() + ") minute(s).", "Info", false, false);
-                            Thread.Sleep(TimeSpan.FromMinutes(1));
-                            if (clsMG.IsElementPresent("//div[@id='modalSessionNotification' and contains(@style, 'display: block;')]//p[contains(text(), 'Your Session is about to expire ')]")) { bFound = true; }
+                            bFound = clsWebBrowser.objDriver.fnWaitUntilElementVisible(
+                                By.XPath("//div[@id='modalSessionNotification' and contains(@style, 'display: block;')]//p[contains(text(), 'Your Session is about to expire ')]"),
+                                TimeSpan.FromMinutes(1)
+                            );
                         }
                         while (!bFound && intCount <= 20);
-                        
+
                         //Wait to finish finished the execution
+                        clsWebBrowser.objDriver.fnWaitUntilElementVisible(
+                            By.XPath("//span[text()='You are currently logged into ']"),
+                            TimeSpan.Zero
+                        );
+
                         int intLogOff = 0;
                         bool blEndedSession = false;
                         while (clsMG.IsElementPresent("//span[text()='You are currently logged into ']") && intLogOff <= 4) 
@@ -663,7 +671,35 @@ namespace AutomationFrame_GlobalIntake.POM
             return strValue;
         }
 
+        /// <summary>
+        /// Verify that captcha value is not empty,
+        /// all test will fail and stop if it is false after all attempts
+        /// </summary>
+        /// <param name="pTimeBetweenAttempts">time to wait between each attempt</param>
+        /// <param name="pIntAttempts">number of attempts, default 3</param>
+        public void fnCaptchaValueNotEmpty(TimeSpan pTimeBetweenAttempts, int pIntAttempts = 3)
+        {
+            //Using Generic Wait to avoid Infinite Loops
+            var captchaOk = clsMG.fnGenericWait(
+                () => 
+                {
+                    var value = clsWE.fnGetAttribute(
+                         clsWE.fnGetWe("//input[@id='captcha-input']"),
+                         "Captcha",
+                         "value",
+                         false
+                     );
+                    return value != string.Empty;
+                },
+                pTimeBetweenAttempts,
+                pIntAttempts
+            );
 
+            if (!captchaOk)
+            {
+                clsReportResult.fnLog("Captcha failing", "Captcha failing after tree attempts, failing test", "Fail", true, true);
+            }
+        }
         public bool fnLogOffSession()
         {
             bool blResult = true;

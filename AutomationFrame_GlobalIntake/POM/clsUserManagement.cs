@@ -27,18 +27,8 @@ namespace AutomationFrame_GlobalIntake.POM
         /// </summary>
         private string strLastUsername;
 
-        public bool fnUserMagmtWebUser(string pstrSetNo)
+        public bool fnUserManagementPage(string pstrSetNo)
         {
-            void fnNavigateToWebUsers()
-            {
-                if (clsWebBrowser.objDriver.Url.EndsWith("/UserManagement"))
-                {
-                    clsWebBrowser.objDriver.Navigate().Refresh();
-                    return;
-                }
-                clsMG.fnHamburgerMenu("User Management;Web Users");
-                clsWE.fnPageLoad(clsWE.fnGetWe("//h4[contains(text(),'Users')]"), "Users", true, false);
-            }
             bool blResult = true;
 
             clsData objData = new clsData();
@@ -50,7 +40,6 @@ namespace AutomationFrame_GlobalIntake.POM
                 if (objData.fnGetValue("Set", "") == pstrSetNo)
                 {
                     var action = objData.fnGetValue("Action", "");
-
                     var templateFoundStep = "Assert User Import Template was found";
 
                     #region local functions
@@ -227,8 +216,8 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             break;
                         case "SEARCH":
-                            clsMG.fnHamburgerMenu("User Management;Web Users");
-                            if(searchUser())
+                            fnNavigateToUserManagement(objData.fnGetValue("ScreenMenu", ""));
+                            if (searchUser())
                             {
                                 clsWE.fnClick(clsWE.fnGetWe($"//tr[td[text()='{objData.fnGetValue("Username", this.strLastUsername)}']]//a"), "Edit Record", false);
                                 clsWE.fnPageLoad(clsWE.fnGetWe("//h4[text()='Edit User']"), "Edit User", true, false);
@@ -240,7 +229,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             break;
                         case "ENABLE":
-                            var x = clsUtils.fnIsElementEnabledVisible(By.XPath("//button[contains(@data-bind, 'unlockUser')]"), clsWebBrowser.objDriver);
+                            //var x = clsUtils.fnIsElementEnabledVisible(By.XPath("//button[contains(@data-bind, 'unlockUser')]"), clsWebBrowser.objDriver);
 
                             if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
                             {
@@ -351,7 +340,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             break;
                         case "NEWRANDOMUSER":
-                            fnNavigateToWebUsers();
+                            fnNavigateToUserManagement(objData.fnGetValue("ScreenMenu", ""));
                             if (clsMG.IsElementPresent("//h4[contains(text(),'Users')]"))
                             {
                                 clsWE.fnScrollTo(clsWE.fnGetWe("//button[contains(@data-bind, 'addUser') and contains(text(),'Add User')]"), "Scrolling to Add user button", true, false);
@@ -397,7 +386,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         //Can be executed after new user created
                         //Validates that the set tag is still there
                         case "VALIDATE TAG":
-                            fnNavigateToWebUsers();
+                            fnNavigateToUserManagement(objData.fnGetValue("ScreenMenu", ""));
                             clsMG.fnCleanAndEnterText("Username", "//input[@placeholder='Username']", this.strLastUsername, false, false, "", false);
                             clsWE.fnClick(clsWE.fnGetWe("//button[text()='Search']"), "Search", false);
                             var userRow = "//tr[td[text()='" + this.strLastUsername + "']]//a";
@@ -418,7 +407,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             break;
                         case "EXPORTUSERS":
                             {
-                                fnNavigateToWebUsers();
+                                fnNavigateToUserManagement(objData.fnGetValue("ScreenMenu", ""));
                                 ExportUsersExcelTemplate();
                                 var strPatFileAttached = ReadExportedEmailAttachments();
                                 var blSuccess = false;
@@ -448,7 +437,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                         case "IMPORT USERS":
                             {
-                                fnNavigateToWebUsers();
+                                fnNavigateToUserManagement(objData.fnGetValue("ScreenMenu", ""));
                                 string pathToExcel = null;
                                 var attachmentFound = clsMG.fnGenericWait(
                                     condition: () =>
@@ -663,9 +652,6 @@ namespace AutomationFrame_GlobalIntake.POM
         public bool fnReadEmailAndSetPassword(clsData objData)
         {
             bool blResult = true;
-            //clsEmail clsEmail = new clsEmail();
-            //string strURLReset = clsEmail.fnReadConfirmationEmail(objData.fnGetValue("SetCredentials", ""), "Please activate your account", "your browser: ", "---", "your browser: ", "</span>");
-
             var readEmail = clsUtils.fnFindGeneratedEmail(objData.fnGetValue("SetCredentials", ""), "Welcome to Sedgwick Global Intake", "Please activate your account");
             var strURLReset = readEmail.fnGetContentAsString("your browser: ", "---", "your browser: ", "</span>");
 
@@ -793,6 +779,31 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
+        private void fnNavigateToUserManagement(string pstrScreenMenu)
+        {
+            if (clsWebBrowser.objDriver.Url.EndsWith("/UserManagement"))
+            {
+                clsWebBrowser.objDriver.Navigate().Refresh();
+                return;
+            }
+            clsMG.fnHamburgerMenu($"User Management;{pstrScreenMenu}");
+            switch (pstrScreenMenu) 
+            {
+                case "Web Users":
+                    clsMG.fnGenericWait(() => clsMG.IsElementPresent("//h4[contains(text(),'Users')]"), TimeSpan.FromSeconds(1), 10);
+                    clsWE.fnPageLoad(clsWE.fnGetWe("//h4[contains(text(),'Users')]"), "Users", true, false);
+                    break;
+                case "Shared Logins":
+                    clsMG.fnGenericWait(() => clsMG.IsElementPresent("//*[contains(text(),'Shared Logins')]"), TimeSpan.FromSeconds(1), 10);
+                    clsWE.fnPageLoad(clsWE.fnGetWe("//*[contains(text(),'Shared Logins')]"), "Shared Logins", true, false);
+                    break;
+                case "Group Management":
+                    clsMG.fnGenericWait(() => clsMG.IsElementPresent("//*[contains(text(),'Client Groups')]"), TimeSpan.FromSeconds(1), 10);
+                    clsWE.fnPageLoad(clsWE.fnGetWe("//*[contains(text(),'Client Groups')]"), "Client Groups", true, false);
+                    break;
+            }
+            
+        }
 
 
     }

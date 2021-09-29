@@ -96,7 +96,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
                                     if (!clsLG.fnTimeoutSessionVerification(TempValue)) { blStatus = false; }
                                     break;
                                 case "USERMANAGEMENT":
-                                    if (!clsUM.fnUserMagmtWebUser(TempValue)) { blStatus = false; }
+                                    if (!clsUM.fnUserManagementPage(TempValue)) { blStatus = false; }
                                     break;
                                 case "ACCOUNTUNITSECURITY":
                                     if (!clsIntake.fnAccountUnitSecurityVerification(TempValue)) { blStatus = false; }

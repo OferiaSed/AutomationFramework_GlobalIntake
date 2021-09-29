@@ -26,6 +26,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
         readonly clsUserManagment clsUM = new clsUserManagment();
         readonly clsDissemination clsDiss = new clsDissemination();
         readonly clsGroupManagement clsGM = new clsGroupManagement();
+        readonly clsClientManagement clsCM = new clsClientManagement();
         clsIntakeFlow clsIntake;
         clsSearch clsSearch;
 
@@ -158,6 +159,9 @@ namespace AutomationFrame_GlobalIntake.TestCases
                                     break;
                                 case "UPDATEGROUP":
                                     if (!clsGM.fnUpdateUserGroups(TempValue)) { blStatus = false; }
+                                    break;
+                                case "CLIENTMGMTRESTRICTION":
+                                    if (!clsCM.fnUsersClientMgmtRestrictions(TempValue)) { blStatus = false; }
                                     break;
                                 default:
                                     clsReportResult.fnLog("Data Driven Test", "The action: "+ item.ToString() + " does not exsit.", "Fail", false);

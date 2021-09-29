@@ -235,6 +235,8 @@ namespace AutomationFrame_GlobalIntake.POM
             return blResult;
         }
 
+
+        ///Remove
         public bool fnRVerifyLocationLookup(string pstrSetNo)
         {
             bool blResult = true;

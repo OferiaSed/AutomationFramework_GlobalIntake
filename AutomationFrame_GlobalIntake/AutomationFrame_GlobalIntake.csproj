@@ -183,6 +183,7 @@
     <Compile Include="Models\ReviewIntakeModel.cs" />
     <Compile Include="Models\SearchIntakeModel.cs" />
     <Compile Include="Models\UserManagementModel.cs" />
+    <Compile Include="POM\clsClientManagement.cs" />
     <Compile Include="POM\clsAPI.cs" />
     <Compile Include="POM\clsDissemination.cs" />
     <Compile Include="POM\clsGroupManagement.cs" />

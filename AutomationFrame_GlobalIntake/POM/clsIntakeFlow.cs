@@ -335,14 +335,18 @@ namespace AutomationFrame_GlobalIntake.POM
                 {
                     //Verify if EE Lookup button exist
                     clsReportResult.fnLog("Employee Lookup Function", "<<<<<<<<<< The Employee Functions Starts. >>>>>>>>>>", "Info", false);
-                    if (clsMG.IsElementPresent("//button[span[text()='Employee Lookup']]"))
+                    var EmployeeLookupBbtn = clsMG.fnGenericWait(() => clsMG.IsElementPresent("//button[span[text()='Employee Lookup']]"), TimeSpan.FromSeconds(1), 1);
+                    if (EmployeeLookupBbtn)
                     {
                         //Verify EE Lookup Popup is displayed
                         clsWE.fnClick(clsWE.fnGetWe("//button[span[text()='Employee Lookup']]"), "Employee Lookup Button", false);
                         if (clsMG.IsElementPresent("//div[@id='jurisEmployeeSearchModal_EMPLOYEE_LOOKUP' and contains(@style, 'display: block')]"))
                         {
-                            clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='jurisEmployeeSearchModal_EMPLOYEE_LOOKUP' and contains(@style, 'display: block')]"), "Employee Lookup Popup", false, false);
-                            clsWE.fnPageLoad(clsWE.fnGetWe("//table[@aria-describedby='jurisEmployeeResults_EMPLOYEE_LOOKUP_info']"), "Employee Table", true, false);
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@id='jurisEmployeeSearchModal_EMPLOYEE_LOOKUP' and contains(@style, 'display: block')]"), TimeSpan.FromSeconds(1), 10);
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//table[@aria-describedby='jurisEmployeeResults_EMPLOYEE_LOOKUP_info']"), TimeSpan.FromSeconds(1), 10);
+
+                            //clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='jurisEmployeeSearchModal_EMPLOYEE_LOOKUP' and contains(@style, 'display: block')]"), "Employee Lookup Popup", false, false);
+                            //clsWE.fnPageLoad(clsWE.fnGetWe("//table[@aria-describedby='jurisEmployeeResults_EMPLOYEE_LOOKUP_info']"), "Employee Table", true, false);
                             //Select Data Set
                             if (objData.fnGetValue("Set", "") != "0")
                             {
@@ -397,17 +401,16 @@ namespace AutomationFrame_GlobalIntake.POM
                 {
                     //Verify if Location Lookup button exist
                     clsReportResult.fnLog("Location Lookup Function", "<<<<<<<<<< The Location Lookup Functions Starts. >>>>>>>>>>", "Info", false);
-                    clsMG.WaitWEUntilAppears("Waiting Location Lookup button", "//button[span[text()='Location Lookup']]", 10);
-                    if (clsMG.IsElementPresent("//button[span[text()='Location Lookup']]"))
+                    var LocationLookupBbtn = clsMG.fnGenericWait(() => clsMG.IsElementPresent("//button[span[text()='Location Lookup']]"), TimeSpan.FromSeconds(1), 10);
+                    if (LocationLookupBbtn)
                     {
                         //Verify Location Lookup Popup is displayed
                         clsWE.fnClick(clsWE.fnGetWe("//button[span[text()='Location Lookup']]"), "Location Lookup Button", false);
                         if (clsMG.IsElementPresent("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]"))
                         {
                             //Wait to Load Location Lookup
-                            Thread.Sleep(TimeSpan.FromSeconds(5));
-                            clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]"), "Location Lookup Popup", false, false);
-                            clsWE.fnPageLoad(clsWE.fnGetWe("//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']"), "Location Table", true, false);
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block')]"), TimeSpan.FromSeconds(1), 10);
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//table[@aria-describedby='jurisLocationResults_LOCATION_LOOKUP_info']"), TimeSpan.FromSeconds(1), 10);
                             //Verify is table is empty
                             IList<IWebElement> lsRows = clsWebBrowser.objDriver.FindElements(By.XPath("//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr"));
                             if (lsRows.Count() > 2)
@@ -562,8 +565,8 @@ namespace AutomationFrame_GlobalIntake.POM
                     clsMG.fnHamburgerMenu("Home");
                     var clientNo = objData.fnGetValue("ClientNo", "");
                     var clientName = objData.fnGetValue("ClientName", "");
-                    var singleClient = bool.Parse(objData.fnGetValue("SingleClient", "FALSE"));
-                    if (singleClient)
+                    //var singleClient = bool.Parse(objData.fnGetValue("SingleClient", "FALSE"));
+                    /*if (singleClient)
                     {
                         //Validate only the client in set is showed
                         clsWebBrowser.objDriver.FindElement(By.Id("clientSelectorToggle")).Click();
@@ -572,7 +575,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         var elementCountOk = clsWebBrowser.objDriver.FindElements(By.XPath("//a[@class='dropdown-item bs-content-box']")).Count == 3;
                         var success = clientPresent && elementCountOk;
                         clsReportResult.fnLog("Verify Single Client Showed", $"Verify Client '{clientNo} - {clientName}' is the only available for the user", success ? "Pass" : "Fail", true);
-                    }
+                    }*/
 
                     //Select Location Lookup or Search Validation
                     if (fnSelectIntake(clientNo, clientName))
@@ -584,16 +587,14 @@ namespace AutomationFrame_GlobalIntake.POM
                         if (clsWE.fnElementExist("Duplicate Claim Check Page", "//span[contains(text(), 'Duplicate Claim')]", true))
                         {
                             //Open EE Lookup
-                            clsMG.fnGenericWait(() => clsMG.IsElementPresent("//button[span[text()='Employee Lookup']]"), TimeSpan.FromSeconds(1), 3);
-                            if (clsMG.IsElementPresent("//button[span[text()='Employee Lookup']]"))
+                            var EELookupBtn = clsMG.fnGenericWait(() => clsMG.IsElementPresent("//button[span[text()='Employee Lookup']]"), TimeSpan.FromSeconds(1), 1);
+                            if (EELookupBtn)
                             {
                                 clsWE.fnClick(clsWE.fnGetWe("//button[span[text()='Employee Lookup']]"), "Employee Lookup Button", false);
                                 clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@id='jurisEmployeeSearchModal_EMPLOYEE_LOOKUP' and contains(@style, 'display: block')]"), TimeSpan.FromSeconds(1), 10);
                                 if (clsMG.IsElementPresent("//div[@id='jurisEmployeeSearchModal_EMPLOYEE_LOOKUP' and contains(@style, 'display: block')]"))
                                 { clsWE.fnClick(clsWE.fnGetWe("//div[@id='jurisEmployeeSearchModal_EMPLOYEE_LOOKUP' and contains(@style, 'display: block')]//button[text()='Close']"), "Close Button", false); }
                             }
-
-
 
                             //Verify Location Lookup Popup was opened successfully
                             clsMG.fnGenericWait(() => clsMG.IsElementPresent("//button[@id='btnJurisLocation_LOCATION_LOOKUP']"), TimeSpan.FromSeconds(1), 10);

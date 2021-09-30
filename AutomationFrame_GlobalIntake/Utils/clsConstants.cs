@@ -8,6 +8,9 @@ namespace AutomationFrame_GlobalIntake.Utils
 {
     public class clsConstants
     {
+        //Login Flag
+        public static bool blLogin = false;
+
         //DB Crdentials
         public static string strDBHost = "lltcsed1dvq-scan";
         public static string strDBPort = "1521";
@@ -17,7 +20,6 @@ namespace AutomationFrame_GlobalIntake.Utils
 
         //Training Mode
         public static bool blTrainingMode = false;
-        public static bool blLogin = false;
         public static string strSubmitClaimTrainingMode = "";
         public static string strResumeClaimTrainingMode = "";
         public static string strSubmitClaimNormalMode = "";
@@ -34,9 +36,10 @@ namespace AutomationFrame_GlobalIntake.Utils
         public static string strUsrMngLastName = "TempLN";
         public static string strUsrMngEmail = "mytest@sedgtest.com";
 
-
+        //Intake SSN Mask
         public static string ssnMask = "XXX-XX-";
 
+        //Account Unit Exported Spreadsheet
         public static string[] ClientAccountUnitRestrictionsUserSheetColumns =
             {
                 "Action (Add, Update, Delete)",

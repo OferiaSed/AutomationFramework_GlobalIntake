@@ -229,8 +229,6 @@ namespace AutomationFrame_GlobalIntake.POM
                             }
                             break;
                         case "ENABLE":
-                            //var x = clsUtils.fnIsElementEnabledVisible(By.XPath("//button[contains(@data-bind, 'unlockUser')]"), clsWebBrowser.objDriver);
-
                             if (clsWE.fnElementExist("Edit Record", "//h4[text()='Edit User']", false))
                             {
                                 clsWE.fnClick(clsWE.fnGetWe("//button[contains(@data-bind, 'toggleEnableUser')]"), "Enable User", false);
@@ -409,6 +407,7 @@ namespace AutomationFrame_GlobalIntake.POM
                             {
                                 fnNavigateToUserManagement(objData.fnGetValue("ScreenMenu", ""));
                                 ExportUsersExcelTemplate();
+                                Thread.Sleep(TimeSpan.FromSeconds(20));
                                 var strPatFileAttached = ReadExportedEmailAttachments();
                                 var blSuccess = false;
                                 if (strPatFileAttached != "")
@@ -628,7 +627,8 @@ namespace AutomationFrame_GlobalIntake.POM
                 
 
                 //Save Changes
-                clsMG.WaitWEUntilAppears("Save button", "//button[contains(text(),'Save Changes')]", 10);
+                //clsMG.WaitWEUntilAppears("Save button", "//button[contains(text(),'Save Changes')]", 10);
+                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//button[contains(text(),'Save Changes')]"), TimeSpan.FromSeconds(1), 10);
                 clsWE.fnClick(clsWE.fnGetWe("//button[contains(text(),'Save Changes')]"), "Saving changes", false);
                 //Verify is Error Messages are displayed
                 if (!clsMG.IsElementPresent("//i[contains(@class,'fa fa-warning fa-exclamation-triangle red-text')]"))
@@ -674,7 +674,15 @@ namespace AutomationFrame_GlobalIntake.POM
                     objWebEdit = clsWebBrowser.objDriver.FindElement(By.XPath("//div[label[contains(text(), 'Confirm New Password')]]//input"));
                     objWebEdit.SendKeys(objData.fnGetValue("ConfPass", ""));
                     clsWE.fnClick(clsWE.fnGetWe("//button[text()='Submit']"), "Submit", true);
-                    if (clsMG.IsElementPresent("//i[contains(@class,'fa fa-warning fa-exclamation-triangle red-text')]"))
+                    var SecQues = clsMG.fnGenericWait(() => clsMG.IsElementPresent("//h3[text() = 'Security Questions']"), TimeSpan.FromSeconds(1), 10);
+                    if (SecQues)
+                    { clsReportResult.fnLog("Form filled correctly", "The Set Password Form was filled successfully.", "Pass", true, false); }
+                    else if (clsMG.IsElementPresent("//i[contains(@class,'fa fa-warning fa-exclamation-triangle red-text')]"))
+                    {
+                        clsReportResult.fnLog("Set Password Form not filled correctly", "The Set Password Form was not filled successfully.", "Fail", false, false);
+                        blResult = false;
+                    }
+                    /*if (clsMG.IsElementPresent("//i[contains(@class,'fa fa-warning fa-exclamation-triangle red-text')]"))
                     {
                         clsReportResult.fnLog("Set Password Form not filled correctly", "The Set Password Form was not filled successfully.", "Fail", false, false);
                         blResult = false;
@@ -682,7 +690,7 @@ namespace AutomationFrame_GlobalIntake.POM
                     else
                     {
                         clsReportResult.fnLog("Form filled correctly", "The Set Password Form was filled successfully.", "Pass", false, false);
-                    }
+                    }*/
                 }
                 else
                 {

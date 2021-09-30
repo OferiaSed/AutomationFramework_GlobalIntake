@@ -55,6 +55,7 @@ namespace AutomationFrame_GlobalIntake.TestCases
                 if (objData.fnGetValue("Run", "") == "1")
                 {
                     //Setup Report, Execution Functions
+                    clsConstants.blLogin = false;
                     blStatus = true;
                     dtStartTime = DateTime.Now.ToString("MMddyyyy_hhmmss");
                     var arrFunctions = objData.fnGetValue("Funcions").Split(';').Where(act => !string.IsNullOrEmpty(act)).ToArray();
@@ -140,9 +141,6 @@ namespace AutomationFrame_GlobalIntake.TestCases
                                     break;
                                 case "USERSHOMERESTRICTION":
                                     if (!clsIntake.fnUsersHomeRestrictions(TempValue)) { blStatus = false; }
-                                    break;
-                                case "LOGINTEMP":
-                                    if (!clsLG.fnLogInAction(TempValue)) { blStatus = false; }
                                     break;
                                 case "DISSEMINATION":
                                     if (!clsDiss.fnDisseminationPage(TempValue)) { blStatus = false; }

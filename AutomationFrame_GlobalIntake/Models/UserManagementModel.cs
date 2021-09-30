@@ -2,6 +2,7 @@
 using AutomationFrame_GlobalIntake.Utils;
 using AutomationFramework;
 using OpenQA.Selenium;
+using System;
 using System.Collections.Generic;
 
 namespace AutomationFrame_GlobalIntake.Models
@@ -18,7 +19,7 @@ namespace AutomationFrame_GlobalIntake.Models
 
         // Add User Screen
         public static string strRestrictionTypeDropdown = "//*[@id='select2-restriction-type-select-container']";
-        public static string strSelectClientsModal = "//div[@id='clientSelectorModal_User']/div";
+        public static string strSelectClientsModal = "//div[@id='clientSelectorModal_User' and contains(@style, 'display: block')]";
         public static string strClientSecurityTypes = "//div[select[contains(@data-bind, 'ClientSecurityTypes')]]//span[@class='select2-selection__rendered']";
         public static string strSearchAccountNumberInput = "//input[contains(@data-bind,'searchAcctNumber')]";
         public static string strTagDropdown = "//span[contains(@class, 'tag-select-container-custom')]/ul[@class='select2-selection__rendered']";
@@ -42,7 +43,7 @@ namespace AutomationFrame_GlobalIntake.Models
                     var button = this.driver.FindElement(objSelectClientsButton);
                     driver.fnScrollToElement(button);
                     button.Click();
-                    clsMG.WaitWEUntilAppears("Wait for Select Clients Modal", strSelectClientsModal, 0);
+                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(strSelectClientsModal), TimeSpan.FromSeconds(1), 10);
                     var modalVisible = this.driver.fnWaitUntilElementVisible(objSelectClientsModal);
 
                     clsReportResult.fnLog(
@@ -54,6 +55,8 @@ namespace AutomationFrame_GlobalIntake.Models
                         "Modal is not visible"
                     );
 
+                    clsMG.fnGenericWait(() => clsMG.IsElementPresent("//table[@id='clientSelectorTable_User']//tbody/tr[@role='row']"), TimeSpan.FromSeconds(1), 10);
+                    clsMG.fnGenericWait(() => clsMG.IsElementPresent("//a[@id='btn_close_client']"), TimeSpan.FromSeconds(1), 10);
                     var modal = driver.FindElement(objSelectClientsModal);
                     var filterByClientId = modal.FindElement(By.XPath(".//input"));
                     clientIds.ForEach(
@@ -64,6 +67,7 @@ namespace AutomationFrame_GlobalIntake.Models
                             var clientCheckbox = objSelectClientsCheckboxByClientId(clientId);
                             this.driver.fnWaitUntilElementVisible(clientCheckbox);
                             modal.FindElement(clientCheckbox).Click();
+                            clsReportResult.fnLog("Sendkeys", $"The SendKeys for: Client Number with value: {clientId} was done.", modalVisible ? "Pass" : "Fail", true);
                         }    
                     );
                     modal.FindElement(objSelectClientsSaveButton).Click();

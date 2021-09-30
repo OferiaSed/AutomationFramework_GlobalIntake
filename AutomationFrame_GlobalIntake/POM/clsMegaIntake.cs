@@ -467,17 +467,19 @@ namespace AutomationFrame_GlobalIntake.POM
 
         public void fnHamburgerMenu(string pstrMenu)
         {
+            clsMegaIntake clsMG = new clsMegaIntake();
             clsReportResult.fnLog("Hamburger Menu", "Selecting a Menu Option: " + pstrMenu.ToString(), "Info", false);
             //Verify if menu is collapsed
-            var isElementStillPresent = this.fnGenericWait(
+            /*var isElementStillPresent = this.fnGenericWait(
                 () =>
                 {
                     return IsElementPresent("//div[@id='slide-out' and contains(@style, 'translateX(-100%)')]");
                 },
-                TimeSpan.FromMilliseconds(500),
-                3
-            );
+                TimeSpan.FromMilliseconds(1000),
+                1
+            );*/
 
+            var isElementStillPresent = clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@id='slide-out' and contains(@style, 'translateX(-100%)')]"), TimeSpan.FromMilliseconds(500), 1);
             if (isElementStillPresent) 
             {
                 clsWE.fnClick(clsWE.fnGetWe("//div[@class='float-left']//i"), "Hamburger Button", true, false);
@@ -488,7 +490,8 @@ namespace AutomationFrame_GlobalIntake.POM
             if (!pstrMenu.Contains(";"))
             {
                 Thread.Sleep(TimeSpan.FromSeconds(2));
-                if (IsElementPresent("//a[contains(text(), '" + pstrMenu + "')]"))
+                var MenuPresent = clsMG.fnGenericWait(() => clsMG.IsElementPresent("//a[contains(text(), '" + pstrMenu + "')]"), TimeSpan.FromSeconds(1), 5);
+                if (MenuPresent)
                 {
                     clsWE.fnClick(clsWE.fnGetWe("//a[contains(text(), '" + pstrMenu + "')]"), pstrMenu + " Link", false, false);
                     Thread.Sleep(TimeSpan.FromSeconds(2));
@@ -505,7 +508,8 @@ namespace AutomationFrame_GlobalIntake.POM
                 {
                     if (intMenu == 0)
                     {
-                        if (IsElementPresent("//li[contains(@data-bind, '" + arrMenu[intMenu].Replace(" ", "") + "')]/a"))
+                        var MenuPresent = clsMG.fnGenericWait(() => clsMG.IsElementPresent("//li[contains(@data-bind, '" + arrMenu[intMenu].Replace(" ", "") + "')]/a"), TimeSpan.FromSeconds(1), 5);
+                        if (MenuPresent)
                         {
                             Thread.Sleep(TimeSpan.FromSeconds(1));
                             clsWE.fnClick(clsWE.fnGetWe("//li[contains(@data-bind, '" + arrMenu[intMenu].Replace(" ", "") + "')]/a"), arrMenu[intMenu] + " Link", false, false);

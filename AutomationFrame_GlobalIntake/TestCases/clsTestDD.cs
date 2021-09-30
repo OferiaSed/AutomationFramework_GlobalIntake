@@ -54,6 +54,10 @@ namespace AutomationFrame_GlobalIntake.TestCases
                 objData.CurrentRow = intRow;
                 if (objData.fnGetValue("Run", "") == "1")
                 {
+                    //Print Result Path
+                    Console.WriteLine("*************************************************************************************************");
+                    Console.WriteLine($"The TC {objData.fnGetValue("Description", "")} is starting.");
+
                     //Setup Report, Execution Functions
                     clsConstants.blLogin = false;
                     blStatus = true;
@@ -104,7 +108,6 @@ namespace AutomationFrame_GlobalIntake.TestCases
                                     break;
                                 case "CREATECLAIM":
                                     if (!clsIntake.fnIntakeScreen(TempValue)) { blStatus = false; }
-                                    //if (!clsIntake.fnCreateAndSubmitClaim(TempValue)) { blStatus = false; }
                                     break;
                                 case "SEARCHTRAININGCLAIM":
                                     if (!clsSearch.fnVerifyTrainingModeClaims()) { blStatus = false; }
@@ -163,6 +166,9 @@ namespace AutomationFrame_GlobalIntake.TestCases
                     else
                     { objData.fnSaveValue(clsDataDriven.strDataDriverLocation, "TestCases", "Status", intRow, "Fail"); }
                     CloseTest();
+                    //Print Result Path
+                    Console.WriteLine($"The TC {objData.fnGetValue("Description", "")} is ending.");
+                    Console.WriteLine("*************************************************************************************************");
                 }
             }
             //Print Result Path

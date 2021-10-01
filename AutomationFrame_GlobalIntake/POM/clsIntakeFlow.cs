@@ -157,9 +157,9 @@ namespace AutomationFrame_GlobalIntake.POM
                     }
                 }
                 clsWE.fnPageLoad(clsWE.fnGetWe(DuplicateCCModel.strDuplicatePageLabel), "Wait Duplicate CC Header", false, false);
-                clsMG.fnCleanAndEnterText("Loss Incident Time", DuplicateCCModel.strLossIncidentTime, pobjData.fnGetValue("LossTime", ""), false, false, "", false);
+                clsMG.fnCleanAndEnterText("Loss Incident Time", DuplicateCCModel.strLossIncidentTime, pobjData.fnGetValue("LossIncidentTime", ""), false, false, "", false);
                 clsWE.fnClick(clsWE.fnGetWe(DuplicateCCModel.strDuplicatePageLabel), "Duplicate CC Header", false);
-                clsMG.fnCleanAndEnterText("Loss Incident Date", DuplicateCCModel.strLossIncidentDate, pobjData.fnGetValue("LossDate", ""), false, false, "", false);
+                clsMG.fnCleanAndEnterText("Loss Incident Date", DuplicateCCModel.strLossIncidentDate, pobjData.fnGetValue("LossIncidentDate", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Reporter Type", DuplicateCCModel.strReporterType, pobjData.fnGetValue("ReporterType", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Reported By", DuplicateCCModel.strReportedBy, pobjData.fnGetValue("ReportedBy", ""), false, false, "", false);
                 clsWE.fnPageLoad(clsWE.fnGetWe(DuplicateCCModel.strEnvironmentBar), "Environment Bar", false, false);
@@ -605,7 +605,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                 //Verify the account or unit in the table
                                 clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block;')]"), "Location Lookup Page", false, false);
                                 //clsWE.fnPageLoad(clsWE.fnGetWe("//table[@id='jurisLocationResults_LOCATION_LOOKUP']"), "Location Lookup Values", false, false);
-                                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block;')]"), TimeSpan.FromSeconds(1), 10);
+                                clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[@id='jurisLocationSearchModal_LOCATION_LOOKUP' and contains(@style, 'display: block;')]"), TimeSpan.FromSeconds(5), 10);
 
                                 //verify that all records in the first page has the correct values
                                 if (fnAccountUnitTableRows(objData.fnGetValue("ScenarioType", ""), objData.fnGetValue("RestrictionType", ""), objData.fnGetValue("AccUnitVal", "")))
@@ -1747,9 +1747,6 @@ namespace AutomationFrame_GlobalIntake.POM
                                             break;
                                         case "VERIFYONETEAMFORM":
                                             this.fnVerifyOneTeamIntakeFlow(objData);
-                                            break;
-                                        case "VERIFYLOCLOOKUP":
-                                            System.Console.WriteLine("Voy a verificar Lookup");
                                             break;
                                         case "FILLRKCLAIM":
                                             //Reporter First Name

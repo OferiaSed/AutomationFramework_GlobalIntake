@@ -1,7 +1,7 @@
 ﻿using AutomationFrame_GlobalIntake.Models;
 using AutomationFrame_GlobalIntake.Utils;
-using AutomationFramework;
 using MyUtils.Email;
+using AutomationFramework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using SpreadsheetLight;
@@ -55,7 +55,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         clsReportResult.fnLog("Success Toaster was showed", "Success Toaster was showed after clicking Expor Users", successToaster ? "Pass" : "Warn", true);
                     }
 
-                    string  ReadExportedEmailAttachments() 
+                    string ReadExportedEmailAttachments()
                     {
                         var ExportedExcelPath = "";
                         var blAttachmentFound = clsMG.fnGenericWait(
@@ -209,16 +209,16 @@ namespace AutomationFrame_GlobalIntake.POM
                                 //Email Email *
                                 clsMG.fnCleanAndEnterText("Email", "//input[@placeholder='Email *']", objData.fnGetValue("Email", ""), false, false, "", false);
                             }
-                            else 
+                            else
                             {
                                 clsReportResult.fnLog("User Management", "The user cannot be enabled since Edit Page was not loaded.", "Fail", true);
                                 blResult = false;
                             }
                             break;
-                        case "SEARCH":
+                        case "SEARCH": 
                             fnNavigateToUserManagement(objData.fnGetValue("ScreenMenu", ""));
                             if (searchUser())
-                            {
+                             {
                                 clsWE.fnClick(clsWE.fnGetWe($"//tr[td[text()='{objData.fnGetValue("Username", this.strLastUsername)}']]//a"), "Edit Record", false);
                                 clsWE.fnPageLoad(clsWE.fnGetWe("//h4[text()='Edit User']"), "Edit User", true, false);
                             }
@@ -376,12 +376,12 @@ namespace AutomationFrame_GlobalIntake.POM
                                     blResult = false;
                                 }
                             }
-                            else 
+                            else
                             {
                                 clsReportResult.fnLog("User Management", "The User Management > User Page was not loaded as expected", "Fail", true, false);
                                 blResult = false;
                             }
-                            
+
                             break;
                         //Can be executed after new user created
                         //Validates that the set tag is still there
@@ -453,7 +453,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                 // TODO: Disable screenshot once fnLog gets fixed
                                 clsReportResult.fnLog(templateFoundStep, templateFoundStep, attachmentFound ? "Pass" : "Fail", true, !attachmentFound, $"Attachment was never found");
 
-                                string importAction =  objData.fnGetValue("ImportExportParameters").Split(',').First().fnTextBetween("\"", "\"");
+                                string importAction = objData.fnGetValue("ImportExportParameters").Split(',').First().fnTextBetween("\"", "\"");
 
                                 // Clear Users Sheet
                                 var sheetIsClean = ClearUsersSheet(pathToExcel);
@@ -464,7 +464,7 @@ namespace AutomationFrame_GlobalIntake.POM
                                 clsReportResult.fnLog($"{importAction} User Sheet Status", $"{importAction} User row added to sheet", userRowAdded ? "Info" : "Warn", false);
 
                                 var umPage = new UserManagementModel(clsWebBrowser.objDriver, clsMG);
-                                
+
                                 // Upload excel File 
                                 clsWebBrowser.objDriver.FindElement(umPage.objImportUsersInput).SendKeys(pathToExcel);
 
@@ -483,11 +483,81 @@ namespace AutomationFrame_GlobalIntake.POM
                                 var userFound = searchUser();
 
                                 var success = importAction != "Delete" ? userFound : !userFound;
-                                
+
                                 // Final Assertion
                                 clsReportResult.fnLog("User search", $"User {this.strLastUsername} {(importAction + "ed").Replace("ee", "e")} successfully", success ? "Pass" : "Fail", true);
                                 break;
                             }
+                        case "UPDATEUSERGROUPS":
+                            clsMG.fnHamburgerMenu("User Management;Group Management");
+                            Thread.Sleep(TimeSpan.FromSeconds(10));
+                            if (clsWE.fnElementExist("Verify Groups Management Page", GroupManagementModel.strGroupManagementPage, true))
+                            {
+                                IList<IWebElement> cardList = clsWebBrowser.objDriver.FindElements(By.XPath("//div[contains(@data-bind, 'clientGroups')]//div[@class='card-body']"));
+
+                                for (int i = 0; i < cardList.Count; i++)
+                                {
+                                    IWebElement groupName = cardList.ElementAt(i).FindElement(By.XPath(".//input[contains(@data-bind, 'data.Description')]"));
+                                    if (groupName.GetAttribute("value") == objData.fnGetValue("GroupName", ""))
+                                    {
+                                        clsReportResult.fnLog("Group Management", "******Group name matched******.", "Pass", false, false);
+                                        IWebElement SelectClientsButton = cardList.ElementAt(i).FindElement(By.XPath(".//button[contains(@data-bind, 'clientSelectorModal')]"));
+                                        IWebElement SaveGroupButton = cardList.ElementAt(i).FindElement(By.XPath(".//button[contains(@data-bind,'saveClientGroup')]"));
+                                        SelectClientsButton.Click();
+                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]"), TimeSpan.FromSeconds(1), 10);
+                                        if (clsMG.IsElementPresent("//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]"))
+                                        {
+                                            //Apply the filter
+                                            clsMG.fnCleanAndEnterText("Client Number or Name", "//input[@placeholder='Client Number or Name']", objData.fnGetValue("ClientNumber", ""), false, false, "", false);
+                                            Thread.Sleep(TimeSpan.FromSeconds(2));
+                                            //Check if the client exist
+                                            if (clsMG.IsElementPresent("//tr[td[contains(text(), '" + objData.fnGetValue("ClientNumber", "") + "')] and td[contains(text(), '" + objData.fnGetValue("ClientpName", "") + "')]]"))
+                                            {
+                                                clsWE.fnClick(clsWE.fnGetWe("(//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]//tr)[3]//label[@class='form-check-label']"), "Click checkbox", false, false);
+                                                clsWE.fnClick(clsWE.fnGetWe("//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]//a[contains(@id, 'btn_close_client')]"), "Click Save", true, false);
+                                            }
+                                            else
+                                            {
+                                                clsReportResult.fnLog("Select Client Popup", "The client: " + objData.fnGetValue("ClientNumber", "") + " was not found in the popup", "Fail", true, true);
+                                                blResult = false;
+                                            }
+                                        }
+                                    }
+                                }
+                                fnSavingClientsGroup(objData);
+                            }
+                            fnReadingClientsGroup(objData);
+                            fnUserGroups(objData,intRow);
+                            break;
+                        case "READSELECTEDLOCATIONS":
+                            string strTempLocAccUnit = "";
+                            clsMG.fnGenericWait(() => clsMG.IsElementPresent(GroupManagementModel.strAvaliableRestr), TimeSpan.FromSeconds(5), 10);
+                            clsWE.fnScrollTo(clsWE.fnGetWe(GroupManagementModel.strAvaliableRestr), "scrolling to available restriction section", true, false, "");
+                            if (clsWE.fnElementExist("Verify Edit User Page", GroupManagementModel.strAvaliableRestr, true))
+                            {
+                                IWebElement SelectedLocTable = clsWebBrowser.objDriver.FindElement(By.XPath(GroupManagementModel.strSelectedLocTable));
+                                ICollection<IWebElement> rows = SelectedLocTable.FindElements(By.XPath(".//tbody//tr"));
+
+                                foreach (IWebElement row in rows)
+                                {
+                                    List<IWebElement> addValue = new List<IWebElement>();
+                                    ICollection<IWebElement> cells = row.FindElements(By.XPath(".//td"));
+                                    IWebElement restrictionType = cells.ElementAt(0);
+                                    IWebElement accountNumber = cells.ElementAt(2);
+                                    IWebElement unitNumber = cells.ElementAt(5);
+                                    if (restrictionType.Text == "Account")
+                                    {
+                                        strTempLocAccUnit = strTempLocAccUnit + restrictionType.Text + ":=" + accountNumber.Text + ";";
+                                        objData.fnSaveValue(clsDataDriven.strDataDriverLocation, "AccUnitSec", "AccUnitVal", intRow, strTempLocAccUnit);
+                                    }
+                                    if (restrictionType.Text == "Unit")
+                                    {
+                                        strTempLocAccUnit = strTempLocAccUnit + restrictionType.Text + ":=" + unitNumber.Text + ";";
+                                        objData.fnSaveValue(clsDataDriven.strDataDriverLocation, "AccUnitSec", "AccUnitVal", intRow, strTempLocAccUnit);
+                                    }
+                                }
+                            }
+                                break;
                     }
                 }
             }
@@ -541,7 +611,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 clsMG.fnCleanAndEnterText("Email", "//input[contains(@data-bind,'Email')]", objData.fnGetValue("Email", ""), false, false, "", false);
                 clsMG.fnCleanAndEnterText("Phone", "//input[contains(@data-bind,'PhoneNumber')]", objData.fnGetValue("PhoneNumber", ""), false, false, "", false);
                 clsMG.fnSelectDropDownWElm("Role", "//span[@data-select2-id=5]", objData.fnGetValue("Role", ""), true, false, "", false);
-                
+
                 //Client Restriction Section
                 var clients = objData.fnGetValue("Clients", "");
                 clsMG.fnSelectDropDownWElm("Clients", UserManagementModel.strClientSecurityTypes, clients, false, false, "", false);
@@ -569,10 +639,10 @@ namespace AutomationFrame_GlobalIntake.POM
                 clsWE.fnScrollTo(clsWE.fnGetWe("//input[contains(@data-bind,'PhoneNumber')]"), "Scrolling to checkbox two factor authentication", true, false);
                 //MultiFactor Authentication
                 var twoFA = objData.fnGetValue("2FA", "False").ToUpper();
-                if(twoFA == "YES" || twoFA == "TRUE") 
+                if (twoFA == "YES" || twoFA == "TRUE")
                 { clsWE.fnClick(clsWE.fnGetWe("//label[contains(text(),'Enable Multifactor Authentication')]"), "Two Factor Autphentication", false); }
                 //Line of business
-                if (objData.fnGetValue("Lob", "") != "") 
+                if (objData.fnGetValue("Lob", "") != "")
                 {
                     clsMG.WaitWEUntilAppears("Waiting for Line of bussiness", "//input[contains(@class,'select-dropdown form-control')]", 10);
                     clsWE.fnClick(clsWE.fnGetWe("//div[select[contains(@data-bind, 'LinesOfBusiness')]]//input[@class='select-dropdown form-control']"), "Line of bussiness", false);
@@ -600,7 +670,7 @@ namespace AutomationFrame_GlobalIntake.POM
 
                 //Restriction Type section
                 var restrictionType = objData.fnGetValue("RestrictionType", "");
-                if (restrictionType != "") 
+                if (restrictionType != "")
                 {
                     clsMG.fnSelectDropDownWElm("Restriction Type Dropdown", UserManagementModel.strRestrictionTypeDropdown, restrictionType, true);
                     clsReportResult.fnLog("Restriction Type", "Step - Choosing Restriction Type", "Info", false);
@@ -625,7 +695,7 @@ namespace AutomationFrame_GlobalIntake.POM
                         unitCheckbox.Click();
                     }
                 }
-                
+
 
                 //Save Changes
                 clsMG.WaitWEUntilAppears("Save button", "//button[contains(text(),'Save Changes')]", 10);
@@ -787,7 +857,7 @@ namespace AutomationFrame_GlobalIntake.POM
                 return;
             }
             clsMG.fnHamburgerMenu($"User Management;{pstrScreenMenu}");
-            switch (pstrScreenMenu) 
+            switch (pstrScreenMenu)
             {
                 case "Web Users":
                     clsMG.fnGenericWait(() => clsMG.IsElementPresent("//h4[contains(text(),'Users')]"), TimeSpan.FromSeconds(1), 10);
@@ -802,9 +872,195 @@ namespace AutomationFrame_GlobalIntake.POM
                     clsWE.fnPageLoad(clsWE.fnGetWe("//*[contains(text(),'Client Groups')]"), "Client Groups", true, false);
                     break;
             }
-            
+
         }
 
 
+
+
+        public bool fnUserGroups(clsData objData,int intRow)
+        {
+            bool blResult = true;
+                    clsMG.fnHamburgerMenu("User Management;Group Management");
+                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(GroupManagementModel.strGroupManagementPage), TimeSpan.FromSeconds(5), 10);
+                    //clsMG.fnGoTopPage();
+                    if (clsWE.fnElementExist("Verify Groups Management Page", GroupManagementModel.strGroupManagementPage, true))
+                    {
+                        var strTemp = fnReadingClientsGroup(objData);
+                        objData.fnSaveValue(clsDataDriven.strDataDriverLocation,"UserMGMT", "ClientsFromGM", intRow, strTemp);
+                        Thread.Sleep(TimeSpan.FromSeconds(5));
+                    }
+            return blResult;
+        }
+
+        public string fnReadingClientsGroup(clsData objData)
+        {
+            IList<IWebElement> cardList = clsWebBrowser.objDriver.FindElements(By.XPath("//div[contains(@data-bind, 'clientGroups')]//div[@class='card-body']"));
+            string strTempClient = "";
+            for (int i = 0; i < cardList.Count; i++)
+            {
+                IWebElement groupName = cardList.ElementAt(i).FindElement(By.XPath(".//input[contains(@data-bind, 'data.Description')]"));
+                if (groupName.GetAttribute("value") == objData.fnGetValue("GroupName", ""))
+                {
+                    clsReportResult.fnLog("Group Management", "******Group name matched******.", "Pass", false, false);
+                    //clsWE.fnScrollTo(groupName,"Scrolling to Group Name element");
+                    IList<IWebElement> clientNumber = cardList.ElementAt(i).FindElements(By.XPath(".//div[contains(@data-bind,'ClientNumber')]"));
+                    IList<IWebElement> clientName = cardList.ElementAt(i).FindElements(By.XPath(".//div[contains(@data-bind,'Name')]"));
+                    for (int j = 0; j < clientNumber.Count; j++)
+                    {
+                        strTempClient = strTempClient + clientName.ElementAt(j).Text + "|" + clientNumber.ElementAt(j).Text + ";";
+                    }
+                }
+                else
+                {
+                    clsReportResult.fnLog("Group Management", "******Group name not matched******.", "Info", false);
+                }
+            }
+            return strTempClient;
+
+        }
+
+        public string fnGettingClientsFromPopup(clsData objData)
+        {
+            bool blResult = true;
+            string strTemp = "";
+            clsMG.fnHamburgerMenu("New Intake");
+            if (clsWE.fnElementExist("Select Intake", "//h4[text()='Select Intake']", true))
+            {
+                clsWE.fnClick(clsWE.fnGetWe("//button[@id='selectClient_']"), "Select Client Button", false);
+                clsWE.fnPageLoad(clsWE.fnGetWe("//div[@id='clientSelectorModal_' and contains(@style, 'display: block;')]"), "Select Client Popup", false, false);
+                if (clsWE.fnElementExist("Select Client Popup", "//div[@id='clientSelectorModal_' and contains(@style, 'display: block;')]", true, false))
+                {
+
+                    IWebElement clientsTable = clsWebBrowser.objDriver.FindElement(By.XPath("//div[contains(@id,'clientSelectorModal_')]//table[contains(@id,'clientSelectorTable_')]"));
+                    ICollection<IWebElement> rows = clientsTable.FindElements(By.XPath(".//tbody//tr"));
+
+                    foreach (IWebElement row in rows)
+                    {
+                        List<IWebElement> addValue = new List<IWebElement>();
+                        ICollection<IWebElement> cells = row.FindElements(By.XPath(".//td"));
+                        IWebElement clientName = cells.ElementAt(1);
+                        IWebElement clientNumber = cells.ElementAt(2);
+                        strTemp = strTemp + clientName.Text + " " + clientNumber.Text + ";";
+                    }
+                    blResult = true;
+                }
+                else
+                {
+                    clsReportResult.fnLog("Select Client Popup", "The select intake popup was not displayed", "Fail", true, true);
+                    blResult = false;
+                }
+            }
+            return strTemp;
+        }
+
+        public bool fnReadingSelectedLocations(string pstrSetNo)
+        {
+            bool blResult = true;
+            string strTempLoc = "";
+            clsData objData = new clsData();
+            clsReportResult.fnLog("", "<<<<<<<<<< Reading selected location funtion start >>>>>>>>>>.", "Info", false);
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "AccUnitSec");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == pstrSetNo)
+                {
+                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(GroupManagementModel.strAvaliableRestr), TimeSpan.FromSeconds(5), 10);
+                    clsWE.fnScrollTo(clsWE.fnGetWe(GroupManagementModel.strAvaliableRestr), "scrolling to available restriction section", true, false, "");
+                    if (clsWE.fnElementExist("Verify Edit User Page", GroupManagementModel.strAvaliableRestr, true))
+                    {
+                        IWebElement SelectedLocTable = clsWebBrowser.objDriver.FindElement(By.XPath(GroupManagementModel.strSelectedLocTable));
+                        ICollection<IWebElement> rows = SelectedLocTable.FindElements(By.XPath(".//tbody//tr"));
+
+                        //ICollection<IWebElement> restrictionType = SelectedLocTable.FindElements(By.XPath(".//td[contains(@data-bind,'RestrictionType')]"));
+                        //foreach(IWebElement cell in restrictionType)
+                        //{
+                        //    System.Console.WriteLine(cell.Text);
+                        //}
+                        foreach (IWebElement row in rows)
+                        {
+                            List<IWebElement> addValue = new List<IWebElement>();
+                            ICollection<IWebElement> cells = SelectedLocTable.FindElements(By.XPath(".//td"));
+                            IWebElement restrictionType = cells.ElementAt(0);
+                            IWebElement accountNumber = cells.ElementAt(2);
+                            IWebElement unitNumber = cells.ElementAt(5);
+                            if (restrictionType.Text == "Account")
+                            {
+                                strTempLoc = strTempLoc + restrictionType.Text + ":=" + accountNumber.Text + ";";
+                                objData.fnSaveValue(clsDataDriven.strDataDriverLocation, "AccUnitSec", "AccUnitVal", intRow, strTempLoc);
+                            }
+                            if (restrictionType.Text == "Unit")
+                            {
+                                strTempLoc = strTempLoc + restrictionType.Text + ":=" + unitNumber.Text + ";";
+                                objData.fnSaveValue(clsDataDriven.strDataDriverLocation, "AccUnitSec", "AccUnitVal", intRow, strTempLoc);
+                            }
+                        }
+
+                    }
+                }
+            }
+            return blResult;
+        }
+
+        public bool fnSavingClientsGroup(clsData objData)
+        {
+            bool blResult = true;
+            
+                Thread.Sleep(TimeSpan.FromSeconds(10));
+                if (clsWE.fnElementExist("Verify Groups Management Page", GroupManagementModel.strGroupManagementPage, true))
+                {
+                    IList<IWebElement> cardList = clsWebBrowser.objDriver.FindElements(By.XPath("//div[contains(@data-bind, 'clientGroups')]//div[@class='card-body']"));
+                    for (int i = 0; i < cardList.Count; i++)
+                    {
+                        IWebElement groupName = cardList.ElementAt(i).FindElement(By.XPath(".//input[contains(@data-bind, 'data.Description')]"));
+                        if (groupName.GetAttribute("value") == objData.fnGetValue("GroupName", ""))
+                        {
+                            clsReportResult.fnLog("Group Management", "******Group name matched to save******.", "Pass", false, false);
+                            IWebElement SaveGroupButton = cardList.ElementAt(i).FindElement(By.XPath(".//button[contains(@data-bind,'saveClientGroup')]"));
+                            SaveGroupButton.Click();
+                        }
+                    }
+                }
+            
+            return blResult;
+        }
+
+        public bool fnverifyClientsPopup(string pstrSetNo)
+        {
+            bool blResult = true;
+            clsData objData = new clsData();
+            clsReportResult.fnLog("", "<<<<<<<<<< Verify Clients Popup validation funtion start >>>>>>>>>>.", "Info", false);
+            objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "UserMGMT");
+            for (int intRow = 2; intRow <= objData.RowCount; intRow++)
+            {
+                objData.CurrentRow = intRow;
+                if (objData.fnGetValue("Set", "") == pstrSetNo)
+                {
+                    var strTemp = fnGettingClientsFromPopup(objData);
+                    objData.fnSaveValue(clsDataDriven.strDataDriverLocation, "UserMGMT", "ClientsFromPopup", intRow, strTemp);
+                    int count = 0;
+                    string[] arrClients = objData.fnGetValue("ClientsFromGM", "").Split(';');
+                    foreach (var client in arrClients)
+                    {
+                        if (client != "")
+                        {
+                            var locators = client.Split('|');
+                            if (clsWE.fnElementExist("Locators", "//table[@id='clientSelectorTable_']//tr[td[text()='" + locators[0] + "'] and td[text()='" + locators[1] + "']]", false, false, ""))
+                            {
+                                clsReportResult.fnLog("Group Management Clients", "The clients displayed in screen matched as expected.", "Pass", false);
+                            }
+                            else
+                            {
+                                clsReportResult.fnLog("Group Management Clients", "The clients displayed in screen does not matched as expected.", "Fail", false, true);
+                            }
+                            count++;
+                        }
+
+                    }
+                }
+            }
+            return blResult;
+        }
     }
 }

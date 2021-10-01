@@ -149,17 +149,11 @@ namespace AutomationFrame_GlobalIntake.TestCases
                                 case "DISSEMINATION":
                                     if (!clsDiss.fnDisseminationPage(TempValue)) { blStatus = false; }
                                     break;
-                                case "USERGROUPS":
-                                    if (!clsGM.fnUserGroups(TempValue)) { blStatus = false; }
-                                    break;
                                 case "VERIFYCLIENTS":
-                                    if (!clsGM.fnverifyClientsPopup(TempValue)) { blStatus = false; }
+                                    if (!clsUM.fnverifyClientsPopup(TempValue)) { blStatus = false; }
                                     break;
-                                case "VERIFYSELECTEDLOC":
-                                    if (!clsGM.fnReadingSelectedLocations(TempValue)) { blStatus = false; }
-                                    break;
-                                case "UPDATEGROUP":
-                                    if (!clsGM.fnUpdateUserGroups(TempValue)) { blStatus = false; }
+                                case "READSELECTEDLOCATIONS":
+                                    if (!clsUM.fnReadingSelectedLocations(TempValue)) { blStatus = false; }
                                     break;
                                 case "CLIENTMGMTRESTRICTION":
                                     if (!clsCM.fnUsersClientMgmtRestrictions(TempValue)) { blStatus = false; }

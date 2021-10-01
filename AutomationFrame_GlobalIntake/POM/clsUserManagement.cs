@@ -491,30 +491,30 @@ namespace AutomationFrame_GlobalIntake.POM
                         case "UPDATEUSERGROUPS":
                             clsMG.fnHamburgerMenu("User Management;Group Management");
                             Thread.Sleep(TimeSpan.FromSeconds(10));
-                            if (clsWE.fnElementExist("Verify Groups Management Page", GroupManagementModel.strGroupManagementPage, true))
+                            if (clsWE.fnElementExist("Verify Groups Management Page", UserManagementModel.strGroupManagementPage, true))
                             {
                                 IList<IWebElement> cardList = clsWebBrowser.objDriver.FindElements(By.XPath("//div[contains(@data-bind, 'clientGroups')]//div[@class='card-body']"));
 
                                 for (int i = 0; i < cardList.Count; i++)
                                 {
-                                    IWebElement groupName = cardList.ElementAt(i).FindElement(By.XPath(".//input[contains(@data-bind, 'data.Description')]"));
+                                    IWebElement groupName = cardList.ElementAt(i).FindElement(By.XPath(UserManagementModel.strCardDescription));
                                     if (groupName.GetAttribute("value") == objData.fnGetValue("GroupName", ""))
                                     {
                                         clsReportResult.fnLog("Group Management", "******Group name matched******.", "Pass", false, false);
-                                        IWebElement SelectClientsButton = cardList.ElementAt(i).FindElement(By.XPath(".//button[contains(@data-bind, 'clientSelectorModal')]"));
-                                        IWebElement SaveGroupButton = cardList.ElementAt(i).FindElement(By.XPath(".//button[contains(@data-bind,'saveClientGroup')]"));
+                                        IWebElement SelectClientsButton = cardList.ElementAt(i).FindElement(By.XPath(UserManagementModel.strSelectClientButton));
+                                        IWebElement SaveGroupButton = cardList.ElementAt(i).FindElement(By.XPath(UserManagementModel.strSaveGroupButton));
                                         SelectClientsButton.Click();
-                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent("//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]"), TimeSpan.FromSeconds(1), 10);
-                                        if (clsMG.IsElementPresent("//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]"))
+                                        clsMG.fnGenericWait(() => clsMG.IsElementPresent(UserManagementModel.strSelectorClientModal), TimeSpan.FromSeconds(1), 10);
+                                        if (clsMG.IsElementPresent(UserManagementModel.strSelectorClientModal))
                                         {
                                             //Apply the filter
-                                            clsMG.fnCleanAndEnterText("Client Number or Name", "//input[@placeholder='Client Number or Name']", objData.fnGetValue("ClientNumber", ""), false, false, "", false);
+                                            clsMG.fnCleanAndEnterText("Client Number or Name", UserManagementModel.strClientNumberName, objData.fnGetValue("ClientNumber", ""), false, false, "", false);
                                             Thread.Sleep(TimeSpan.FromSeconds(2));
                                             //Check if the client exist
-                                            if (clsMG.IsElementPresent("//tr[td[contains(text(), '" + objData.fnGetValue("ClientNumber", "") + "')] and td[contains(text(), '" + objData.fnGetValue("ClientpName", "") + "')]]"))
+                                            if (clsMG.IsElementPresent("//tr[td[contains(text(), '" + objData.fnGetValue("ClientNumber", "") + "')] and td[contains(text(), '" + objData.fnGetValue("ClientName", "") + "')]]"))
                                             {
-                                                clsWE.fnClick(clsWE.fnGetWe("(//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]//tr)[3]//label[@class='form-check-label']"), "Click checkbox", false, false);
-                                                clsWE.fnClick(clsWE.fnGetWe("//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]//a[contains(@id, 'btn_close_client')]"), "Click Save", true, false);
+                                                clsWE.fnClick(clsWE.fnGetWe(UserManagementModel.strCheckboxElement), "Click checkbox", false, false);
+                                                clsWE.fnClick(clsWE.fnGetWe(UserManagementModel.strCloseClientModal), "Click Save", true, false);
                                             }
                                             else
                                             {
@@ -882,9 +882,9 @@ namespace AutomationFrame_GlobalIntake.POM
         {
             bool blResult = true;
                     clsMG.fnHamburgerMenu("User Management;Group Management");
-                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(GroupManagementModel.strGroupManagementPage), TimeSpan.FromSeconds(5), 10);
+                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(UserManagementModel.strGroupManagementPage), TimeSpan.FromSeconds(5), 10);
                     //clsMG.fnGoTopPage();
-                    if (clsWE.fnElementExist("Verify Groups Management Page", GroupManagementModel.strGroupManagementPage, true))
+                    if (clsWE.fnElementExist("Verify Groups Management Page", UserManagementModel.strGroupManagementPage, true))
                     {
                         var strTemp = fnReadingClientsGroup(objData);
                         objData.fnSaveValue(clsDataDriven.strDataDriverLocation,"UserMGMT", "ClientsFromGM", intRow, strTemp);
@@ -966,11 +966,11 @@ namespace AutomationFrame_GlobalIntake.POM
                 objData.CurrentRow = intRow;
                 if (objData.fnGetValue("Set", "") == pstrSetNo)
                 {
-                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(GroupManagementModel.strAvaliableRestr), TimeSpan.FromSeconds(5), 10);
-                    clsWE.fnScrollTo(clsWE.fnGetWe(GroupManagementModel.strAvaliableRestr), "scrolling to available restriction section", true, false, "");
-                    if (clsWE.fnElementExist("Verify Edit User Page", GroupManagementModel.strAvaliableRestr, true))
+                    clsMG.fnGenericWait(() => clsMG.IsElementPresent(UserManagementModel.strAvaliableRestr), TimeSpan.FromSeconds(5), 10);
+                    clsWE.fnScrollTo(clsWE.fnGetWe(UserManagementModel.strAvaliableRestr), "scrolling to available restriction section", true, false, "");
+                    if (clsWE.fnElementExist("Verify Edit User Page", UserManagementModel.strAvaliableRestr, true))
                     {
-                        IWebElement SelectedLocTable = clsWebBrowser.objDriver.FindElement(By.XPath(GroupManagementModel.strSelectedLocTable));
+                        IWebElement SelectedLocTable = clsWebBrowser.objDriver.FindElement(By.XPath(UserManagementModel.strSelectedLocTable));
                         ICollection<IWebElement> rows = SelectedLocTable.FindElements(By.XPath(".//tbody//tr"));
 
                         //ICollection<IWebElement> restrictionType = SelectedLocTable.FindElements(By.XPath(".//td[contains(@data-bind,'RestrictionType')]"));
@@ -1008,7 +1008,7 @@ namespace AutomationFrame_GlobalIntake.POM
             bool blResult = true;
             
                 Thread.Sleep(TimeSpan.FromSeconds(10));
-                if (clsWE.fnElementExist("Verify Groups Management Page", GroupManagementModel.strGroupManagementPage, true))
+                if (clsWE.fnElementExist("Verify Groups Management Page", UserManagementModel.strGroupManagementPage, true))
                 {
                     IList<IWebElement> cardList = clsWebBrowser.objDriver.FindElements(By.XPath("//div[contains(@data-bind, 'clientGroups')]//div[@class='card-body']"));
                     for (int i = 0; i < cardList.Count; i++)

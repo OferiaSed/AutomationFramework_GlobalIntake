@@ -32,7 +32,19 @@ namespace AutomationFrame_GlobalIntake.Models
         public static By objSelectRestrictionAcountByAccountNumber(string accountNumber) => By.XPath($"//tr[td[contains(@data-bind,'AccountNumber') and text()='{accountNumber}']]//Label");
         public static By objSelectRestrictionAcountByUnitNumber(string unitNumber) => By.XPath($"//tr[td[contains(@data-bind,'UnitNumber') and text()='{unitNumber}']]//Label");
 
-
+        //Group Management screen
+        public static string strGroupManagementPage = "//h2[contains(text(),'Create Client Groups')]";
+        public static string strParentGroupName = "//input[contains(@data-bind,'Description')]";
+        public static string strAvaliableRestr = "//h4[contains(text(),'Available Restriction')]";
+        public static string strSelectedLocTable = "//table[tbody[contains(@data-bind,'AccountUnitWhiteList')]]";
+        public static string strCardDescription = ".//input[contains(@data-bind, 'data.Description')]";
+        public static string strSelectClientButton = ".//button[contains(@data-bind, 'clientSelectorModal')]";
+        public static string strSaveGroupButton = ".//button[contains(@data-bind,'saveClientGroup')]";
+        public static string strSelectorClientModal = "//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]";
+        public static string strClientNumberName = "//input[@placeholder='Client Number or Name']";
+        public static string strCheckboxElement = "(//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]//tr)[3]//label[@class='form-check-label']";
+        public static string strCloseClientModal = "//div[contains(@id,'clientSelectorModal_clientGroup') and contains(@style,'display: block')]//a[contains(@id, 'btn_close_client')]";
+        
 
         public bool fnSelectClients(List<string> clientIds)
         {

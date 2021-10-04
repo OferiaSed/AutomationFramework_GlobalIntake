@@ -957,7 +957,8 @@ namespace AutomationFrame_GlobalIntake.POM
         public bool fnReadingSelectedLocations(string pstrSetNo)
         {
             bool blResult = true;
-            string strTempLoc = "";
+            string strTempLocAcc = "";
+            string strTempLocUnit = "";
             clsData objData = new clsData();
             clsReportResult.fnLog("", "<<<<<<<<<< Reading selected location funtion start >>>>>>>>>>.", "Info", false);
             objData.fnLoadFile(clsDataDriven.strDataDriverLocation, "AccUnitSec");
@@ -968,34 +969,35 @@ namespace AutomationFrame_GlobalIntake.POM
                 {
                     clsMG.fnGenericWait(() => clsMG.IsElementPresent(UserManagementModel.strAvaliableRestr), TimeSpan.FromSeconds(5), 10);
                     clsWE.fnScrollTo(clsWE.fnGetWe(UserManagementModel.strAvaliableRestr), "scrolling to available restriction section", true, false, "");
+                    //clsWE.fnClick(clsWE.fnGetWe("//div[contains(@data-bind,'Clients')]//span[contains(@class,'select2-selection select2-selection--single')]"), "Select a Client", false, false);
+                    //clsWE.fnClick(clsWE.fnGetWe($"//span[contains(@class,'select2-container select2-container--default select2-container--open')]//ul//li[contains(text(),{objData.fnGetValue("ClientNo", "")})]"), "Select a Client", false, false);
+
                     if (clsWE.fnElementExist("Verify Edit User Page", UserManagementModel.strAvaliableRestr, true))
                     {
-                        IWebElement SelectedLocTable = clsWebBrowser.objDriver.FindElement(By.XPath(UserManagementModel.strSelectedLocTable));
-                        ICollection<IWebElement> rows = SelectedLocTable.FindElements(By.XPath(".//tbody//tr"));
+                        var lsElements = clsWebBrowser.objDriver.FindElements(By.XPath("//tr//td[contains(@data-bind, 'RestrictionType')]"));
 
-                        //ICollection<IWebElement> restrictionType = SelectedLocTable.FindElements(By.XPath(".//td[contains(@data-bind,'RestrictionType')]"));
-                        //foreach(IWebElement cell in restrictionType)
-                        //{
-                        //    System.Console.WriteLine(cell.Text);
-                        //}
-                        foreach (IWebElement row in rows)
+                        for (int intElement = 1; intElement <= lsElements.Count; intElement++)
                         {
-                            List<IWebElement> addValue = new List<IWebElement>();
-                            ICollection<IWebElement> cells = SelectedLocTable.FindElements(By.XPath(".//td"));
-                            IWebElement restrictionType = cells.ElementAt(0);
-                            IWebElement accountNumber = cells.ElementAt(2);
-                            IWebElement unitNumber = cells.ElementAt(5);
-                            if (restrictionType.Text == "Account")
+                            var strRestriction = clsWE.fnGetAttribute(clsWE.fnGetWe($"(//tr//td[contains(@data-bind, 'RestrictionType')])[{intElement}]"), "Restriction Type", "textContent", false);
+                            var strAccount = clsWE.fnGetAttribute(clsWE.fnGetWe($"(//tr//td[contains(@data-bind, 'AccountNumber')])[{intElement}]"), "Account Number", "textContent", false);
+                            var strUnit = clsWE.fnGetAttribute(clsWE.fnGetWe($"(//tr//td[contains(@data-bind, 'UnitNumber')])[{intElement}]"), "Unit Number", "textContent", false);
+                            var strClient = clsWE.fnGetAttribute(clsWE.fnGetWe($"(//tr//td[contains(@data-bind, 'ContractNumber')])[{intElement}]"), "Client Number", "textContent", false);
+                            if (strRestriction == "Account")
                             {
-                                strTempLoc = strTempLoc + restrictionType.Text + ":=" + accountNumber.Text + ";";
-                                objData.fnSaveValue(clsDataDriven.strDataDriverLocation, "AccUnitSec", "AccUnitVal", intRow, strTempLoc);
+                                strTempLocAcc = strTempLocAcc + strRestriction + ":=" + strAccount + ";";
                             }
-                            if (restrictionType.Text == "Unit")
+                            if (strRestriction == "Unit")
                             {
-                                strTempLoc = strTempLoc + restrictionType.Text + ":=" + unitNumber.Text + ";";
-                                objData.fnSaveValue(clsDataDriven.strDataDriverLocation, "AccUnitSec", "AccUnitVal", intRow, strTempLoc);
+                                strTempLocUnit = strTempLocUnit + strRestriction + ":=" + strUnit + ";";
                             }
+                            string fullString = strTempLocAcc + strTempLocUnit;
+                            fullString = fullString.TrimEnd(';');
+                            objData.fnSaveValue(clsDataDriven.strDataDriverLocation, "AccUnitSec", "AccUnitVal", intRow, fullString);
                         }
+                    }
+                    else
+                    {
+                        clsReportResult.fnLog("User Management", "No Acc/Unit table was found.", "Info", false);
 
                     }
                 }

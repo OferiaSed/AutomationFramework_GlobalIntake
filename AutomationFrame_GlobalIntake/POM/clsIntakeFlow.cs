@@ -957,37 +957,77 @@ namespace AutomationFrame_GlobalIntake.POM
         {
             //Get WebElements and Review the expected value
             bool blResult = true;
-            string strLocator;
-
-            switch (pstrAccUnit.ToUpper())
+            string strLocator = "";
+            var strExpectedVallllu = pstrExpectedVal;
+            if (strExpectedVallllu.Contains(";"))
             {
-                case "ACCOUNT":
-                    strLocator = "//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr//td[9]";
-                    blResult = fnReadLocationLookRows(pstrType, pstrAccUnit, pstrExpectedVal, strLocator);
-                    break;
-                case "UNIT":
-                    strLocator = "//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr//td[3]";
-                    blResult = fnReadLocationLookRows(pstrType, pstrAccUnit, pstrExpectedVal, strLocator);
-                    break;
-                case "ACCOUNTUNIT":
-                    strLocator = "//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr//td[9]";
-                    string strUit = "//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr//td[3]";
-                    string[] arrVal = pstrExpectedVal.Split(';');
-                    foreach (string strRestriction in arrVal)
+                var newValues = strExpectedVallllu.Split(';');
+                foreach (var element in newValues) 
+                {
+                    switch (pstrAccUnit.ToUpper())
                     {
-                        if (strRestriction.ToUpper().Contains("ACCOUNT"))
-                        { blResult = fnReadLocationLookRows(pstrType, "Account", strRestriction, strLocator); }
-                        else
-                        { blResult = fnReadLocationLookRows(pstrType, "Unit", strRestriction, strUit); }
-                        /*
-                        if (strRestriction.ToUpper().Contains("ACCOUNT"))
-                        { blResult = fnReadLocationLookRows(pstrType, "Account", strRestriction.Replace("Account:=", ""), strLocator); }
-                        else
-                        { blResult = fnReadLocationLookRows(pstrType, "Unit", strRestriction.Replace("Unit:=", ""), strUit); }
-                        */
+                        case "ACCOUNT":
+                            //strLocator = "//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr//td[9]";
+                            blResult = fnReadAndLoopLocationLookRows(pstrType, pstrAccUnit, element);
+                            break;
+                        case "UNIT":
+                            blResult = fnReadAndLoopLocationLookRows(pstrType, pstrAccUnit, element);
+                            break;
+                        case "ACCOUNTUNIT":
+                            strLocator = "//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr//td[9]";
+                            string strUit = "//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr//td[3]";
+                            string[] arrVal = element.Split(';');
+                            foreach (string strRestriction in arrVal)
+                            {
+                                if (strRestriction.ToUpper().Contains("ACCOUNT"))
+                                { blResult = fnReadLocationLookRows(pstrType, "Account", strRestriction, strLocator); }
+                                else
+                                { blResult = fnReadLocationLookRows(pstrType, "Unit", strRestriction, strUit); }
+                                /*
+                                if (strRestriction.ToUpper().Contains("ACCOUNT"))
+                                { blResult = fnReadLocationLookRows(pstrType, "Account", strRestriction.Replace("Account:=", ""), strLocator); }
+                                else
+                                { blResult = fnReadLocationLookRows(pstrType, "Unit", strRestriction.Replace("Unit:=", ""), strUit); }
+                                */
+                            }
+                            break;
                     }
-                    break;
+                }
             }
+            else 
+            {
+                switch (pstrAccUnit.ToUpper())
+                {
+                    case "ACCOUNT":
+                        strLocator = "//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr//td[9]";
+                        blResult = fnReadLocationLookRows(pstrType, pstrAccUnit, pstrExpectedVal, strLocator);
+                        break;
+                    case "UNIT":
+                        strLocator = "//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr//td[3]";
+                        blResult = fnReadLocationLookRows(pstrType, pstrAccUnit, pstrExpectedVal, strLocator);
+                        break;
+                    case "ACCOUNTUNIT":
+                        strLocator = "//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr//td[9]";
+                        string strUit = "//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tr//td[3]";
+                        string[] arrVal = pstrExpectedVal.Split(';');
+                        foreach (string strRestriction in arrVal)
+                        {
+                            if (strRestriction.ToUpper().Contains("ACCOUNT"))
+                            { blResult = fnReadLocationLookRows(pstrType, "Account", strRestriction, strLocator); }
+                            else
+                            { blResult = fnReadLocationLookRows(pstrType, "Unit", strRestriction, strUit); }
+                            /*
+                            if (strRestriction.ToUpper().Contains("ACCOUNT"))
+                            { blResult = fnReadLocationLookRows(pstrType, "Account", strRestriction.Replace("Account:=", ""), strLocator); }
+                            else
+                            { blResult = fnReadLocationLookRows(pstrType, "Unit", strRestriction.Replace("Unit:=", ""), strUit); }
+                            */
+                        }
+                        break;
+                }
+            }
+
+            
 
             return blResult;
         }
@@ -1032,6 +1072,38 @@ namespace AutomationFrame_GlobalIntake.POM
             }
             return blResult;
         }
+
+        public bool fnReadAndLoopLocationLookRows(string pstrType, string pstrAccUnit, string pstrExpectedVal)
+        {
+
+            var parameters = pstrExpectedVal.Split(';').ToList();
+            var account = parameters.SingleOrDefault(x => x.Contains("Account"))?.Replace("Account:=", "");
+            var unit = parameters.SingleOrDefault(x => x.Contains("Unit"))?.Replace("Unit:=", "");
+            string NewVal = "";
+            if (pstrExpectedVal.Contains(":=")) { NewVal = NewVal.Replace("Account:=", "").Replace("Unit:=", ""); }
+            pstrExpectedVal = pstrAccUnit == "Account" ? account : unit;
+            bool blResult = true;
+            //IList<IWebElement> lsRow = clsWebBrowser.objDriver.FindElements(By.XPath(pstrLocator));
+            int intCounter = 0;
+            switch (pstrType.ToUpper())
+            {
+                case "POSITIVE":
+                    if (clsMG.IsElementPresent($"//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tbody//tr[td[text()='{pstrExpectedVal}']]"))
+                    { clsReportResult.fnLog("Location Lookup Table", "The " + pstrAccUnit + ": " + NewVal + " was found correctly in the page.", "Info", true); }
+                    else 
+                    { clsReportResult.fnLog("Location Lookup Table", "The " + pstrAccUnit + ": " + NewVal + " was not found.", "Fail", true); }
+                    break;
+                case "NEGATIVE":
+                    if (!clsMG.IsElementPresent($"//table[@id='jurisLocationResults_LOCATION_LOOKUP']//tbody//tr[td[text()='{NewVal}']]"))
+                    { clsReportResult.fnLog("Location Lookup Table", "The " + pstrAccUnit + ": " + NewVal + " was not found correctly in the page.", "Info", true); }
+                    else
+                    { clsReportResult.fnLog("Location Lookup Table", "The " + pstrAccUnit + ": " + NewVal + " was found. but should not be displayed.", "Fail", true); }
+                    break;
+            }
+            return blResult;
+        }
+
+
 
         public bool fnCreateAndSubmitClaim(string pstrSetNo)
         {
